@@ -94,6 +94,9 @@ export default function MatchCard({ match, onAnalyse }) {
   const isLive  = ['1H','HT','2H','ET','P'].includes(match.status);
   const isEnded = match.status === 'FT';
 
+  // Meilleur value bet pour affichage résumé
+  const bestBet = bets?.filter(b => b.isValue).sort((a, b) => b.ev - a.ev)[0] ?? null;
+
   return (
     <article className={`match-card animate-fade ${isLive ? 'match-card--live' : ''}`}>
       {/* En-tête : ligue + statut */}
@@ -160,13 +163,22 @@ export default function MatchCard({ match, onAnalyse }) {
         <div className="no-odds">Cotes non disponibles</div>
       )}
 
+      {/* Résumé value bet */}
+      {bestBet && (
+        <div className="best-bet-bar">
+          <span className="best-bet-label">Meilleur pari</span>
+          <span className="best-bet-outcome">{bestBet.outcome}</span>
+          <span className="best-bet-odd">@ {bestBet.odd?.toFixed(2)}</span>
+          <span className="best-bet-ev">EV +{(bestBet.ev * 100).toFixed(1)}%</span>
+        </div>
+      )}
+
       {/* Bouton analyse */}
       <div className="card-footer">
         <button
           className="btn-analyse"
           onClick={() => onAnalyse(match)}
           disabled={!match.analysis}
-          title={match.analysis ? 'Afficher l\'analyse' : 'Analyse indisponible (cotes manquantes)'}
         >
           🔍 Analyser ce match
         </button>
