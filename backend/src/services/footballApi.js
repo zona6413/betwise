@@ -11,7 +11,7 @@ import axios from 'axios';
 
 const BASE_URL = 'https://v3.football.api-sports.io';
 // Lire la clé au moment de l'appel (pas à l'import) pour que dotenv soit chargé
-const getKey = () => process.env.API_FOOTBALL_KEY;
+const getKey = () => process.env.API_FOOTBALL_KEY || process.env.api_football_key;
 
 // Ligues suivies : PL, Ligue 1, LaLiga, Serie A, Bundesliga
 const LEAGUE_IDS = [39, 61, 140, 135, 78];
