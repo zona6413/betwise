@@ -5,6 +5,29 @@ import MatchCard         from './components/MatchCard.jsx';
 import AnalysisPanel     from './components/AnalysisPanel.jsx';
 import './App.css';
 
+const LEAGUE_LABELS = {
+  'English Premier League': 'Premier League',
+  'French Ligue 1':         'Ligue 1',
+  'Spanish La Liga':        'La Liga',
+  'Italian Serie A':        'Serie A',
+  'German Bundesliga':      'Bundesliga',
+};
+
+function normalizeLeague(name) {
+  return LEAGUE_LABELS[name] ?? name;
+}
+
+function dateLabel(dateStr) {
+  const d = new Date(dateStr);
+  const today    = new Date(); today.setHours(0,0,0,0);
+  const tomorrow = new Date(today); tomorrow.setDate(today.getDate() + 1);
+  const d0 = new Date(d); d0.setHours(0,0,0,0);
+
+  if (d0.getTime() === today.getTime())    return 'Aujourd\'hui';
+  if (d0.getTime() === tomorrow.getTime()) return 'Demain';
+  return d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+}
+
 export default function App() {
   const { matches, loading, error, lastUpdated, fromCache, refresh } = useMatches();
 
@@ -12,18 +35,31 @@ export default function App() {
   const [activeLeague,  setActiveLeague]  = useState('all');
   const [showValueOnly, setShowValueOnly] = useState(false);
 
-  // Toutes les ligues disponibles (dédupliquées)
-  const leagues = useMemo(() => [...new Set(matches.map(m => m.league))], [matches]);
+  const leagues = useMemo(
+    () => [...new Set(matches.map(m => normalizeLeague(m.league)))],
+    [matches]
+  );
 
-  // Filtrage des matchs
   const filtered = useMemo(() => {
     let list = matches;
-    if (activeLeague !== 'all')  list = list.filter(m => m.league === activeLeague);
-    if (showValueOnly)            list = list.filter(m => m.hasValueBet);
+    if (activeLeague !== 'all')
+      list = list.filter(m => normalizeLeague(m.league) === activeLeague);
+    if (showValueOnly)
+      list = list.filter(m => m.hasValueBet);
     return list;
   }, [matches, activeLeague, showValueOnly]);
 
-  // Compteurs
+  // Grouper par date
+  const grouped = useMemo(() => {
+    const map = new Map();
+    for (const m of filtered) {
+      const key = new Date(m.date).toDateString();
+      if (!map.has(key)) map.set(key, { label: dateLabel(m.date), matches: [] });
+      map.get(key).matches.push(m);
+    }
+    return [...map.values()];
+  }, [filtered]);
+
   const valueCount = matches.filter(m => m.hasValueBet).length;
   const liveCount  = matches.filter(m => ['1H','HT','2H','ET','P'].includes(m.status)).length;
 
@@ -42,14 +78,12 @@ export default function App() {
       <main className="main">
         <div className="container">
 
-          {/* Barre de filtres / stats */}
           <div className="toolbar">
             <div className="toolbar-stats">
-              <Stat label="Matchs"       value={matches.length} />
-              <Stat label="En direct"    value={liveCount}  accent="red" />
-              <Stat label="Value bets"   value={valueCount} accent="green" />
+              <Stat label="Matchs"     value={matches.length} />
+              <Stat label="En direct"  value={liveCount}  accent="red" />
+              <Stat label="Value bets" value={valueCount} accent="green" />
             </div>
-
             <label className="toggle-value">
               <input
                 type="checkbox"
@@ -60,34 +94,36 @@ export default function App() {
             </label>
           </div>
 
-          {/* États */}
           {loading && !matches.length && <Skeleton />}
-          {error   && <ErrorBanner message={error} onRetry={refresh} />}
+          {error && <ErrorBanner message={error} onRetry={refresh} />}
 
-          {/* Grille de matchs */}
           {!loading && !error && filtered.length === 0 && (
             <Empty showValueOnly={showValueOnly} onReset={() => setShowValueOnly(false)} />
           )}
 
-          <div className="matches-grid">
-            {filtered.map((match, i) => (
-              <div
-                key={match.id}
-                className="animate-fade"
-                style={{ animationDelay: `${i * 40}ms` }}
-              >
-                <MatchCard
-                  match={match}
-                  onAnalyse={setSelectedMatch}
-                />
+          {grouped.map(group => (
+            <div key={group.label} className="date-group">
+              <div className="date-group-header">
+                <span className="date-group-label">{group.label}</span>
+                <span className="date-group-count">{group.matches.length} match{group.matches.length > 1 ? 's' : ''}</span>
               </div>
-            ))}
-          </div>
+              <div className="matches-grid">
+                {group.matches.map((match, i) => (
+                  <div
+                    key={match.id}
+                    className="animate-fade"
+                    style={{ animationDelay: `${i * 30}ms` }}
+                  >
+                    <MatchCard match={match} onAnalyse={setSelectedMatch} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
 
         </div>
       </main>
 
-      {/* Panneau d'analyse (overlay) */}
       {selectedMatch && (
         <AnalysisPanel
           match={selectedMatch}
@@ -97,8 +133,6 @@ export default function App() {
     </div>
   );
 }
-
-// ── Sous-composants UI ─────────────────────────────────────────────────────────
 
 function Stat({ label, value, accent }) {
   return (
@@ -125,7 +159,7 @@ function Empty({ showValueOnly, onReset }) {
       {showValueOnly
         ? <><p>Aucun value bet détecté pour l'instant.</p>
             <button className="btn-reset" onClick={onReset}>Voir tous les matchs</button></>
-        : <p>Aucun match disponible pour aujourd'hui.</p>
+        : <p>Aucun match disponible.</p>
       }
     </div>
   );

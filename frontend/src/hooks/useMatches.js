@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 
-// Données mock intégrées — utilisées si le backend n'est pas disponible
+const API_BASE = 'https://betwise-production-652f.up.railway.app/api';
+
+// Données mock — utilisées si le backend n'est pas disponible
 const MOCK_MATCHES = [
   {
     id: 1001, date: new Date().toISOString(), status: 'NS',
@@ -152,13 +154,12 @@ export function useMatches() {
     setError(null);
 
     try {
-      const res = await fetch('/api/matches');
+      const res = await fetch(`${API_BASE}/matches`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
       setMatches(json.data ?? []);
       setFromCache(json.cached ?? false);
     } catch {
-      // Backend non disponible — on utilise les données intégrées
       setMatches(MOCK_MATCHES);
       setFromCache(true);
     } finally {
@@ -169,7 +170,6 @@ export function useMatches() {
 
   useEffect(() => { fetchMatches(); }, [fetchMatches]);
 
-  // Rafraîchissement auto toutes les 60 secondes
   useEffect(() => {
     const id = setInterval(() => fetchMatches(), 60_000);
     return () => clearInterval(id);

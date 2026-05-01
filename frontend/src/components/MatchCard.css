@@ -77,9 +77,19 @@
   padding: 16px;
 }
 
-.team-col { display: flex; flex-direction: column; gap: 6px; }
+.team-col { display: flex; flex-direction: column; gap: 4px; }
 .team-col--home { align-items: flex-end; text-align: right; }
 .team-col--away { align-items: flex-start; text-align: left; }
+
+.team-logo {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
+.team-logo-placeholder {
+  width: 36px;
+  height: 36px;
+}
 
 .team-name {
   font-size: 15px;

@@ -31,10 +31,15 @@ function FormDots({ form }) {
   );
 }
 
-/** Colonne équipe : nom + classement + forme. */
+/** Colonne équipe : logo + nom + classement + forme. */
 function TeamCol({ team, side }) {
   return (
     <div className={`team-col team-col--${side}`}>
+      {team.logo ? (
+        <img src={team.logo} alt={team.name} className="team-logo" onError={e => { e.target.style.display='none'; }} />
+      ) : (
+        <div className="team-logo-placeholder" />
+      )}
       <div className="team-name">{team.name}</div>
       <div className="team-meta">
         {team.position && <span className="team-pos">{team.position}ᵉ</span>}
