@@ -1,0 +1,106 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(11, 15, 26, 0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+
+.header-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Logo */
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.logo-icon  { font-size: 20px; }
+.logo-text  { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
+.logo-accent { color: var(--blue); }
+.logo-tag {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  background: var(--blue-bg);
+  color: var(--blue);
+  border: 1px solid var(--blue);
+  border-radius: 3px;
+  padding: 1px 5px;
+  margin-left: 2px;
+}
+
+/* Nav */
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.header-nav::-webkit-scrollbar { display: none; }
+
+.nav-pill {
+  flex-shrink: 0;
+  padding: 5px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.nav-pill:hover { border-color: var(--blue); color: var(--text); }
+.nav-pill.active {
+  background: var(--blue-bg);
+  border-color: var(--blue);
+  color: var(--blue);
+}
+
+/* Actions */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.header-time {
+  font-size: 12px;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.btn-refresh {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+.btn-refresh:hover:not(:disabled) { border-color: var(--blue); color: var(--blue); }
+.btn-refresh:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-refresh.spinning { animation: spin 0.6s linear; }
+
+@media (max-width: 640px) {
+  .header-inner { padding: 0 16px; gap: 12px; }
+  .logo-text    { font-size: 16px; }
+  .header-time  { display: none; }
+}
