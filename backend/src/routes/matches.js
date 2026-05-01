@@ -13,7 +13,7 @@ import {
 } from '../services/analyzer.js';
 
 const router = Router();
-const cache  = new NodeCache({ stdTTL: Number(process.env.CACHE_TTL ?? 180) });
+const cache  = new NodeCache({ stdTTL: 90 });
 
 const DEFAULT_STATS = { form: 'WDWLW', position: 12, wins: 10, draws: 8, losses: 10 };
 

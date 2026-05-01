@@ -32,6 +32,13 @@ app.get('/api/health', (_req, res) => {
 
 app.use('/api/matches', matchesRouter);
 
+// Debug odds
+app.get('/api/debug/odds', async (_req, res) => {
+  const { getOdds } = await import('./services/oddsApi.js');
+  const odds = await getOdds();
+  res.json({ count: odds.length, sample: odds.slice(0, 3).map(o => ({ home: o.home_team, away: o.away_team })) });
+});
+
 // 404 catch-all
 app.use((_req, res) => res.status(404).json({ error: 'Route not found' }));
 
