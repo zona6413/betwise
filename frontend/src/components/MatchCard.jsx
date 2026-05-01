@@ -124,7 +124,8 @@ export default function MatchCard({ match, onAnalyse }) {
             </div>
           ) : (
             <div className="score score--time">
-              {formatTime(match.date)}
+              <span>{formatTime(match.date)}</span>
+              <span className="score-date">{formatDate(match.date)}</span>
             </div>
           )}
           {isLive && <div className="live-pulse"><span/> EN DIRECT</div>}
@@ -192,6 +193,17 @@ export default function MatchCard({ match, onAnalyse }) {
 function formatTime(dateStr) {
   if (!dateStr) return '—';
   return new Date(dateStr).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  const today = new Date(); today.setHours(0,0,0,0);
+  const matchDay = new Date(d); matchDay.setHours(0,0,0,0);
+  const diff = Math.round((matchDay - today) / 86400000);
+  if (diff === 0) return 'Aujourd\'hui';
+  if (diff === 1) return 'Demain';
+  return d.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' });
 }
 
 function flagFor(country) {
