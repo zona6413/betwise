@@ -2,6 +2,8 @@ import { Router }    from 'express';
 import NodeCache      from 'node-cache';
 
 import { getTodayFixtures }        from '../services/footballApi.js';
+import { getOdds }                 from '../services/oddsApi.js';
+import { mergeData }               from '../services/merger.js';
 import { getTeamStatsMap, randomBookmaker } from '../services/standingsApi.js';
 import {
   impliedProbabilities,
@@ -57,13 +59,17 @@ function generateSyntheticOdds(homeStats, awayStats) {
 }
 
 // ── Enrichit un fixture avec stats + cotes + analyse IA ─────────────────────────
-function buildMatch(fixture, teamStats) {
+function buildMatch(fixture, teamStats, realOddsMap) {
   const homeId    = String(fixture.teams.home.id);
   const awayId    = String(fixture.teams.away.id);
   const homeStats = teamStats[homeId] ?? DEFAULT_STATS;
   const awayStats = teamStats[awayId] ?? DEFAULT_STATS;
 
-  const { homeOdd, drawOdd, awayOdd, bookmaker } = generateSyntheticOdds(homeStats, awayStats);
+  // Utilise les vraies cotes si disponibles, sinon synthétiques
+  const realOdds = realOddsMap?.get(fixture.fixture.id);
+  const { homeOdd, drawOdd, awayOdd, bookmaker } = realOdds
+    ? realOdds
+    : generateSyntheticOdds(homeStats, awayStats);
 
   const bookmakerProbs = impliedProbabilities(homeOdd, drawOdd, awayOdd);
   const aiProbs        = computeAIProbability(homeStats, awayStats);
@@ -114,12 +120,27 @@ router.get('/', async (_req, res) => {
     const cached = cache.get('matches');
     if (cached) return res.json({ data: cached, cached: true, count: cached.length });
 
-    const [fixtures, teamStats] = await Promise.all([
+    const [fixtures, teamStats, oddsData] = await Promise.all([
       getTodayFixtures(),
       getTeamStatsMap(),
+      getOdds(),
     ]);
 
-    const matches = fixtures.map(f => buildMatch(f, teamStats));
+    // Construire un map fixtureId → vraies cotes via fuzzy matching
+    const merged = mergeData(fixtures, oddsData);
+    const realOddsMap = new Map();
+    for (const m of merged) {
+      if (m.hasOdds) {
+        realOddsMap.set(m.fixture.fixture.id, {
+          homeOdd:  m.homeOdd,
+          drawOdd:  m.drawOdd,
+          awayOdd:  m.awayOdd,
+          bookmaker: m.bookmaker,
+        });
+      }
+    }
+
+    const matches = fixtures.map(f => buildMatch(f, teamStats, realOddsMap));
     cache.set('matches', matches);
 
     return res.json({ data: matches, cached: false, count: matches.length });
