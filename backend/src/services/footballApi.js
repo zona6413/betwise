@@ -1,77 +1,77 @@
 /**
- * Service API-Football v3 (via RapidAPI)
- * https://rapidapi.com/api-sports/api/api-football
- *
- * Clé dans .env → API_FOOTBALL_KEY=ta_cle_rapidapi
- * Sans clé → mode mock automatique (données réalistes)
- *
- * Plan gratuit : 100 requêtes/jour
+ * Service TheSportsDB (gratuit, sans clé API)
+ * https://www.thesportsdb.com/api.php
  */
 import axios from 'axios';
 
-const BASE_URL = 'https://v3.football.api-sports.io';
-// Lire la clé au moment de l'appel (pas à l'import) pour que dotenv soit chargé
-const getKey = () => process.env.API_FOOTBALL_KEY || process.env.api_football_key;
+const BASE_URL = 'https://www.thesportsdb.com/api/v1/json/3';
 
 // Ligues suivies : PL, Ligue 1, LaLiga, Serie A, Bundesliga
-const LEAGUE_IDS = [39, 61, 140, 135, 78];
+const LEAGUES = [
+  { id: '4328', name: 'Premier League',  country: 'England' },
+  { id: '4334', name: 'Ligue 1',         country: 'France'  },
+  { id: '4335', name: 'La Liga',         country: 'Spain'   },
+  { id: '4332', name: 'Serie A',         country: 'Italy'   },
+  { id: '4331', name: 'Bundesliga',      country: 'Germany' },
+];
 
-const client = axios.create({
-  baseURL: BASE_URL,
-  timeout: 10_000,
-});
+const client = axios.create({ baseURL: BASE_URL, timeout: 10_000 });
 
-// ── Public API ──────────────────────────────────────────────────────────────────
+function mapEvent(e, leagueInfo) {
+  const homeScore = e.intHomeScore != null && e.intHomeScore !== '' ? parseInt(e.intHomeScore) : null;
+  const awayScore = e.intAwayScore != null && e.intAwayScore !== '' ? parseInt(e.intAwayScore) : null;
 
-/** Renvoie les fixtures du jour pour toutes les ligues configurées. */
-export async function getTodayFixtures() {
-  const API_KEY = getKey();
-  if (!API_KEY || API_KEY === 'xxx') {
-    console.log('  [footballApi] Mode mock — pas de clé API_FOOTBALL_KEY');
-    return getMockFixtures();
-  }
-
-  const today = new Date().toISOString().split('T')[0];
-
-  const results = await Promise.allSettled(
-    LEAGUE_IDS.map(league =>
-      client.get('/fixtures', {
-        headers: {
-          'x-apisports-key': API_KEY,
-        },
-        params: { date: today, league, season: 2025 },
-      })
-    )
-  );
-
-  const fixtures = results
-    .filter(r => r.status === 'fulfilled')
-    .flatMap(r => r.value.data?.response ?? []);
-
-  if (!fixtures.length) {
-    console.warn('  [footballApi] Aucun match trouvé — fallback mock');
-    return getMockFixtures();
-  }
-
-  console.log(`  [footballApi] ${fixtures.length} matchs récupérés depuis API-Football`);
-  return fixtures;
+  return {
+    fixture: {
+      id:     parseInt(e.idEvent),
+      date:   e.strTimestamp || `${e.dateEvent}T${e.strTime || '00:00:00'}`,
+      status: { short: e.strStatus || 'NS' },
+      venue:  { name: e.strVenue || '', city: e.strCity || '' },
+    },
+    league: {
+      id:      parseInt(e.idLeague),
+      name:    e.strLeague || leagueInfo.name,
+      country: e.strCountry || leagueInfo.country,
+      logo:    e.strLeagueBadge || '',
+    },
+    teams: {
+      home: { id: parseInt(e.idHomeTeam), name: e.strHomeTeam, logo: e.strHomeTeamBadge || '' },
+      away: { id: parseInt(e.idAwayTeam), name: e.strAwayTeam, logo: e.strAwayTeamBadge || '' },
+    },
+    goals: { home: homeScore, away: awayScore },
+  };
 }
 
-/** Stats d'une équipe (forme, classement) — optionnel. */
-export async function getTeamStats(teamId, leagueId) {
-  const API_KEY = getKey();
-  if (!API_KEY || API_KEY === 'xxx') return null;
+export async function getTodayFixtures() {
   try {
-    const { data } = await client.get('/teams/statistics', {
-      headers: {
-        'x-apisports-key': API_KEY,
-      },
-      params: { team: teamId, league: leagueId, season: 2025 },
-    });
-    return data?.response ?? null;
-  } catch {
-    return null;
+    const results = await Promise.allSettled(
+      LEAGUES.map(league =>
+        client.get(`/eventsnextleague.php?id=${league.id}`).then(r => ({
+          events: r.data?.events || [],
+          league,
+        }))
+      )
+    );
+
+    const fixtures = results
+      .filter(r => r.status === 'fulfilled')
+      .flatMap(r => (r.value.events || []).map(e => mapEvent(e, r.value.league)));
+
+    if (!fixtures.length) {
+      console.warn('  [footballApi] Aucun match trouvé — fallback mock');
+      return getMockFixtures();
+    }
+
+    console.log(`  [footballApi] ${fixtures.length} matchs récupérés depuis TheSportsDB`);
+    return fixtures;
+  } catch (err) {
+    console.error('  [footballApi] Erreur TheSportsDB:', err.message);
+    return getMockFixtures();
   }
+}
+
+export async function getTeamStats() {
+  return null;
 }
 
 // ── Mock data ────────────────────────────────────────────────────────────────────
@@ -80,58 +80,37 @@ function getMockFixtures() {
   return [
     {
       fixture: { id: 1001, date: now, status: { short: 'NS' }, venue: { name: 'Parc des Princes', city: 'Paris' } },
-      league:  { id: 61,  name: 'Ligue 1',        country: 'France',  logo: '' },
-      teams:   { home: { id: 85,   name: 'Paris Saint-Germain',    logo: '' },
-                 away: { id: 91,   name: 'AS Monaco',               logo: '' } },
+      league:  { id: 4334, name: 'Ligue 1',        country: 'France',  logo: '' },
+      teams:   { home: { id: 85,   name: 'Paris Saint-Germain', logo: '' },
+                 away: { id: 91,   name: 'AS Monaco',            logo: '' } },
       goals:   { home: null, away: null },
     },
     {
       fixture: { id: 1002, date: now, status: { short: 'NS' }, venue: { name: 'Emirates Stadium', city: 'London' } },
-      league:  { id: 39,  name: 'Premier League',  country: 'England', logo: '' },
-      teams:   { home: { id: 42,   name: 'Arsenal',                 logo: '' },
-                 away: { id: 33,   name: 'Manchester United',        logo: '' } },
+      league:  { id: 4328, name: 'Premier League', country: 'England', logo: '' },
+      teams:   { home: { id: 42,   name: 'Arsenal',              logo: '' },
+                 away: { id: 33,   name: 'Manchester United',    logo: '' } },
       goals:   { home: null, away: null },
     },
     {
       fixture: { id: 1003, date: now, status: { short: 'NS' }, venue: { name: 'Santiago Bernabéu', city: 'Madrid' } },
-      league:  { id: 140, name: 'La Liga',          country: 'Spain',   logo: '' },
-      teams:   { home: { id: 541,  name: 'Real Madrid',              logo: '' },
-                 away: { id: 529,  name: 'FC Barcelona',              logo: '' } },
+      league:  { id: 4335, name: 'La Liga',         country: 'Spain',   logo: '' },
+      teams:   { home: { id: 541,  name: 'Real Madrid',          logo: '' },
+                 away: { id: 529,  name: 'FC Barcelona',          logo: '' } },
       goals:   { home: null, away: null },
     },
     {
       fixture: { id: 1004, date: now, status: { short: '1H' }, venue: { name: 'Allianz Arena', city: 'Munich' } },
-      league:  { id: 78,  name: 'Bundesliga',       country: 'Germany', logo: '' },
-      teams:   { home: { id: 157,  name: 'Bayern Munich',            logo: '' },
-                 away: { id: 165,  name: 'Borussia Dortmund',         logo: '' } },
+      league:  { id: 4331, name: 'Bundesliga',      country: 'Germany', logo: '' },
+      teams:   { home: { id: 157,  name: 'Bayern Munich',         logo: '' },
+                 away: { id: 165,  name: 'Borussia Dortmund',     logo: '' } },
       goals:   { home: 2, away: 1 },
     },
     {
       fixture: { id: 1005, date: now, status: { short: 'NS' }, venue: { name: 'San Siro', city: 'Milan' } },
-      league:  { id: 135, name: 'Serie A',           country: 'Italy',   logo: '' },
-      teams:   { home: { id: 505,  name: 'Inter Milan',              logo: '' },
-                 away: { id: 496,  name: 'Juventus',                  logo: '' } },
-      goals:   { home: null, away: null },
-    },
-    {
-      fixture: { id: 1006, date: now, status: { short: 'NS' }, venue: { name: 'Vélodrome', city: 'Marseille' } },
-      league:  { id: 61,  name: 'Ligue 1',          country: 'France',  logo: '' },
-      teams:   { home: { id: 116,  name: 'Olympique de Marseille',   logo: '' },
-                 away: { id: 1041, name: 'OGC Nice',                  logo: '' } },
-      goals:   { home: null, away: null },
-    },
-    {
-      fixture: { id: 1007, date: now, status: { short: 'FT' }, venue: { name: 'Anfield', city: 'Liverpool' } },
-      league:  { id: 39,  name: 'Premier League',   country: 'England', logo: '' },
-      teams:   { home: { id: 40,   name: 'Liverpool',                logo: '' },
-                 away: { id: 49,   name: 'Chelsea',                   logo: '' } },
-      goals:   { home: 3, away: 1 },
-    },
-    {
-      fixture: { id: 1008, date: now, status: { short: 'NS' }, venue: { name: 'Metropolitano', city: 'Madrid' } },
-      league:  { id: 140, name: 'La Liga',           country: 'Spain',   logo: '' },
-      teams:   { home: { id: 530,  name: 'Atlético de Madrid',       logo: '' },
-                 away: { id: 532,  name: 'Valencia CF',               logo: '' } },
+      league:  { id: 4332, name: 'Serie A',          country: 'Italy',   logo: '' },
+      teams:   { home: { id: 505,  name: 'Inter Milan',           logo: '' },
+                 away: { id: 496,  name: 'Juventus',              logo: '' } },
       goals:   { home: null, away: null },
     },
   ];
