@@ -34,9 +34,19 @@ app.use('/api/matches', matchesRouter);
 
 // Debug odds
 app.get('/api/debug/odds', async (_req, res) => {
-  const { getOdds } = await import('./services/oddsApi.js');
-  const odds = await getOdds();
-  res.json({ count: odds.length, sample: odds.slice(0, 3).map(o => ({ home: o.home_team, away: o.away_team })) });
+  const axios = (await import('axios')).default;
+  const key = process.env.ODDS_API_KEY;
+  if (!key) return res.json({ error: 'No key' });
+  try {
+    const r = await axios.get('https://api.the-odds-api.com/v4/sports/soccer_epl/odds', {
+      params: { apiKey: key, regions: 'eu', markets: 'h2h', oddsFormat: 'decimal' },
+      timeout: 8000,
+    });
+    const matches = (r.data || []).map(m => ({ home: m.home_team, away: m.away_team }));
+    res.json({ status: 'OK', count: matches.length, remaining: r.headers['x-requests-remaining'], sample: matches.slice(0,3) });
+  } catch(e) {
+    res.json({ error: e.response?.status, message: e.response?.data?.message || e.message });
+  }
 });
 
 // 404 catch-all

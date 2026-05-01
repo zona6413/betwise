@@ -1,215 +1,184 @@
+import { useState, useEffect } from 'react';
 import './MatchCard.css';
 
-// ── Helpers ──────────────────────────────────────────────────────────────────────
-
-/** Couleur et libellé du statut du match. */
 function StatusBadge({ status }) {
   const map = {
-    NS:  { label: 'À venir',    cls: 'status-upcoming' },
-    '1H':{ label: '1ère mi',    cls: 'status-live' },
-    HT:  { label: 'Mi-temps',   cls: 'status-live' },
-    '2H':{ label: '2ème mi',    cls: 'status-live' },
-    FT:  { label: 'Terminé',    cls: 'status-ended' },
-    ET:  { label: 'Prol.',      cls: 'status-live' },
-    P:   { label: 'Pen.',       cls: 'status-live' },
-    CANC:{ label: 'Annulé',     cls: 'status-ended' },
+    NS:   { label: 'À venir',   cls: 'upcoming' },
+    '1H': { label: '1ère mi-temps', cls: 'live' },
+    HT:   { label: 'Mi-temps',  cls: 'live' },
+    '2H': { label: '2ème mi-temps', cls: 'live' },
+    FT:   { label: 'Terminé',   cls: 'ended' },
+    ET:   { label: 'Prol.',     cls: 'live' },
+    P:    { label: 'Tirs au but', cls: 'live' },
+    PST:  { label: 'Reporté',   cls: 'ended' },
+    CANC: { label: 'Annulé',    cls: 'ended' },
   };
-  const { label, cls } = map[status] ?? { label: status, cls: 'status-upcoming' };
-  return <span className={`status-badge ${cls}`}>{label}</span>;
+  const { label, cls } = map[status] ?? { label: status, cls: 'upcoming' };
+  return <span className={`status-badge status-badge--${cls}`}>{label}</span>;
 }
 
-/** Série de points colorés représentant la forme (W/D/L). */
 function FormDots({ form }) {
   if (!form) return null;
-  const chars = form.toUpperCase().split('').slice(-5);
   return (
     <div className="form-dots" title={`Forme : ${form}`}>
-      {chars.map((c, i) => (
-        <span key={i} className={`form-dot form-dot--${c === 'W' ? 'w' : c === 'D' ? 'd' : 'l'}`} />
+      {form.toUpperCase().split('').slice(-5).map((c, i) => (
+        <span key={i} className={`dot dot--${c==='W'?'w':c==='D'?'d':'l'}`} />
       ))}
     </div>
   );
 }
 
-/** Colonne équipe : logo + nom + classement + forme. */
-function TeamCol({ team, side }) {
-  return (
-    <div className={`team-col team-col--${side}`}>
-      {team.logo ? (
-        <img src={team.logo} alt={team.name} className="team-logo" onError={e => { e.target.style.display='none'; }} />
-      ) : (
-        <div className="team-logo-placeholder" />
-      )}
-      <div className="team-name">{team.name}</div>
-      <div className="team-meta">
-        {team.position && <span className="team-pos">{team.position}ᵉ</span>}
-        <FormDots form={team.form} />
-      </div>
-    </div>
-  );
+function Countdown({ date }) {
+  const [label, setLabel] = useState('');
+
+  useEffect(() => {
+    function update() {
+      const diff = new Date(date) - Date.now();
+      if (diff <= 0) { setLabel('Bientôt'); return; }
+      const h = Math.floor(diff / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      if (h > 23) {
+        const days = Math.floor(h / 24);
+        setLabel(`dans ${days}j`);
+      } else if (h > 0) {
+        setLabel(`dans ${h}h${String(m).padStart(2,'0')}`);
+      } else {
+        setLabel(`dans ${m}min`);
+      }
+    }
+    update();
+    const id = setInterval(update, 30000);
+    return () => clearInterval(id);
+  }, [date]);
+
+  return <span className="countdown">{label}</span>;
 }
 
-/** Bloc d'une cote avec sa probabilité bookmaker et IA. */
 function OddCell({ label, odd, bmProb, aiProb, isValue }) {
-  const edgePct = aiProb != null && bmProb != null
-    ? ((aiProb - bmProb) * 100).toFixed(1)
-    : null;
-
+  const edge = aiProb != null && bmProb != null ? ((aiProb - bmProb) * 100).toFixed(1) : null;
   return (
     <div className={`odd-cell ${isValue ? 'odd-cell--value' : ''}`}>
       <div className="odd-label">{label}</div>
       <div className="odd-value">{odd?.toFixed(2) ?? '—'}</div>
       {bmProb != null && (
         <div className="odd-probs">
-          <span className="prob prob--bm" title="Probabilité bookmaker">
-            {(bmProb * 100).toFixed(0)}%
-          </span>
-          {aiProb != null && (
-            <>
-              <span className="prob-sep">→</span>
-              <span className="prob prob--ai" title="Probabilité IA">
-                {(aiProb * 100).toFixed(0)}%
-              </span>
-            </>
-          )}
+          <span className="prob-bm">{(bmProb*100).toFixed(0)}%</span>
+          {aiProb != null && <><span className="prob-arr">→</span><span className="prob-ai">{(aiProb*100).toFixed(0)}%</span></>}
         </div>
       )}
-      {isValue && edgePct !== null && (
-        <div className="value-tag">VALUE +{edgePct}pts</div>
-      )}
+      {isValue && edge && <div className="value-tag">+{edge}pts</div>}
     </div>
   );
 }
 
-// ── Composant principal ─────────────────────────────────────────────────────────
-
-/**
- * Carte d'un match avec cotes, probabilités, badges value bet et bouton analyse.
- * @param {object} props.match     — données du match (backend)
- * @param {function} props.onAnalyse — callback pour ouvrir le panneau d'analyse
- */
 export default function MatchCard({ match, onAnalyse }) {
   const { homeTeam, awayTeam, score, odds, bookmakerProbs, aiProbs, bets, hasValueBet } = match;
-
   const isLive  = ['1H','HT','2H','ET','P'].includes(match.status);
   const isEnded = match.status === 'FT';
+  const isUpcoming = match.status === 'NS';
 
-  // Meilleur value bet pour affichage résumé
-  const bestBet = bets?.filter(b => b.isValue).sort((a, b) => b.ev - a.ev)[0] ?? null;
+  const bestBet = bets?.filter(b => b.isValue).sort((a,b) => b.ev - a.ev)[0] ?? null;
+  const edgeClass = bestBet ? (bestBet.edge > 0.15 ? 'fire' : bestBet.edge > 0.08 ? 'hot' : 'value') : '';
 
   return (
-    <article className={`match-card animate-fade ${isLive ? 'match-card--live' : ''}`}>
-      {/* En-tête : ligue + statut */}
+    <article className={`match-card ${isLive ? 'match-card--live' : ''} ${hasValueBet ? `match-card--${edgeClass}` : ''}`}>
+
+      {/* Header */}
       <div className="card-header">
-        <span className="league-name">
+        <div className="card-league">
           <span className="league-flag">{flagFor(match.leagueCountry)}</span>
-          {match.league}
-        </span>
-        <div className="card-header-right">
-          {hasValueBet && <span className="value-badge">💰 VALUE</span>}
+          <span className="league-name">{normalizeLeague(match.league)}</span>
+        </div>
+        <div className="card-badges">
+          {hasValueBet && edgeClass === 'fire' && <span className="badge badge--fire">🔥 TOP PICK</span>}
+          {hasValueBet && edgeClass !== 'fire' && <span className="badge badge--value">💰 VALUE</span>}
           <StatusBadge status={match.status} />
         </div>
       </div>
 
-      {/* Équipes + score */}
+      {/* Teams + score */}
       <div className="card-body">
-        <TeamCol team={homeTeam} side="home" />
-
-        <div className="score-center">
-          {isEnded || isLive ? (
-            <div className="score">
-              <span className="score-num">{score.home ?? 0}</span>
-              <span className="score-sep">–</span>
-              <span className="score-num">{score.away ?? 0}</span>
-            </div>
-          ) : (
-            <div className="score score--time">
-              <span>{formatTime(match.date)}</span>
-              <span className="score-date">{formatDate(match.date)}</span>
-            </div>
-          )}
-          {isLive && <div className="live-pulse"><span/> EN DIRECT</div>}
+        <div className="team team--home">
+          {homeTeam.logo && <img src={homeTeam.logo} alt={homeTeam.name} className="team-logo" onError={e=>e.target.style.display='none'} />}
+          <div className="team-name">{homeTeam.name}</div>
+          <div className="team-meta">
+            {homeTeam.position && <span className="team-rank">{homeTeam.position}e</span>}
+            <FormDots form={homeTeam.form} />
+          </div>
         </div>
 
-        <TeamCol team={awayTeam} side="away" />
+        <div className="score-box">
+          {isEnded || isLive ? (
+            <>
+              <div className="score">
+                <span className="score-n">{score.home ?? 0}</span>
+                <span className="score-sep">–</span>
+                <span className="score-n">{score.away ?? 0}</span>
+              </div>
+              {isLive && <div className="live-tag"><span />EN DIRECT</div>}
+              {isEnded && <div className="ended-tag">Terminé</div>}
+            </>
+          ) : (
+            <>
+              <div className="kick-time">{formatTime(match.date)}</div>
+              <Countdown date={match.date} />
+            </>
+          )}
+        </div>
+
+        <div className="team team--away">
+          {awayTeam.logo && <img src={awayTeam.logo} alt={awayTeam.name} className="team-logo" onError={e=>e.target.style.display='none'} />}
+          <div className="team-name">{awayTeam.name}</div>
+          <div className="team-meta">
+            {awayTeam.position && <span className="team-rank">{awayTeam.position}e</span>}
+            <FormDots form={awayTeam.form} />
+          </div>
+        </div>
       </div>
 
-      {/* Cotes + probabilités */}
+      {/* Odds */}
       {odds ? (
         <div className="card-odds">
-          <OddCell
-            label="1"
-            odd={odds.home}
-            bmProb={bookmakerProbs?.home}
-            aiProb={aiProbs?.home}
-            isValue={bets?.find(b => b.outcome.startsWith('1'))?.isValue}
-          />
-          <OddCell
-            label="X"
-            odd={odds.draw}
-            bmProb={bookmakerProbs?.draw}
-            aiProb={aiProbs?.draw}
-            isValue={bets?.find(b => b.outcome.startsWith('X'))?.isValue}
-          />
-          <OddCell
-            label="2"
-            odd={odds.away}
-            bmProb={bookmakerProbs?.away}
-            aiProb={aiProbs?.away}
-            isValue={bets?.find(b => b.outcome.startsWith('2'))?.isValue}
-          />
-          <div className="odds-bookmaker">{odds.bookmaker}</div>
+          <OddCell label="1" odd={odds.home} bmProb={bookmakerProbs?.home} aiProb={aiProbs?.home} isValue={bets?.find(b=>b.outcome.startsWith('1'))?.isValue} />
+          <OddCell label="X" odd={odds.draw} bmProb={bookmakerProbs?.draw} aiProb={aiProbs?.draw} isValue={bets?.find(b=>b.outcome.startsWith('X'))?.isValue} />
+          <OddCell label="2" odd={odds.away} bmProb={bookmakerProbs?.away} aiProb={aiProbs?.away} isValue={bets?.find(b=>b.outcome.startsWith('2'))?.isValue} />
+          <div className="odds-bm">{odds.bookmaker}</div>
         </div>
       ) : (
-        <div className="no-odds">Cotes non disponibles</div>
+        <div className="no-odds">Cotes indisponibles</div>
       )}
 
-      {/* Résumé value bet */}
+      {/* Best bet */}
       {bestBet && (
-        <div className="best-bet-bar">
+        <div className="best-bet">
           <span className="best-bet-label">Meilleur pari</span>
           <span className="best-bet-outcome">{bestBet.outcome}</span>
           <span className="best-bet-odd">@ {bestBet.odd?.toFixed(2)}</span>
-          <span className="best-bet-ev">EV +{(bestBet.ev * 100).toFixed(1)}%</span>
+          <span className="best-bet-ev">EV +{(bestBet.ev*100).toFixed(1)}%</span>
         </div>
       )}
 
-      {/* Bouton analyse */}
+      {/* Analyse */}
       <div className="card-footer">
-        <button
-          className="btn-analyse"
-          onClick={() => onAnalyse(match)}
-          disabled={!match.analysis}
-        >
-          🔍 Analyser ce match
+        <button className="btn-analyse" onClick={() => onAnalyse(match)} disabled={!match.analysis}>
+          Analyser le match →
         </button>
       </div>
     </article>
   );
 }
 
-// ── Utilitaires ──────────────────────────────────────────────────────────────────
-
 function formatTime(dateStr) {
   if (!dateStr) return '—';
   return new Date(dateStr).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
 }
 
-function formatDate(dateStr) {
-  if (!dateStr) return '';
-  const d = new Date(dateStr);
-  const today = new Date(); today.setHours(0,0,0,0);
-  const matchDay = new Date(d); matchDay.setHours(0,0,0,0);
-  const diff = Math.round((matchDay - today) / 86400000);
-  if (diff === 0) return 'Aujourd\'hui';
-  if (diff === 1) return 'Demain';
-  return d.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' });
+function normalizeLeague(name) {
+  const map = { 'English Premier League':'Premier League','French Ligue 1':'Ligue 1','Spanish La Liga':'La Liga','Italian Serie A':'Serie A','German Bundesliga':'Bundesliga' };
+  return map[name] ?? name;
 }
 
 function flagFor(country) {
-  const flags = {
-    France:  '🇫🇷', England: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', Spain:   '🇪🇸',
-    Germany: '🇩🇪', Italy:   '🇮🇹',
-  };
-  return flags[country] ?? '🌍';
+  const f = { France:'🇫🇷', England:'🏴󠁧󠁢󠁥󠁮󠁧󠁿', Spain:'🇪🇸', Germany:'🇩🇪', Italy:'🇮🇹' };
+  return f[country] ?? '🌍';
 }

@@ -5,51 +5,64 @@ import MatchCard         from './components/MatchCard.jsx';
 import AnalysisPanel     from './components/AnalysisPanel.jsx';
 import './App.css';
 
-const LEAGUE_LABELS = {
-  'English Premier League': 'Premier League',
-  'French Ligue 1':         'Ligue 1',
-  'Spanish La Liga':        'La Liga',
-  'Italian Serie A':        'Serie A',
-  'German Bundesliga':      'Bundesliga',
-};
-
-function normalizeLeague(name) {
-  return LEAGUE_LABELS[name] ?? name;
-}
+const TABS = [
+  { id: 'all',   label: 'Tous' },
+  { id: 'live',  label: '🔴 En direct' },
+  { id: 'value', label: '💰 Value bets' },
+  { id: 'today', label: "Aujourd'hui" },
+  { id: 'tomorrow', label: 'Demain' },
+];
 
 function dateLabel(dateStr) {
-  const d = new Date(dateStr);
-  const today    = new Date(); today.setHours(0,0,0,0);
-  const tomorrow = new Date(today); tomorrow.setDate(today.getDate() + 1);
+  const d  = new Date(dateStr);
+  const t  = new Date(); t.setHours(0,0,0,0);
   const d0 = new Date(d); d0.setHours(0,0,0,0);
-
-  if (d0.getTime() === today.getTime())    return 'Aujourd\'hui';
-  if (d0.getTime() === tomorrow.getTime()) return 'Demain';
+  const diff = Math.round((d0 - t) / 86400000);
+  if (diff === 0) return "Aujourd'hui";
+  if (diff === 1) return 'Demain';
   return d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+}
+
+function normalizeLeague(name) {
+  const map = {
+    'English Premier League': 'Premier League',
+    'French Ligue 1': 'Ligue 1',
+    'Spanish La Liga': 'La Liga',
+    'Italian Serie A': 'Serie A',
+    'German Bundesliga': 'Bundesliga',
+  };
+  return map[name] ?? name;
 }
 
 export default function App() {
   const { matches, loading, error, lastUpdated, fromCache, refresh } = useMatches();
-
   const [selectedMatch, setSelectedMatch] = useState(null);
+  const [activeTab,     setActiveTab]     = useState('all');
   const [activeLeague,  setActiveLeague]  = useState('all');
-  const [showValueOnly, setShowValueOnly] = useState(false);
 
   const leagues = useMemo(
     () => [...new Set(matches.map(m => normalizeLeague(m.league)))],
     [matches]
   );
 
+  const LIVE_STATUSES = ['1H','HT','2H','ET','P'];
+
   const filtered = useMemo(() => {
     let list = matches;
-    if (activeLeague !== 'all')
-      list = list.filter(m => normalizeLeague(m.league) === activeLeague);
-    if (showValueOnly)
-      list = list.filter(m => m.hasValueBet);
+    if (activeLeague !== 'all') list = list.filter(m => normalizeLeague(m.league) === activeLeague);
+    if (activeTab === 'live')     list = list.filter(m => LIVE_STATUSES.includes(m.status));
+    if (activeTab === 'value')    list = list.filter(m => m.hasValueBet);
+    if (activeTab === 'today') {
+      const today = new Date().toDateString();
+      list = list.filter(m => new Date(m.date).toDateString() === today);
+    }
+    if (activeTab === 'tomorrow') {
+      const tom = new Date(); tom.setDate(tom.getDate()+1);
+      list = list.filter(m => new Date(m.date).toDateString() === tom.toDateString());
+    }
     return list;
-  }, [matches, activeLeague, showValueOnly]);
+  }, [matches, activeTab, activeLeague]);
 
-  // Grouper par date
   const grouped = useMemo(() => {
     const map = new Map();
     for (const m of filtered) {
@@ -60,8 +73,10 @@ export default function App() {
     return [...map.values()];
   }, [filtered]);
 
-  const valueCount = matches.filter(m => m.hasValueBet).length;
-  const liveCount  = matches.filter(m => ['1H','HT','2H','ET','P'].includes(m.status)).length;
+  const liveMatches  = matches.filter(m => LIVE_STATUSES.includes(m.status));
+  const valueCount   = matches.filter(m => m.hasValueBet).length;
+  const topValue     = [...matches].filter(m => m.hasValueBet && m.bets)
+    .sort((a,b) => Math.max(...b.bets.map(x=>x.ev)) - Math.max(...a.bets.map(x=>x.ev)))[0];
 
   return (
     <div className="app">
@@ -78,30 +93,74 @@ export default function App() {
       <main className="main">
         <div className="container">
 
-          <div className="toolbar">
-            <div className="toolbar-stats">
-              <Stat label="Matchs"     value={matches.length} />
-              <Stat label="En direct"  value={liveCount}  accent="red" />
-              <Stat label="Value bets" value={valueCount} accent="green" />
+          {/* Stats bar */}
+          <div className="stats-bar">
+            <div className="stats-bar-item">
+              <span className="stats-num">{matches.length}</span>
+              <span className="stats-lbl">Matchs analysés</span>
             </div>
-            <label className="toggle-value">
-              <input
-                type="checkbox"
-                checked={showValueOnly}
-                onChange={e => setShowValueOnly(e.target.checked)}
-              />
-              <span>Value bets uniquement</span>
-            </label>
+            <div className="stats-bar-sep" />
+            <div className="stats-bar-item">
+              <span className="stats-num stats-num--live">{liveMatches.length}</span>
+              <span className="stats-lbl">En direct</span>
+            </div>
+            <div className="stats-bar-sep" />
+            <div className="stats-bar-item">
+              <span className="stats-num stats-num--green">{valueCount}</span>
+              <span className="stats-lbl">Value bets</span>
+            </div>
+            {topValue && (
+              <>
+                <div className="stats-bar-sep" />
+                <div className="stats-bar-item stats-bar-item--hot">
+                  <span className="stats-hot-label">🔥 Top pick</span>
+                  <span className="stats-hot-match">
+                    {topValue.homeTeam.name} vs {topValue.awayTeam.name}
+                  </span>
+                </div>
+              </>
+            )}
+            <div className="stats-bar-refresh">
+              <button className={`btn-refresh-sm ${loading ? 'spinning' : ''}`} onClick={refresh} disabled={loading}>↻</button>
+              {lastUpdated && <span className="stats-time">{lastUpdated.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</span>}
+            </div>
+          </div>
+
+          {/* Live banner */}
+          {liveMatches.length > 0 && (
+            <div className="live-banner">
+              <span className="live-dot" /><span className="live-banner-label">EN DIRECT</span>
+              <div className="live-banner-matches">
+                {liveMatches.map(m => (
+                  <button key={m.id} className="live-banner-pill" onClick={() => setSelectedMatch(m)}>
+                    {m.homeTeam.name} <strong>{m.score.home ?? 0}–{m.score.away ?? 0}</strong> {m.awayTeam.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Tabs */}
+          <div className="tab-bar">
+            {TABS.map(t => (
+              <button
+                key={t.id}
+                className={`tab-btn ${activeTab === t.id ? 'active' : ''}`}
+                onClick={() => setActiveTab(t.id)}
+              >
+                {t.label}
+                {t.id === 'live'  && liveMatches.length > 0 && <span className="tab-badge">{liveMatches.length}</span>}
+                {t.id === 'value' && valueCount > 0          && <span className="tab-badge tab-badge--green">{valueCount}</span>}
+              </button>
+            ))}
           </div>
 
           {loading && !matches.length && <Skeleton />}
           {error && <ErrorBanner message={error} onRetry={refresh} />}
 
-          {!loading && !error && filtered.length === 0 && (
-            <Empty showValueOnly={showValueOnly} onReset={() => setShowValueOnly(false)} />
-          )}
+          {!loading && !error && filtered.length === 0 && <Empty tab={activeTab} onReset={() => setActiveTab('all')} />}
 
-          {grouped.map(group => (
+          {grouped.map((group, gi) => (
             <div key={group.label} className="date-group">
               <div className="date-group-header">
                 <span className="date-group-label">{group.label}</span>
@@ -109,11 +168,7 @@ export default function App() {
               </div>
               <div className="matches-grid">
                 {group.matches.map((match, i) => (
-                  <div
-                    key={match.id}
-                    className="animate-fade"
-                    style={{ animationDelay: `${i * 30}ms` }}
-                  >
+                  <div key={match.id} className="animate-fade" style={{ animationDelay: `${(gi*5+i)*25}ms` }}>
                     <MatchCard match={match} onAnalyse={setSelectedMatch} />
                   </div>
                 ))}
@@ -125,20 +180,8 @@ export default function App() {
       </main>
 
       {selectedMatch && (
-        <AnalysisPanel
-          match={selectedMatch}
-          onClose={() => setSelectedMatch(null)}
-        />
+        <AnalysisPanel match={selectedMatch} onClose={() => setSelectedMatch(null)} />
       )}
-    </div>
-  );
-}
-
-function Stat({ label, value, accent }) {
-  return (
-    <div className="stat-chip">
-      <span className={`stat-value ${accent ? `stat-value--${accent}` : ''}`}>{value}</span>
-      <span className="stat-label">{label}</span>
     </div>
   );
 }
@@ -152,22 +195,25 @@ function ErrorBanner({ message, onRetry }) {
   );
 }
 
-function Empty({ showValueOnly, onReset }) {
+function Empty({ tab, onReset }) {
+  const msgs = {
+    live:     'Aucun match en direct pour le moment.',
+    value:    'Aucun value bet détecté pour l\'instant.',
+    today:    'Aucun match aujourd\'hui.',
+    tomorrow: 'Aucun match demain.',
+  };
   return (
     <div className="empty-state">
       <div className="empty-icon">📭</div>
-      {showValueOnly
-        ? <><p>Aucun value bet détecté pour l'instant.</p>
-            <button className="btn-reset" onClick={onReset}>Voir tous les matchs</button></>
-        : <p>Aucun match disponible.</p>
-      }
+      <p>{msgs[tab] ?? 'Aucun match disponible.'}</p>
+      <button className="btn-reset" onClick={onReset}>Voir tous les matchs</button>
     </div>
   );
 }
 
 function Skeleton() {
   return (
-    <div className="matches-grid">
+    <div className="matches-grid" style={{marginTop:16}}>
       {Array.from({ length: 6 }).map((_, i) => (
         <div key={i} className="skeleton-card">
           <div className="skeleton-row skeleton-short" />
