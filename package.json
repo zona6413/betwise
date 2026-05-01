@@ -1,0 +1,12 @@
+{
+  "name": "betwise",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "node backend/src/index.js",
+    "install-backend": "cd backend && npm install"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
