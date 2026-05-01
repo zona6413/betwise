@@ -37,8 +37,7 @@ export async function getTodayFixtures() {
     LEAGUE_IDS.map(league =>
       client.get('/fixtures', {
         headers: {
-          'x-rapidapi-key':  API_KEY,
-          'x-rapidapi-host': 'v3.football.api-sports.io',
+          'x-apisports-key': API_KEY,
         },
         params: { date: today, league, season: 2025 },
       })
@@ -65,8 +64,7 @@ export async function getTeamStats(teamId, leagueId) {
   try {
     const { data } = await client.get('/teams/statistics', {
       headers: {
-        'x-rapidapi-key':  API_KEY,
-        'x-rapidapi-host': 'v3.football.api-sports.io',
+        'x-apisports-key': API_KEY,
       },
       params: { team: teamId, league: leagueId, season: 2025 },
     });
