@@ -81,12 +81,16 @@ export async function getTodayFixtures() {
 
     const results = await Promise.all(requests);
     const seen = new Set();
+    const todayStr = new Date().toISOString().split('T')[0];
 
     const fixtures = results
       .flatMap(r => (r.events || []).map(e => mapEvent(e, r.league)))
       .filter(f => {
         if (seen.has(f.fixture.id)) return false;
         seen.add(f.fixture.id);
+        // Exclure les matchs FT/terminés d'avant aujourd'hui
+        const matchDate = f.fixture.date.split('T')[0];
+        if (f.fixture.status.short === 'FT' && matchDate < todayStr) return false;
         return true;
       })
       .sort((a, b) => new Date(a.fixture.date) - new Date(b.fixture.date));

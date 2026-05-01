@@ -15,33 +15,44 @@ const cache  = new NodeCache({ stdTTL: Number(process.env.CACHE_TTL ?? 180) });
 
 const DEFAULT_STATS = { form: 'WDWLW', position: 12, wins: 10, draws: 8, losses: 10 };
 
-// ── Génère des cotes réalistes à partir des stats d'équipes ─────────────────────
+// ── Génère des cotes réalistes style Winamax ────────────────────────────────────
 function generateSyntheticOdds(homeStats, awayStats) {
-  const formScore = form => {
-    if (!form) return 0.5;
-    const pts = form.toUpperCase().split('').slice(-5)
+  const formPts = form => {
+    if (!form) return 7;
+    return form.toUpperCase().split('').slice(-5)
       .reduce((s, c) => s + (c === 'W' ? 3 : c === 'D' ? 1 : 0), 0);
-    return pts / 15;
   };
 
-  const rankScore = pos => Math.max(0, 1 - (pos - 1) / 19);
+  // Force 0-100 : position (60%) + forme (40%) + bonus domicile
+  const leagueSize = 20;
+  const homeRating = ((leagueSize - homeStats.position) / (leagueSize - 1)) * 60
+                   + (formPts(homeStats.form) / 15) * 40 + 8;
+  const awayRating = ((leagueSize - awayStats.position) / (leagueSize - 1)) * 60
+                   + (formPts(awayStats.form) / 15) * 40;
 
-  const homeStr = formScore(homeStats.form) * 0.55 + rankScore(homeStats.position) * 0.35 + 0.10;
-  const awayStr = formScore(awayStats.form) * 0.55 + rankScore(awayStats.position) * 0.35;
+  const total = homeRating + awayRating;
 
-  const drawProb = 0.24;
-  const total    = homeStr + awayStr;
-  const homeProb = (homeStr / total) * (1 - drawProb);
-  const awayProb = (awayStr / total) * (1 - drawProb);
+  // Probabilité de nul : plus élevée si les équipes sont proches
+  const diff = Math.abs(homeRating - awayRating) / total;
+  const drawProb = Math.max(0.18, 0.30 - diff * 0.35);
 
+  const homeWinProb = (homeRating / total) * (1 - drawProb);
+  const awayWinProb = (awayRating / total) * (1 - drawProb);
+
+  // Marge bookmaker ~6%
   const margin = 1.06;
-  const round  = x => Math.round(Math.max(1.15, margin / x) * 20) / 20;
+
+  // Arrondi Winamax : multiples de 0.05
+  const round = x => {
+    const raw = margin / Math.max(x, 0.05);
+    return Math.round(Math.max(1.15, raw) * 20) / 20;
+  };
 
   return {
-    homeOdd:    round(homeProb),
-    drawOdd:    round(drawProb),
-    awayOdd:    round(awayProb),
-    bookmaker:  randomBookmaker(),
+    homeOdd:   round(homeWinProb),
+    drawOdd:   round(drawProb),
+    awayOdd:   round(awayWinProb),
+    bookmaker: randomBookmaker(),
   };
 }
 
