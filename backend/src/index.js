@@ -32,6 +32,17 @@ app.get('/api/health', (_req, res) => {
 
 app.use('/api/matches', matchesRouter);
 
+// Debug key
+app.get('/api/debug/key', (_req, res) => {
+  const key = process.env.ODDS_API_KEY ?? '';
+  res.json({
+    length: key.length,
+    first8: key.slice(0, 8),
+    last4: key.slice(-4),
+    hasSpaces: key.includes(' '),
+  });
+});
+
 // Debug odds
 app.get('/api/debug/odds', async (_req, res) => {
   const axios = (await import('axios')).default;

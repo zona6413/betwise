@@ -1,91 +1,106 @@
-/* ── Overlay ─────────────────────────────────────────────────────────────────── */
+/* ── Overlay ──────────────────────────────────────────────────── */
 .panel-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.65);
-  backdrop-filter: blur(3px);
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   z-index: 200;
   animation: fadeIn 0.2s ease;
 }
 
-/* ── Panneau ─────────────────────────────────────────────────────────────────── */
+/* ── Panel ────────────────────────────────────────────────────── */
 .analysis-panel {
   position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: min(480px, 100vw);
-  background: var(--surface);
+  top: 0; right: 0; bottom: 0;
+  width: min(500px, 100vw);
+  background: var(--surface-2);
   border-left: 1px solid var(--border);
   z-index: 201;
   display: flex;
   flex-direction: column;
-  box-shadow: -12px 0 48px rgba(0,0,0,0.5);
+  box-shadow: -20px 0 60px rgba(0,0,0,0.6);
+  animation: slideIn 0.3s cubic-bezier(.4,0,.2,1);
 }
 
-/* ── Header ─────────────────────────────────────────────────────────────────── */
+/* ── Header ───────────────────────────────────────────────────── */
 .panel-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
-  padding: 20px 24px 16px;
+  padding: 22px 24px 18px;
   border-bottom: 1px solid var(--border);
-  background: rgba(0,0,0,0.2);
+  background: rgba(0,0,0,0.3);
   flex-shrink: 0;
 }
+
 .panel-league {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
-  color: var(--text-muted);
+  color: var(--text-dim);
   margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
+
 .panel-title {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 800;
   color: var(--text);
-  line-height: 1.25;
+  line-height: 1.3;
+  letter-spacing: -0.3px;
 }
-.panel-title span { color: var(--text-dim); font-weight: 400; font-size: 14px; }
+.panel-title span {
+  color: var(--text-dim);
+  font-weight: 400;
+  font-size: 14px;
+}
 
 .panel-close {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  border: 1px solid var(--border);
-  background: transparent;
+  border: 1px solid var(--border-mid);
+  background: var(--glass);
   color: var(--text-muted);
-  font-size: 14px;
+  font-size: 13px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   transition: all 0.15s;
+  margin-top: 2px;
 }
-.panel-close:hover { border-color: var(--red); color: var(--red); }
+.panel-close:hover {
+  border-color: var(--red);
+  color: var(--red);
+  background: var(--red-dim);
+}
 
-/* ── Body ───────────────────────────────────────────────────────────────────── */
+/* ── Body ─────────────────────────────────────────────────────── */
 .panel-body {
   flex: 1;
   overflow-y: auto;
   padding: 20px 24px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
 }
 
 .panel-section {}
+
 .section-title {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 1px;
   text-transform: uppercase;
   color: var(--text-dim);
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
-/* ── Forme comparative ──────────────────────────────────────────────────────── */
-.form-comparison { display: flex; flex-direction: column; gap: 10px; }
+/* ── Form comparison ──────────────────────────────────────────── */
+.form-comparison { display: flex; flex-direction: column; gap: 8px; }
 
 .form-row {
   display: flex;
@@ -95,8 +110,9 @@
   background: var(--card);
   border: 1px solid var(--border-lite);
   border-radius: var(--radius);
-  padding: 12px 14px;
+  padding: 11px 14px;
 }
+
 .form-row-info {
   display: flex;
   align-items: center;
@@ -104,15 +120,20 @@
   min-width: 0;
   flex: 1;
 }
+
 .form-side {
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
   color: var(--text-dim);
-  background: rgba(255,255,255,0.05);
-  padding: 2px 7px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  padding: 2px 6px;
   border-radius: 4px;
   white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
 }
+
 .form-team {
   font-size: 13px;
   font-weight: 600;
@@ -121,6 +142,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
 .form-pos {
   font-size: 11px;
   color: var(--text-dim);
@@ -128,99 +150,131 @@
 }
 
 .form-dots-lg { display: flex; gap: 4px; flex-shrink: 0; }
+
 .form-dot-lg {
-  width: 24px;
-  height: 24px;
-  border-radius: 6px;
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
   font-size: 10px;
   font-weight: 800;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.fdot--w { background: var(--green-bg);  color: var(--green);  border: 1px solid rgba(34,197,94,0.3); }
-.fdot--d { background: var(--yellow-bg); color: var(--yellow); border: 1px solid rgba(245,158,11,0.3); }
-.fdot--l { background: var(--red-bg);    color: var(--red);    border: 1px solid rgba(239,68,68,0.3); }
 
-/* ── Tableau probabilités ───────────────────────────────────────────────────── */
+.fdot--w {
+  background: var(--green-dim);
+  color: var(--green);
+  border: 1px solid rgba(0,214,143,0.3);
+}
+.fdot--d {
+  background: var(--yellow-dim);
+  color: var(--yellow);
+  border: 1px solid rgba(255,179,0,0.3);
+}
+.fdot--l {
+  background: var(--red-dim);
+  color: var(--red);
+  border: 1px solid rgba(255,61,113,0.2);
+}
+
+/* ── Probs table ──────────────────────────────────────────────── */
 .probs-table {
   background: var(--card);
   border: 1px solid var(--border-lite);
   border-radius: var(--radius);
   overflow: hidden;
-  font-size: 13px;
 }
+
 .probs-header {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 1fr 1.2fr;
-  gap: 0;
   padding: 8px 14px;
-  background: rgba(0,0,0,0.2);
-  font-size: 10px;
+  background: rgba(0,0,0,0.25);
+  font-size: 9px;
   font-weight: 700;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
   text-transform: uppercase;
   color: var(--text-dim);
 }
+
 .probs-row {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 1fr 1.2fr;
   align-items: center;
-  gap: 0;
   padding: 10px 14px;
   border-top: 1px solid var(--border-lite);
+  font-size: 13px;
   transition: background 0.1s;
 }
 .probs-row:hover { background: rgba(255,255,255,0.02); }
-.probs-row--value { background: var(--green-bg); }
-.probs-row--value:hover { background: rgba(34,197,94,0.15); }
+.probs-row--value {
+  background: linear-gradient(90deg, rgba(0,214,143,0.05), transparent);
+}
 
 .probs-outcome { font-weight: 600; color: var(--text); }
-.probs-odd     { font-weight: 700; color: var(--text); }
-.probs-ai      { color: var(--blue); font-weight: 600; }
-.probs-edge    { font-weight: 700; }
+.probs-odd     { font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
+.probs-ai      { color: #818cf8; font-weight: 600; font-variant-numeric: tabular-nums; }
+.probs-edge    { font-weight: 700; font-variant-numeric: tabular-nums; }
 .edge-pos { color: var(--green); }
-.edge-neg { color: var(--red);   }
+.edge-neg { color: var(--text-dim); }
 
-/* ── Meilleur pari ──────────────────────────────────────────────────────────── */
+/* ── Best bet ─────────────────────────────────────────────────── */
 .best-bet {
-  background: linear-gradient(135deg, rgba(34,197,94,0.08), rgba(34,197,94,0.04));
-  border: 1px solid rgba(34,197,94,0.3);
+  background: linear-gradient(135deg, rgba(0,214,143,0.07), rgba(0,214,143,0.03));
+  border: 1px solid rgba(0,214,143,0.25);
   border-radius: var(--radius);
   padding: 16px;
 }
+
 .best-bet-label {
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
   letter-spacing: 1px;
   text-transform: uppercase;
   color: var(--green);
   margin-bottom: 8px;
 }
+
 .best-bet-outcome {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 800;
   color: var(--text);
   margin-bottom: 14px;
+  letter-spacing: -0.3px;
 }
+
 .best-bet-details {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 8px;
 }
+
 .best-bet-stat {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  background: rgba(0,0,0,0.2);
+  gap: 3px;
+  background: rgba(0,0,0,0.25);
   padding: 8px 10px;
   border-radius: var(--radius-sm);
+  border: 1px solid var(--border-lite);
 }
-.best-bet-stat span  { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
-.best-bet-stat strong { font-size: 15px; font-weight: 800; color: var(--text); }
+.best-bet-stat span {
+  font-size: 9px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+.best-bet-stat strong {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
 .text-green { color: var(--green) !important; }
 
-/* ── Analyse textuelle ──────────────────────────────────────────────────────── */
+/* ── Analysis text ────────────────────────────────────────────── */
 .analysis-text {
   background: var(--card);
   border: 1px solid var(--border-lite);
@@ -228,33 +282,35 @@
   padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0;
 }
+
 .analysis-line {
-  font-size: 14px;
-  color: var(--text);
-  line-height: 1.55;
-  padding-bottom: 10px;
+  font-size: 13px;
+  color: var(--text-soft);
+  line-height: 1.6;
+  padding: 9px 0;
   border-bottom: 1px solid var(--border-lite);
 }
-.analysis-line:last-child { padding-bottom: 0; border-bottom: none; }
+.analysis-line:first-child { padding-top: 0; }
+.analysis-line:last-child  { padding-bottom: 0; border-bottom: none; }
 
-/* ── Disclaimer ─────────────────────────────────────────────────────────────── */
+/* ── Disclaimer ───────────────────────────────────────────────── */
 .panel-disclaimer {
   font-size: 11px;
   color: var(--text-dim);
-  line-height: 1.5;
-  padding: 12px;
-  background: rgba(245,158,11,0.06);
-  border: 1px solid rgba(245,158,11,0.15);
+  line-height: 1.6;
+  padding: 12px 14px;
+  background: rgba(255,179,0,0.04);
+  border: 1px solid rgba(255,179,0,0.12);
   border-radius: var(--radius-sm);
   text-align: center;
 }
 
 @media (max-width: 480px) {
   .analysis-panel { width: 100vw; }
-  .panel-header { padding: 16px 16px 12px; }
-  .panel-body   { padding: 16px; }
+  .panel-header   { padding: 16px 16px 14px; }
+  .panel-body     { padding: 16px; }
   .best-bet-details { grid-template-columns: repeat(2, 1fr); }
-  .probs-header, .probs-row { grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr; font-size: 11px; }
+  .probs-header, .probs-row { font-size: 11px; }
 }

@@ -2,60 +2,71 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(7,11,20,0.95);
-  backdrop-filter: blur(20px);
+  background: rgba(6,9,15,0.92);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
   border-bottom: 1px solid var(--border);
 }
 
 .header-inner {
-  max-width: 1280px;
+  max-width: 1320px;
   margin: 0 auto;
-  padding: 0 24px;
-  height: 64px;
+  padding: 0 28px;
+  height: 62px;
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 20px;
 }
 
-/* Logo */
+/* ── Logo ─────────────────────────────────────────────────────── */
 .header-logo {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 9px;
   flex-shrink: 0;
-}
-.logo-icon { font-size: 22px; }
-.logo-text {
-  font-size: 20px;
-  font-weight: 900;
-  letter-spacing: -0.8px;
-  background: linear-gradient(135deg, #f0f2f8 0%, #a5b4fc 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-.logo-accent {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-.logo-tag {
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 1.5px;
-  background: linear-gradient(135deg, rgba(99,102,241,0.2), rgba(139,92,246,0.2));
-  color: #a5b4fc;
-  border: 1px solid rgba(99,102,241,0.4);
-  border-radius: 4px;
-  padding: 2px 6px;
+  text-decoration: none;
 }
 
-/* Nav */
+.logo-icon-wrap {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #5b6ef5, #7c5bf5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  box-shadow: 0 2px 12px rgba(91,110,245,0.4);
+}
+
+.logo-text {
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.6px;
+  color: var(--text);
+}
+.logo-accent {
+  color: #7c7ff8;
+}
+
+.logo-tag {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  color: #7c7ff8;
+  background: rgba(91,110,245,0.1);
+  border: 1px solid rgba(91,110,245,0.3);
+  border-radius: 4px;
+  padding: 2px 5px;
+  align-self: flex-start;
+  margin-top: 2px;
+}
+
+/* ── Nav ──────────────────────────────────────────────────────── */
 .header-nav {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
   flex: 1;
   overflow-x: auto;
   scrollbar-width: none;
@@ -64,7 +75,7 @@
 
 .nav-pill {
   flex-shrink: 0;
-  padding: 6px 14px;
+  padding: 5px 13px;
   border-radius: 20px;
   border: 1px solid transparent;
   background: transparent;
@@ -73,52 +84,59 @@
   font-weight: 500;
   transition: all 0.15s;
   white-space: nowrap;
+  letter-spacing: -0.1px;
 }
-.nav-pill:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+.nav-pill:hover {
+  color: var(--text-soft);
+  background: var(--glass);
+}
 .nav-pill.active {
-  background: rgba(99,102,241,0.12);
-  border-color: rgba(99,102,241,0.4);
-  color: #a5b4fc;
+  background: rgba(91,110,245,0.1);
+  border-color: rgba(91,110,245,0.3);
+  color: #9ba3f8;
   font-weight: 600;
 }
 
-/* Actions */
+/* ── Actions ──────────────────────────────────────────────────── */
 .header-actions {
   display: flex;
   align-items: center;
   gap: 10px;
   flex-shrink: 0;
 }
+
 .header-time {
   font-size: 11px;
   color: var(--text-dim);
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
+  font-weight: 500;
 }
 
 .btn-refresh {
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
-  border: 1px solid var(--border);
-  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border-mid);
+  background: var(--glass);
   color: var(--text-muted);
-  font-size: 18px;
+  font-size: 17px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.15s;
+  transition: all 0.2s;
 }
 .btn-refresh:hover:not(:disabled) {
-  border-color: #6366f1;
-  color: #a5b4fc;
-  background: rgba(99,102,241,0.08);
+  border-color: var(--accent);
+  color: #9ba3f8;
+  background: var(--accent-dim);
+  box-shadow: 0 0 16px var(--accent-glow);
 }
 .btn-refresh:disabled { opacity: 0.3; cursor: not-allowed; }
-.btn-refresh.spinning { animation: spin 0.6s linear; }
+.btn-refresh.spinning { animation: spin 0.7s linear infinite; }
 
 @media (max-width: 640px) {
-  .header-inner { padding: 0 16px; gap: 12px; }
-  .logo-text    { font-size: 18px; }
+  .header-inner { padding: 0 16px; gap: 10px; }
+  .logo-text    { font-size: 17px; }
   .header-time  { display: none; }
 }

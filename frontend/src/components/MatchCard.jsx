@@ -99,7 +99,9 @@ export default function MatchCard({ match, onAnalyse }) {
       {/* Teams + score */}
       <div className="card-body">
         <div className="team team--home">
-          {homeTeam.logo && <img src={homeTeam.logo} alt={homeTeam.name} className="team-logo" onError={e=>e.target.style.display='none'} />}
+          <div className="team-logo-wrap">
+            {homeTeam.logo && <img src={homeTeam.logo} alt={homeTeam.name} className="team-logo" onError={e=>e.target.parentElement.style.display='none'} />}
+          </div>
           <div className="team-name">{homeTeam.name}</div>
           <div className="team-meta">
             {homeTeam.position && <span className="team-rank">{homeTeam.position}e</span>}
@@ -127,7 +129,9 @@ export default function MatchCard({ match, onAnalyse }) {
         </div>
 
         <div className="team team--away">
-          {awayTeam.logo && <img src={awayTeam.logo} alt={awayTeam.name} className="team-logo" onError={e=>e.target.style.display='none'} />}
+          <div className="team-logo-wrap">
+            {awayTeam.logo && <img src={awayTeam.logo} alt={awayTeam.name} className="team-logo" onError={e=>e.target.parentElement.style.display='none'} />}
+          </div>
           <div className="team-name">{awayTeam.name}</div>
           <div className="team-meta">
             {awayTeam.position && <span className="team-rank">{awayTeam.position}e</span>}

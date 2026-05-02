@@ -21,7 +21,7 @@ export default function Header({ lastUpdated, fromCache, onRefresh, loading, act
       <div className="header-inner">
         {/* Logo */}
         <div className="header-logo">
-          <span className="logo-icon">⚡</span>
+          <div className="logo-icon-wrap">⚡</div>
           <span className="logo-text">Bet<span className="logo-accent">Wise</span></span>
           <span className="logo-tag">BETA</span>
         </div>
