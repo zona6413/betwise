@@ -58,16 +58,17 @@ export function computeAIProbability(homeStats, awayStats) {
   const homeRank = rankScore(homeStats?.position);
   const awayRank = rankScore(awayStats?.position);
 
-  // Force normalisée par équipe
-  const homeStrength = homeForm * 0.55 + homeRank * 0.35 + 0.10;   // +10 % terrain
-  const awayStrength = awayForm * 0.55 + awayRank * 0.35;
+  // Pondération : classement 50 % (facteur long terme), forme 38 %, terrain 12 %
+  const homeStrength = homeForm * 0.38 + homeRank * 0.50 + 0.12;
+  const awayStrength = awayForm * 0.38 + awayRank * 0.50;
 
-  // Pool nul : portion fixe de 20 %
-  const total = homeStrength + awayStrength + 0.20;
+  // Pool nul plus réaliste : 24 % de base
+  const drawPool = 0.24;
+  const total    = homeStrength + awayStrength + drawPool;
 
   return {
     home: homeStrength / total,
-    draw: 0.20 / total,
+    draw: drawPool     / total,
     away: awayStrength / total,
   };
 }

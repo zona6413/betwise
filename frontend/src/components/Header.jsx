@@ -21,7 +21,11 @@ export default function Header({ lastUpdated, fromCache, onRefresh, loading, act
       <div className="header-inner">
         {/* Logo */}
         <div className="header-logo">
-          <div className="logo-icon-wrap">⚡</div>
+          <div className="logo-icon-wrap">
+            <svg width="18" height="18" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <polygon points="18,3 9,18 16,18 14,29 23,14 16,14" fill="white"/>
+            </svg>
+          </div>
           <span className="logo-text">Bet<span className="logo-accent">Wise</span></span>
           <span className="logo-tag">BETA</span>
         </div>
