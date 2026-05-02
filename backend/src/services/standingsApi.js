@@ -65,6 +65,22 @@ export async function getTeamStatsMap() {
 
   // Fallback stats for known teams not in top-5 of standings
   const KNOWN = {
+    // ── Premier League ───────────────────────────────────────────
+    133604: { position: 3,  wins: 19, draws: 6,  losses: 9  }, // Arsenal
+    133605: { position: 1,  wins: 24, draws: 5,  losses: 5  }, // Manchester City
+    133602: { position: 2,  wins: 22, draws: 5,  losses: 7  }, // Liverpool
+    133612: { position: 13, wins: 9,  draws: 7,  losses: 18 }, // Manchester United
+    133601: { position: 7,  wins: 14, draws: 5,  losses: 15 }, // Aston Villa
+    // ── Bundesliga ───────────────────────────────────────────────
+    133641: { position: 1,  wins: 23, draws: 5,  losses: 6  }, // Bayern Munich
+    // ── La Liga ──────────────────────────────────────────────────
+    133739: { position: 2,  wins: 21, draws: 6,  losses: 7  }, // Real Madrid
+    133738: { position: 1,  wins: 23, draws: 4,  losses: 7  }, // FC Barcelona
+    133740: { position: 3,  wins: 20, draws: 7,  losses: 7  }, // Atlético Madrid
+    // ── Serie A ──────────────────────────────────────────────────
+    133673: { position: 1,  wins: 22, draws: 8,  losses: 4  }, // Inter Milan
+    133672: { position: 3,  wins: 18, draws: 8,  losses: 8  }, // Juventus
+    133680: { position: 2,  wins: 21, draws: 5,  losses: 8  }, // Napoli
     133600: { position: 6,  wins: 14, draws: 8,  losses: 12 }, // Fulham
     133610: { position: 5,  wins: 16, draws: 6,  losses: 12 }, // Chelsea
     133615: { position: 16, wins: 7,  draws: 9,  losses: 18 }, // Everton

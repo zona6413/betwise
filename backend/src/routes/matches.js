@@ -125,6 +125,11 @@ function buildMatch(fixture, teamStats, realOddsMap) {
 // ── GET /api/matches ─────────────────────────────────────────────────────────────
 router.get('/', async (_req, res) => {
   try {
+    // Vider le cache si demandé
+    if (process.env.FORCE_CACHE_CLEAR) {
+      cache.flushAll();
+      delete process.env.FORCE_CACHE_CLEAR;
+    }
     const cached = cache.get('matches');
     if (cached) return res.json({ data: cached, cached: true, count: cached.length });
 
