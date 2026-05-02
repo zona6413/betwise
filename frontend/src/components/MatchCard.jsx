@@ -68,74 +68,87 @@ function trendEmoji(prob) {
 }
 
 function buildInsights(match) {
-  const { homeTeam, awayTeam, tieredBets, aiProbs } = match;
+  const { homeTeam, awayTeam, tieredBets, aiProbs, analysis } = match;
   const stats = tieredBets?.stats;
   if (!stats || !aiProbs) return null;
 
-  const totalExpG = +(stats.homeExpG + stats.awayExpG).toFixed(1);
-  const isOpen    = stats.bttsProb > 0.50 || stats.over25 > 0.52;
-  const favProb   = Math.max(aiProbs.home, aiProbs.away);
-  const favName   = aiProbs.home >= aiProbs.away ? homeTeam.name : awayTeam.name;
+  const isOpen  = stats.bttsProb > 0.50 || stats.over25 > 0.52;
+  const favProb = Math.max(aiProbs.home, aiProbs.away);
+  const favName = aiProbs.home >= aiProbs.away ? homeTeam.name : awayTeam.name;
 
-  // Synthèse (3 points max)
+  // 📌 Synthèse (3 points)
   const bullets = [];
-  if (isOpen) bullets.push('Match ouvert à buts');
-  else        bullets.push('Match fermé, peu de buts');
+  if (isOpen) bullets.push('Match ouvert — plusieurs buts attendus');
+  else        bullets.push('Match serré — peu de buts probables');
 
-  if (aiProbs.home > 0.53)       bullets.push(`Avantage ${homeTeam.name}`);
-  else if (aiProbs.away > 0.44)  bullets.push(`${awayTeam.name} peut surprendre`);
-  else                           bullets.push('Équilibre entre les équipes');
+  if (aiProbs.home > 0.53)      bullets.push(`Avantage domicile pour ${homeTeam.name}`);
+  else if (aiProbs.away > 0.44) bullets.push(`${awayTeam.name} en position de surprendre`);
+  else                          bullets.push('Match équilibré entre les deux équipes');
 
   if (stats.bttsProb > 0.58)     bullets.push('Les deux équipes devraient marquer');
   else if (stats.over25 > 0.60)  bullets.push('Plus de 2,5 buts envisageable');
   else if (stats.under25 > 0.60) bullets.push('Score serré attendu');
 
-  // Conclusion
+  // 🎯 Conclusion
   const topBet = tieredBets?.safe;
   const conclusion = topBet
-    ? `Privilégier : ${topBet.type}`
+    ? `Mise recommandée : ${topBet.type}`
     : 'Match difficile à cerner — prudence recommandée';
 
-  // Tendances (3 marchés clés)
+  // 📊 Tendances (3 marchés)
   const tendances = [
     { label: 'Over 2.5', prob: stats.over25 },
     { label: 'BTTS',     prob: stats.bttsProb },
     { label: favName,    prob: favProb },
   ];
 
-  return { bullets: bullets.slice(0, 3), conclusion, tendances };
+  // 🔍 Analyse courte
+  const analyse = analysis
+    ? analysis.split('.')[0].trim() + '.'
+    : `${favName} part favori avec ${Math.round(favProb * 100)}% de chances de victoire selon notre modèle.`;
+
+  return { bullets: bullets.slice(0, 3), conclusion, tendances, analyse };
 }
 
 function QuickInsights({ match }) {
   const insights = buildInsights(match);
   if (!insights) return null;
-  const { bullets, conclusion, tendances } = insights;
+  const { bullets, conclusion, tendances, analyse } = insights;
 
   return (
     <div className="quick-insights">
-      {/* Synthèse */}
-      <div className="qi-synthesis">
-        <div className="qi-label">📌 En un coup d'œil</div>
+      {/* 📌 Synthèse */}
+      <div className="qi-section qi-synthesis">
+        <div className="qi-section-title">📌 Synthèse</div>
         <ul className="qi-bullets">
           {bullets.map((b, i) => <li key={i}>{b}</li>)}
         </ul>
       </div>
 
-      {/* Conclusion */}
-      <div className="qi-conclusion">
-        <span className="qi-conclusion-icon">🎯</span>
+      {/* 🎯 Conclusion */}
+      <div className="qi-section qi-conclusion">
+        <div className="qi-section-title">🎯 Conclusion</div>
         <span className="qi-conclusion-text">{conclusion}</span>
       </div>
 
-      {/* Tendances */}
-      <div className="qi-tendances">
-        {tendances.map((t, i) => (
-          <div key={i} className={`qi-tend qi-tend--${trendColor(t.prob)}`}>
-            <span className="qi-tend-emoji">{trendEmoji(t.prob)}</span>
-            <span className="qi-tend-label">{t.label}</span>
-            <span className="qi-tend-pct">{Math.round(t.prob * 100)}%</span>
-          </div>
-        ))}
+      {/* 📊 Tendances */}
+      <div className="qi-section qi-tendances-wrap">
+        <div className="qi-section-title">📊 Tendances</div>
+        <div className="qi-tendances">
+          {tendances.map((t, i) => (
+            <div key={i} className={`qi-tend qi-tend--${trendColor(t.prob)}`}>
+              <span className="qi-tend-emoji">{trendEmoji(t.prob)}</span>
+              <span className="qi-tend-label">{t.label}</span>
+              <span className="qi-tend-pct">{Math.round(t.prob * 100)}%</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 🔍 Analyse */}
+      <div className="qi-section qi-analyse">
+        <div className="qi-section-title">🔍 Analyse</div>
+        <p className="qi-analyse-text">{analyse}</p>
       </div>
     </div>
   );

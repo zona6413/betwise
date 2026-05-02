@@ -8,16 +8,16 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  padding: 13px 28px;
-  background: linear-gradient(135deg, rgba(91,110,245,0.08), rgba(139,92,246,0.06));
-  border-bottom: 1px solid rgba(91,110,245,0.12);
-  font-size: 14px;
-  font-weight: 600;
-  color: rgba(255,255,255,0.55);
-  letter-spacing: 0.1px;
+  padding: 14px 28px;
+  background: linear-gradient(135deg, rgba(91,110,245,0.12), rgba(139,92,246,0.09));
+  border-bottom: 1px solid rgba(91,110,245,0.18);
+  font-size: 17px;
+  font-weight: 800;
+  color: rgba(255,255,255,0.85);
+  letter-spacing: -0.2px;
   text-align: center;
 }
-.site-tagline-icon { font-size: 16px; }
+.site-tagline-icon { font-size: 20px; }
 
 /* ── Stats bar ─────────────────────────────────────────────────── */
 .stats-bar {

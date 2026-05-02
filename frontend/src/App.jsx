@@ -135,8 +135,8 @@ export default function App() {
 
       <main className="main">
         <div className="site-tagline">
-          <span className="site-tagline-icon">📊</span>
-          Analyse rapide des matchs pour mieux comprendre les tendances
+          <span className="site-tagline-icon">⚡</span>
+          Comprends les matchs en 10 secondes
         </div>
         <div className="container">
 
