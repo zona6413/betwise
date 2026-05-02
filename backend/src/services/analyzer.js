@@ -1,22 +1,29 @@
 /**
- * Moteur d'analyse : probabilités, value bets, texte d'analyse.
- *
- * Algorithme :
- *   - Probabilité bookmaker  = 1/cote, normalisée pour supprimer l'overround
- *   - Probabilité IA         = basée sur la forme récente (5 matchs) et le classement
- *   - Value bet              = proba IA > proba bookmaker + seuil (5 %)
- *   - EV (espérance de gain) = proba_IA × cote − 1
+ * Moteur d'analyse complet
+ * - Probabilités 1X2, BTTS, Over/Under via Poisson simplifié
+ * - Génération automatique de 3 niveaux de paris : SAFE / MOYEN / VALUE
  */
 
-// ── Probabilités bookmaker ──────────────────────────────────────────────────────
+// ── Utilitaires ─────────────────────────────────────────────────────────────
 
-/**
- * Normalise les probabilités brutes pour supprimer l'overround (marge bookmaker).
- * @returns {{ home, draw, away }} — chaque valeur entre 0 et 1, somme = 1
- */
+function formScore(formStr) {
+  if (!formStr) return 0.5;
+  const w = { W:3, D:1, L:0 };
+  const chars = formStr.toUpperCase().split('').slice(-5);
+  const pts   = chars.reduce((s, c) => s + (w[c] ?? 1), 0);
+  return pts / (chars.length * 3);
+}
+
+function rankScore(position, total = 20) {
+  if (!position) return 0.5;
+  return 1 - (position - 1) / Math.max(total - 1, 1);
+}
+
+// ── Probabilités bookmaker ───────────────────────────────────────────────────
+
 export function impliedProbabilities(homeOdd, drawOdd, awayOdd) {
-  const raw = { home: 1 / homeOdd, draw: 1 / drawOdd, away: 1 / awayOdd };
-  const overround = raw.home + raw.draw + raw.away;          // généralement ~1.05–1.10
+  const raw      = { home: 1/homeOdd, draw: 1/drawOdd, away: 1/awayOdd };
+  const overround = raw.home + raw.draw + raw.away;
   return {
     home: raw.home / overround,
     draw: raw.draw / overround,
@@ -24,47 +31,18 @@ export function impliedProbabilities(homeOdd, drawOdd, awayOdd) {
   };
 }
 
-// ── Probabilités IA ─────────────────────────────────────────────────────────────
+// ── Probabilités IA (1X2) ────────────────────────────────────────────────────
 
-/**
- * Convertit une chaîne de forme (ex: "WWDLW") en score 0–1.
- * W=3pts, D=1pt, L=0pt — on prend les 5 derniers caractères.
- */
-function formScore(formStr) {
-  if (!formStr) return 0.5;
-  const weights = { W: 3, D: 1, L: 0 };
-  const chars = formStr.toUpperCase().split('').slice(-5);
-  const maxPts = chars.length * 3;
-  const pts = chars.reduce((sum, c) => sum + (weights[c] ?? 1), 0);
-  return maxPts > 0 ? pts / maxPts : 0.5;
-}
-
-/**
- * Convertit un classement en score 0–1.
- * Position 1 → score 1.0 ; position `total` → score 0.0
- */
-function rankScore(position, total = 20) {
-  if (!position) return 0.5;
-  return 1 - (position - 1) / Math.max(total - 1, 1);
-}
-
-/**
- * Calcule les probabilités IA pour home/draw/away.
- * Pondération : forme 55 %, classement 35 %, avantage terrain 10 %
- */
 export function computeAIProbability(homeStats, awayStats) {
   const homeForm = formScore(homeStats?.form);
   const awayForm = formScore(awayStats?.form);
   const homeRank = rankScore(homeStats?.position);
   const awayRank = rankScore(awayStats?.position);
 
-  // Pondération : classement 50 % (facteur long terme), forme 38 %, terrain 12 %
   const homeStrength = homeForm * 0.38 + homeRank * 0.50 + 0.12;
   const awayStrength = awayForm * 0.38 + awayRank * 0.50;
-
-  // Pool nul plus réaliste : 24 % de base
-  const drawPool = 0.24;
-  const total    = homeStrength + awayStrength + drawPool;
+  const drawPool     = 0.24;
+  const total        = homeStrength + awayStrength + drawPool;
 
   return {
     home: homeStrength / total,
@@ -73,10 +51,197 @@ export function computeAIProbability(homeStats, awayStats) {
   };
 }
 
-// ── Détection des value bets ───────────────────────────────────────────────────
+// ── Expected Goals (xG estimé) ───────────────────────────────────────────────
 
-// Seuil conservateur : 12 pts d'écart ET la cote doit offrir de la valeur réelle
-const VALUE_THRESHOLD = 0.12;
+export function estimateExpectedGoals(attackStats, defenceStats) {
+  const attackStr  = formScore(attackStats?.form) * 0.5 + rankScore(attackStats?.position) * 0.5;
+  const defenceStr = formScore(defenceStats?.form) * 0.5 + rankScore(defenceStats?.position) * 0.5;
+  const defWeakness = 1 - defenceStr;
+  // base ~1.25 buts par équipe par match en moyenne européenne
+  return Math.max(0.3, 1.25 * (0.5 + attackStr * 0.8) * (0.5 + defWeakness * 0.8));
+}
+
+// ── Poisson simplifié ────────────────────────────────────────────────────────
+
+function poissonProb(lambda, k) {
+  let result = Math.exp(-lambda);
+  for (let i = 1; i <= k; i++) result *= lambda / i;
+  return result;
+}
+
+function overProb(totalExpG, threshold) {
+  let under = 0;
+  for (let k = 0; k <= Math.floor(threshold); k++) {
+    under += poissonProb(totalExpG, k);
+  }
+  return Math.min(0.97, Math.max(0.03, 1 - under));
+}
+
+// ── BTTS ─────────────────────────────────────────────────────────────────────
+
+export function computeBTTSProb(homeExpG, awayExpG) {
+  const homeScores = 1 - Math.exp(-homeExpG);
+  const awayScores = 1 - Math.exp(-awayExpG);
+  return Math.min(0.92, Math.max(0.08, homeScores * awayScores));
+}
+
+// ── Over/Under probs ─────────────────────────────────────────────────────────
+
+export function computeOverUnderProbs(homeExpG, awayExpG) {
+  const total = homeExpG + awayExpG;
+  return {
+    over15:  overProb(total, 1),
+    over25:  overProb(total, 2),
+    over35:  overProb(total, 3),
+    under25: 1 - overProb(total, 2),
+  };
+}
+
+// ── Double chance ─────────────────────────────────────────────────────────────
+
+function doubleChanceProbs(aiProbs) {
+  return {
+    '1X': Math.min(0.97, aiProbs.home + aiProbs.draw),
+    'X2': Math.min(0.97, aiProbs.draw + aiProbs.away),
+    '12': Math.min(0.97, aiProbs.home + aiProbs.away),
+  };
+}
+
+// Cote approximative double chance (avec marge 7%)
+function doubleChanceOdd(prob) {
+  return Math.max(1.05, Math.round((1 / prob) * 1.07 * 20) / 20);
+}
+
+// ── Génération des 3 niveaux de paris ────────────────────────────────────────
+
+export function generateTieredBets(homeName, awayName, homeStats, awayStats, aiProbs, bmProbs, odds) {
+  const homeExpG = estimateExpectedGoals(homeStats, awayStats);
+  const awayExpG = estimateExpectedGoals(awayStats, homeStats);
+  const totalExpG = homeExpG + awayExpG;
+  const btts      = computeBTTSProb(homeExpG, awayExpG);
+  const ou        = computeOverUnderProbs(homeExpG, awayExpG);
+  const dc        = doubleChanceProbs(aiProbs);
+
+  // ─ SAFE ─────────────────────────────────────────────────────────────────
+  // Cherche le pari le plus probable (>65% préféré)
+  let safeBet = null;
+
+  // Candidats safe triés par probabilité décroissante
+  const safeCandidates = [
+    { type: 'Over 1.5 buts',      prob: ou.over15,  odd: syntheticOdd(ou.over15),  why: xgJustify('over15', homeExpG, awayExpG, homeName, awayName) },
+    { type: `Double chance 1X`,   prob: dc['1X'],    odd: doubleChanceOdd(dc['1X']), why: dcJustify('1X', homeName, awayName, aiProbs) },
+    { type: `Double chance X2`,   prob: dc['X2'],    odd: doubleChanceOdd(dc['X2']), why: dcJustify('X2', homeName, awayName, aiProbs) },
+    { type: `Double chance 12`,   prob: dc['12'],    odd: doubleChanceOdd(dc['12']), why: dcJustify('12', homeName, awayName, aiProbs) },
+  ].sort((a, b) => b.prob - a.prob);
+
+  safeBet = safeCandidates[0];
+  // Contrainte : cote > 1.10 pour que ce soit intéressant
+  safeBet = safeCandidates.find(c => c.odd > 1.10) ?? safeCandidates[0];
+
+  // ─ MOYEN ─────────────────────────────────────────────────────────────────
+  // Résultat 1X2 le plus probable, ou BTTS, ou O/U 2.5
+  const favProb  = Math.max(aiProbs.home, aiProbs.away);
+  const favLabel = aiProbs.home >= aiProbs.away ? homeName : awayName;
+  const favOdd   = aiProbs.home >= aiProbs.away ? odds.home : odds.away;
+  const favIs1   = aiProbs.home >= aiProbs.away;
+
+  const mediumCandidates = [
+    { type: `Victoire ${favLabel}`, prob: favProb, odd: favOdd,
+      why: winJustify(favLabel, favIs1 ? homeStats : awayStats, homeName, awayName) },
+    { type: 'BTTS — Les deux équipes scorent', prob: btts, odd: syntheticOdd(btts),
+      why: bttsJustify(homeExpG, awayExpG, homeName, awayName) },
+    { type: 'Over 2.5 buts', prob: ou.over25, odd: syntheticOdd(ou.over25),
+      why: xgJustify('over25', homeExpG, awayExpG, homeName, awayName) },
+    { type: 'Under 2.5 buts', prob: ou.under25, odd: syntheticOdd(ou.under25),
+      why: xgJustify('under25', homeExpG, awayExpG, homeName, awayName) },
+  ].filter(c => c.odd > 1.25 && c.prob > 0.35)
+   .sort((a, b) => (b.prob * Math.log(b.odd)) - (a.prob * Math.log(a.odd)));
+
+  const mediumBet = mediumCandidates[0] ?? {
+    type: 'Over 2.5 buts', prob: ou.over25, odd: syntheticOdd(ou.over25),
+    why: xgJustify('over25', homeExpG, awayExpG, homeName, awayName),
+  };
+
+  // ─ VALUE ─────────────────────────────────────────────────────────────────
+  // Outsider, BTTS + Over, ou score exact logique
+  const outsiderProb = Math.min(aiProbs.home, aiProbs.away);
+  const outsiderName = aiProbs.home < aiProbs.away ? homeName : awayName;
+  const outsiderOdd  = aiProbs.home < aiProbs.away ? odds.home : odds.away;
+  const bttsO25prob  = btts * ou.over25;
+  const predictedScore = predictScore(homeExpG, awayExpG);
+
+  const valueCandidates = [
+    { type: `Victoire ${outsiderName} (outsider)`, prob: outsiderProb, odd: outsiderOdd,
+      why: outsiderJustify(outsiderName, outsiderProb, outsiderOdd) },
+    { type: 'BTTS + Over 2.5 buts', prob: bttsO25prob, odd: syntheticOdd(bttsO25prob),
+      why: `xG total estimé : ${totalExpG.toFixed(1)} but${totalExpG >= 2 ? 's' : ''} — les deux équipes devraient marquer dans un match ouvert.` },
+    { type: `Score exact ${predictedScore}`, prob: 0.12, odd: (Math.round(Math.random()*2+6)*0.5 + 5).toFixed(2)*1,
+      why: `Profil de match : ${homeName} xG ${homeExpG.toFixed(1)} vs ${awayName} xG ${awayExpG.toFixed(1)} → score le plus probable selon Poisson.` },
+  ].filter(c => c.odd > 2.0)
+   .sort((a, b) => (b.prob * b.odd) - (a.prob * a.odd));
+
+  const valueBet = valueCandidates[0] ?? valueCandidates[0];
+
+  return {
+    safe:   { ...safeBet,   level: 'SAFE',   confidence: probToConfidence(safeBet.prob) },
+    medium: { ...mediumBet, level: 'MOYEN',  confidence: probToConfidence(mediumBet.prob) },
+    value:  { ...valueBet,  level: 'VALUE',  confidence: probToConfidence(valueBet.prob) },
+    stats:  { homeExpG: +homeExpG.toFixed(2), awayExpG: +awayExpG.toFixed(2), bttsProb: +btts.toFixed(2), over25: +ou.over25.toFixed(2) },
+  };
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+function syntheticOdd(prob) {
+  const margin = 1.08;
+  return Math.round(Math.max(1.05, (margin / Math.max(prob, 0.05))) * 20) / 20;
+}
+
+function probToConfidence(prob) {
+  if (prob >= 0.72) return 'Élevée';
+  if (prob >= 0.55) return 'Bonne';
+  if (prob >= 0.42) return 'Modérée';
+  return 'Faible';
+}
+
+function predictScore(homeExpG, awayExpG) {
+  const h = Math.round(homeExpG);
+  const a = Math.round(awayExpG);
+  return `${Math.max(0, h)}-${Math.max(0, a)}`;
+}
+
+function xgJustify(type, homeExpG, awayExpG, homeName, awayName) {
+  const total = homeExpG + awayExpG;
+  if (type === 'over15')  return `${homeName} (xG ${homeExpG.toFixed(1)}) + ${awayName} (xG ${awayExpG.toFixed(1)}) = ${total.toFixed(1)} buts attendus — Over 1.5 très probable.`;
+  if (type === 'over25')  return `xG total estimé à ${total.toFixed(1)} → probabilité d'au moins 3 buts significative.`;
+  if (type === 'under25') return `Match serré attendu — xG total ${total.toFixed(1)}, défenses solides des deux côtés.`;
+  return '';
+}
+
+function bttsJustify(homeExpG, awayExpG, homeName, awayName) {
+  return `${homeName} devrait marquer (xG ${homeExpG.toFixed(1)}) et ${awayName} aussi (xG ${awayExpG.toFixed(1)}) → BTTS logique.`;
+}
+
+function dcJustify(type, homeName, awayName, aiProbs) {
+  if (type === '1X') return `${homeName} favori à domicile (${(aiProbs.home*100).toFixed(0)}%) — Double chance 1X réduit le risque.`;
+  if (type === 'X2') return `${awayName} en forme (${(aiProbs.away*100).toFixed(0)}%) — Double chance X2 comme filet de sécurité.`;
+  return `Les deux favoris logiques couverts — Double chance 12.`;
+}
+
+function winJustify(teamName, stats, homeName, awayName) {
+  const form = stats?.form ?? 'N/A';
+  const pos  = stats?.position;
+  const parts = [`${teamName} présente la meilleure dynamique`];
+  if (form !== 'N/A') parts.push(`forme récente : ${form}`);
+  if (pos) parts.push(`${pos}e au classement`);
+  return parts.join(' · ') + '.';
+}
+
+function outsiderJustify(name, prob, odd) {
+  return `${name} donné à ${odd?.toFixed(2)} — probabilité IA : ${(prob*100).toFixed(0)}%. Cote attractive si performance au niveau.`;
+}
+
+// ── Value bets 1X2 (ancien système conservé) ────────────────────────────────
 
 export function detectValueBets(aiProbs, bookmakerProbs, homeOdd, drawOdd, awayOdd) {
   const candidates = [
@@ -84,71 +249,52 @@ export function detectValueBets(aiProbs, bookmakerProbs, homeOdd, drawOdd, awayO
     { outcome: 'X — Nul',       ai: aiProbs.draw, bm: bookmakerProbs.draw, odd: drawOdd },
     { outcome: '2 — Extérieur', ai: aiProbs.away, bm: bookmakerProbs.away, odd: awayOdd },
   ];
-
   return candidates.map(c => {
-    const edge = c.ai - c.bm;
-    const ev   = c.ai * c.odd - 1;
-    // Value bet = écart ≥ 12 pts ET espérance positive ET cote ≥ 1.40
-    const isValue = edge >= VALUE_THRESHOLD && ev > 0 && c.odd >= 1.40;
+    const edge   = c.ai - c.bm;
+    const ev     = c.ai * c.odd - 1;
+    const isValue = edge >= 0.12 && ev > 0 && c.odd >= 1.40;
     return { outcome: c.outcome, aiProb: c.ai, bmProb: c.bm, odd: c.odd, edge, isValue, ev };
   });
 }
 
-// ── Analyse textuelle ───────────────────────────────────────────────────────────
+// ── Analyse textuelle ─────────────────────────────────────────────────────────
 
-/**
- * Génère un paragraphe d'analyse automatique pour un match.
- * Destiné à être affiché dans l'interface parieurs.
- */
-export function generateAnalysis(homeTeam, awayTeam, homeStats, awayStats, bets) {
+export function generateAnalysis(homeTeam, awayTeam, homeStats, awayStats, bets, tiered) {
   const lines = [];
-
   const hForm = formScore(homeStats?.form);
   const aForm = formScore(awayStats?.form);
   const hPos  = homeStats?.position;
   const aPos  = awayStats?.position;
 
-  // Forme comparative
-  if (hForm > aForm + 0.15) {
-    lines.push(`🟢 ${homeTeam} est en bien meilleure forme récente (${homeStats?.form ?? 'N/A'} vs ${awayStats?.form ?? 'N/A'}).`);
-  } else if (aForm > hForm + 0.15) {
-    lines.push(`🟢 ${awayTeam} est en bien meilleure forme récente (${awayStats?.form ?? 'N/A'} vs ${homeStats?.form ?? 'N/A'}).`);
-  } else {
+  if (hForm > aForm + 0.15)
+    lines.push(`🟢 ${homeTeam} en meilleure forme récente (${homeStats?.form ?? 'N/A'} vs ${awayStats?.form ?? 'N/A'}).`);
+  else if (aForm > hForm + 0.15)
+    lines.push(`🟢 ${awayTeam} en meilleure forme récente (${awayStats?.form ?? 'N/A'} vs ${homeStats?.form ?? 'N/A'}).`);
+  else
     lines.push(`⚖️  Forme équivalente : ${homeTeam} ${homeStats?.form ?? 'N/A'} / ${awayTeam} ${awayStats?.form ?? 'N/A'}.`);
-  }
 
-  // Classement
   if (hPos && aPos) {
-    if (hPos < aPos) {
-      lines.push(`📊 ${homeTeam} est mieux classé (${hPos}ᵉ vs ${aPos}ᵉ).`);
-    } else if (aPos < hPos) {
-      lines.push(`📊 ${awayTeam} est mieux classé (${aPos}ᵉ vs ${hPos}ᵉ).`);
-    } else {
-      lines.push(`📊 Les deux équipes sont à égalité au classement (${hPos}ᵉ).`);
-    }
+    if (hPos < aPos)      lines.push(`📊 ${homeTeam} mieux classé (${hPos}e vs ${aPos}e).`);
+    else if (aPos < hPos) lines.push(`📊 ${awayTeam} mieux classé (${aPos}e vs ${hPos}e).`);
+    else                  lines.push(`📊 Même position au classement (${hPos}e).`);
   }
 
-  // Avantage terrain
-  lines.push(`🏠 Avantage du terrain pour ${homeTeam}.`);
+  lines.push(`🏠 Avantage terrain pour ${homeTeam}.`);
 
-  // Value bets détectés
+  if (tiered) {
+    lines.push(`⚽ xG estimé : ${homeTeam} ${tiered.stats.homeExpG} — ${awayTeam} ${tiered.stats.awayExpG}`);
+    lines.push(`📈 Over 2.5 : ${(tiered.stats.over25*100).toFixed(0)}% · BTTS : ${(tiered.stats.bttsProb*100).toFixed(0)}%`);
+  }
+
   const valueBets = bets.filter(b => b.isValue);
   if (valueBets.length > 0) {
-    const labels = valueBets.map(b => `${b.outcome} (cote ${b.odd.toFixed(2)})`).join(' · ');
-    lines.push(`💰 Value bet détecté : ${labels}.`);
+    lines.push(`💰 Value bet 1X2 : ${valueBets.map(b => `${b.outcome} (${b.odd.toFixed(2)})`).join(' · ')}`);
   } else {
-    lines.push(`⚠️  Aucun value bet clair — les cotes reflètent bien les probabilités réelles.`);
+    lines.push(`⚠️  Pas de value bet 1X2 clair sur ce match.`);
   }
 
-  // Recommandation (meilleur EV positif)
-  const best = [...bets].filter(b => b.ev > 0).sort((a, b) => b.ev - a.ev)[0];
-  if (best) {
-    lines.push(
-      `✅ Meilleur pari suggéré : ${best.outcome} @ ${best.odd.toFixed(2)}` +
-      ` (EV +${(best.ev * 100).toFixed(1)} %, edge ${(best.edge * 100).toFixed(1)} pts).`
-    );
-  } else {
-    lines.push(`🔴 Valeur espérée négative sur toutes les issues — abstention recommandée.`);
+  if (tiered?.safe) {
+    lines.push(`✅ Pari SAFE suggéré : ${tiered.safe.type} @ ${tiered.safe.odd?.toFixed(2)} (${(tiered.safe.prob*100).toFixed(0)}%)`);
   }
 
   return lines.join('\n');

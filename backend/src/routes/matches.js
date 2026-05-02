@@ -10,6 +10,7 @@ import {
   computeAIProbability,
   detectValueBets,
   generateAnalysis,
+  generateTieredBets,
 } from '../services/analyzer.js';
 
 const router = Router();
@@ -74,12 +75,18 @@ function buildMatch(fixture, teamStats, realOddsMap) {
   const bookmakerProbs = impliedProbabilities(homeOdd, drawOdd, awayOdd);
   const aiProbs        = computeAIProbability(homeStats, awayStats);
   const bets           = detectValueBets(aiProbs, bookmakerProbs, homeOdd, drawOdd, awayOdd);
+  const tieredBets     = generateTieredBets(
+    fixture.teams.home.name, fixture.teams.away.name,
+    homeStats, awayStats, aiProbs, bookmakerProbs,
+    { home: homeOdd, draw: drawOdd, away: awayOdd }
+  );
   const analysis       = generateAnalysis(
     fixture.teams.home.name,
     fixture.teams.away.name,
     homeStats,
     awayStats,
-    bets
+    bets,
+    tieredBets
   );
 
   return {
@@ -109,6 +116,7 @@ function buildMatch(fixture, teamStats, realOddsMap) {
     bookmakerProbs,
     aiProbs,
     bets,
+    tieredBets,
     analysis,
     hasValueBet: bets.some(b => b.isValue),
   };

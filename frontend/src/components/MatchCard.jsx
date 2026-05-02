@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import BetTiers from './BetTiers.jsx';
 import './MatchCard.css';
 
 function StatusBadge({ status }) {
@@ -83,7 +84,7 @@ function OddCell({ label, odd, bmProb, aiProb, isValue }) {
 }
 
 export default function MatchCard({ match, onAnalyse }) {
-  const { homeTeam, awayTeam, score, odds, bookmakerProbs, aiProbs, bets, hasValueBet } = match;
+  const { homeTeam, awayTeam, score, odds, bookmakerProbs, aiProbs, bets, tieredBets, hasValueBet } = match;
   const isLive    = ['1H','HT','2H','ET','P'].includes(match.status);
   const isEnded   = match.status === 'FT';
   const isUpcoming = match.status === 'NS';
@@ -179,8 +180,8 @@ export default function MatchCard({ match, onAnalyse }) {
         </div>
       </div>
 
-      {/* Odds */}
-      {odds ? (
+      {/* Cotes 1X2 bookmaker */}
+      {odds && (
         <div className="card-odds">
           <OddCell
             label="1" odd={odds.home}
@@ -199,19 +200,10 @@ export default function MatchCard({ match, onAnalyse }) {
           />
           <div className="odds-bm">{odds.bookmaker}</div>
         </div>
-      ) : (
-        <div className="no-odds">Cotes indisponibles</div>
       )}
 
-      {/* Best bet */}
-      {bestBet && (
-        <div className="best-bet">
-          <span className="best-bet-label">Signal détecté</span>
-          <span className="best-bet-outcome">{bestBet.outcome}</span>
-          <span className="best-bet-odd">@ {bestBet.odd?.toFixed(2)}</span>
-          <span className="best-bet-ev">EV +{Math.min(bestBet.ev * 100, 35).toFixed(1)}%</span>
-        </div>
-      )}
+      {/* 3 niveaux de paris */}
+      <BetTiers tieredBets={tieredBets} />
 
       {/* Footer */}
       <div className="card-footer">

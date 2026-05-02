@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import BetTiers from './BetTiers.jsx';
 import './AnalysisPanel.css';
 
 /**
@@ -21,7 +22,7 @@ export default function AnalysisPanel({ match, onClose }) {
 
   if (!match) return null;
 
-  const { homeTeam, awayTeam, odds, bets, analysis, league, leagueCountry } = match;
+  const { homeTeam, awayTeam, odds, bets, tieredBets, analysis, league, leagueCountry } = match;
 
   // Meilleur pari (EV max positif)
   const bestBet = bets
@@ -54,6 +55,14 @@ export default function AnalysisPanel({ match, onClose }) {
 
         {/* Contenu scrollable */}
         <div className="panel-body">
+
+          {/* 3 niveaux de paris */}
+          {tieredBets && (
+            <section className="panel-section">
+              <h3 className="section-title">Paris recommandés — 3 niveaux</h3>
+              <BetTiers tieredBets={tieredBets} />
+            </section>
+          )}
 
           {/* Formes récentes */}
           <section className="panel-section">
