@@ -416,14 +416,57 @@
   border-radius: 10px;
 }
 
+/* ── Confidence bar ───────────────────────────────────────────── */
+.confidence-bar-wrap {
+  height: 2px;
+  background: var(--border-lite);
+  border-radius: 1px;
+  margin-top: 4px;
+  overflow: hidden;
+}
+.confidence-bar {
+  height: 100%;
+  background: var(--text-dim);
+  border-radius: 1px;
+  transition: width 0.6s cubic-bezier(.4,0,.2,1);
+}
+.confidence-bar--value { background: var(--green); }
+
+/* ── Urgency ──────────────────────────────────────────────────── */
+.countdown--urgent { color: #ff3d71; font-weight: 600; animation: pulse 1.5s ease-in-out infinite; }
+.urgent-tag {
+  font-size: 9px;
+  font-weight: 700;
+  color: #ff3d71;
+  background: var(--red-dim);
+  border: 1px solid rgba(255,61,113,0.2);
+  padding: 2px 7px;
+  border-radius: 6px;
+  letter-spacing: 0.4px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
 /* ── Footer ───────────────────────────────────────────────────── */
 .card-footer {
-  padding: 10px 14px;
+  padding: 9px 14px;
   border-top: 1px solid var(--border-lite);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.card-footer-meta {
+  flex-shrink: 0;
+}
+
+.card-viewers {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-weight: 500;
 }
 
 .btn-analyse {
-  width: 100%;
+  flex: 1;
   padding: 8px;
   border-radius: var(--radius-sm);
   font-size: 12px;

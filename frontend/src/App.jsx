@@ -1,17 +1,21 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { useMatches }    from './hooks/useMatches.js';
 import Header            from './components/Header.jsx';
 import MatchCard         from './components/MatchCard.jsx';
+import HeroCard          from './components/HeroCard.jsx';
 import AnalysisPanel     from './components/AnalysisPanel.jsx';
+import Toast             from './components/Toast.jsx';
 import './App.css';
 
 const TABS = [
-  { id: 'all',   label: 'Tous' },
-  { id: 'live',  label: '🔴 En direct' },
-  { id: 'value', label: '💰 Value bets' },
-  { id: 'today', label: "Aujourd'hui" },
+  { id: 'all',      label: 'Tous' },
+  { id: 'live',     label: '🔴 En direct' },
+  { id: 'value',    label: '💰 Value bets' },
+  { id: 'today',    label: "Aujourd'hui" },
   { id: 'tomorrow', label: 'Demain' },
 ];
+
+const LIVE_STATUSES = ['1H','HT','2H','ET','P'];
 
 function dateLabel(dateStr) {
   const d  = new Date(dateStr);
@@ -39,13 +43,30 @@ export default function App() {
   const [selectedMatch, setSelectedMatch] = useState(null);
   const [activeTab,     setActiveTab]     = useState('all');
   const [activeLeague,  setActiveLeague]  = useState('all');
+  const [toast,         setToast]         = useState({ visible: false, message: '', type: 'value' });
+  const prevValueCount = useRef(0);
 
   const leagues = useMemo(
     () => [...new Set(matches.map(m => normalizeLeague(m.league)))],
     [matches]
   );
 
-  const LIVE_STATUSES = ['1H','HT','2H','ET','P'];
+  // Toast quand de nouveaux value bets apparaissent
+  useEffect(() => {
+    const valueCount = matches.filter(m => m.hasValueBet).length;
+    if (valueCount > 0 && prevValueCount.current === 0 && matches.length > 0) {
+      const top = [...matches].filter(m => m.hasValueBet && m.bets)
+        .sort((a,b) => Math.max(...b.bets.map(x=>x.ev)) - Math.max(...a.bets.map(x=>x.ev)))[0];
+      if (top) {
+        setToast({
+          visible: true,
+          message: `${valueCount} value bet${valueCount > 1 ? 's' : ''} détecté${valueCount > 1 ? 's' : ''} · ${top.homeTeam.name} vs ${top.awayTeam.name}`,
+          type: 'value',
+        });
+      }
+    }
+    prevValueCount.current = valueCount;
+  }, [matches]);
 
   const filtered = useMemo(() => {
     let list = matches;
@@ -73,10 +94,23 @@ export default function App() {
     return [...map.values()];
   }, [filtered]);
 
-  const liveMatches  = matches.filter(m => LIVE_STATUSES.includes(m.status));
-  const valueCount   = matches.filter(m => m.hasValueBet).length;
-  const topValue     = [...matches].filter(m => m.hasValueBet && m.bets)
+  const liveMatches = matches.filter(m => LIVE_STATUSES.includes(m.status));
+  const valueCount  = matches.filter(m => m.hasValueBet).length;
+  const topValue    = [...matches].filter(m => m.hasValueBet && m.bets)
     .sort((a,b) => Math.max(...b.bets.map(x=>x.ev)) - Math.max(...a.bets.map(x=>x.ev)))[0];
+
+  // Hero card = top value bet (exclu des autres cartes si affiché)
+  const heroMatch   = activeTab === 'all' && activeLeague === 'all' ? topValue : null;
+  const gridMatches = heroMatch ? filtered.filter(m => m.id !== heroMatch.id) : filtered;
+  const groupedGrid = useMemo(() => {
+    const map = new Map();
+    for (const m of gridMatches) {
+      const key = new Date(m.date).toDateString();
+      if (!map.has(key)) map.set(key, { label: dateLabel(m.date), matches: [] });
+      map.get(key).matches.push(m);
+    }
+    return [...map.values()];
+  }, [gridMatches]);
 
   return (
     <div className="app">
@@ -97,43 +131,51 @@ export default function App() {
           <div className="stats-bar">
             <div className="stats-bar-item">
               <span className="stats-num">{matches.length}</span>
-              <span className="stats-lbl">Matchs analysés</span>
+              <span className="stats-lbl">Matchs</span>
             </div>
             <div className="stats-bar-sep" />
             <div className="stats-bar-item">
-              <span className="stats-num stats-num--live">{liveMatches.length}</span>
+              <span className={`stats-num ${liveMatches.length > 0 ? 'stats-num--live' : ''}`}>{liveMatches.length}</span>
               <span className="stats-lbl">En direct</span>
             </div>
             <div className="stats-bar-sep" />
             <div className="stats-bar-item">
-              <span className="stats-num stats-num--green">{valueCount}</span>
+              <span className={`stats-num ${valueCount > 0 ? 'stats-num--green' : ''}`}>{valueCount}</span>
               <span className="stats-lbl">Value bets</span>
             </div>
             {topValue && (
               <>
                 <div className="stats-bar-sep" />
                 <div className="stats-bar-item stats-bar-item--hot">
-                  <span className="stats-hot-label">🔥 Top pick</span>
-                  <span className="stats-hot-match">
-                    {topValue.homeTeam.name} vs {topValue.awayTeam.name}
-                  </span>
+                  <span className="stats-hot-label">⚡ Top signal</span>
+                  <span className="stats-hot-match">{topValue.homeTeam.name} vs {topValue.awayTeam.name}</span>
                 </div>
               </>
             )}
             <div className="stats-bar-refresh">
-              <button className={`btn-refresh-sm ${loading ? 'spinning' : ''}`} onClick={refresh} disabled={loading}>↻</button>
-              {lastUpdated && <span className="stats-time">{lastUpdated.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</span>}
+              <button
+                className={`btn-refresh-sm ${loading ? 'spinning' : ''}`}
+                onClick={refresh}
+                disabled={loading}
+                title="Rafraîchir"
+              >↻</button>
+              {lastUpdated && (
+                <span className="stats-time">
+                  {lastUpdated.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}
+                </span>
+              )}
             </div>
           </div>
 
           {/* Live banner */}
           {liveMatches.length > 0 && (
             <div className="live-banner">
-              <span className="live-dot" /><span className="live-banner-label">EN DIRECT</span>
+              <span className="live-dot" />
+              <span className="live-banner-label">En direct</span>
               <div className="live-banner-matches">
                 {liveMatches.map(m => (
                   <button key={m.id} className="live-banner-pill" onClick={() => setSelectedMatch(m)}>
-                    {m.homeTeam.name} <strong>{m.score.home ?? 0}–{m.score.away ?? 0}</strong> {m.awayTeam.name}
+                    {m.homeTeam.name} <strong>{m.score?.home ?? 0}–{m.score?.away ?? 0}</strong> {m.awayTeam.name}
                   </button>
                 ))}
               </div>
@@ -158,17 +200,26 @@ export default function App() {
           {loading && !matches.length && <Skeleton />}
           {error && <ErrorBanner message={error} onRetry={refresh} />}
 
-          {!loading && !error && filtered.length === 0 && <Empty tab={activeTab} onReset={() => setActiveTab('all')} />}
+          {/* Hero card — match du moment */}
+          {heroMatch && !loading && (
+            <HeroCard match={heroMatch} onAnalyse={setSelectedMatch} />
+          )}
 
-          {grouped.map((group, gi) => (
+          {!loading && !error && filtered.length === 0 && (
+            <Empty tab={activeTab} onReset={() => setActiveTab('all')} />
+          )}
+
+          {groupedGrid.map((group, gi) => (
             <div key={group.label} className="date-group">
               <div className="date-group-header">
                 <span className="date-group-label">{group.label}</span>
-                <span className="date-group-count">{group.matches.length} match{group.matches.length > 1 ? 's' : ''}</span>
+                <span className="date-group-count">
+                  {group.matches.length} match{group.matches.length > 1 ? 's' : ''}
+                </span>
               </div>
               <div className="matches-grid">
                 {group.matches.map((match, i) => (
-                  <div key={match.id} className="animate-fade" style={{ animationDelay: `${(gi*5+i)*25}ms` }}>
+                  <div key={match.id} className="animate-fade" style={{ animationDelay: `${(gi*5+i)*30}ms` }}>
                     <MatchCard match={match} onAnalyse={setSelectedMatch} />
                   </div>
                 ))}
@@ -182,6 +233,12 @@ export default function App() {
       {selectedMatch && (
         <AnalysisPanel match={selectedMatch} onClose={() => setSelectedMatch(null)} />
       )}
+
+      <Toast
+        message={toast.message}
+        visible={toast.visible}
+        type={toast.type}
+      />
     </div>
   );
 }

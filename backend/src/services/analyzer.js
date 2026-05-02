@@ -75,13 +75,9 @@ export function computeAIProbability(homeStats, awayStats) {
 
 // ── Détection des value bets ───────────────────────────────────────────────────
 
-/** Seuil minimum d'écart IA − bookmaker pour qualifier un value bet */
-const VALUE_THRESHOLD = 0.05;   // 5 points de probabilité
+// Seuil conservateur : 12 pts d'écart ET la cote doit offrir de la valeur réelle
+const VALUE_THRESHOLD = 0.12;
 
-/**
- * Pour chaque issue (1X2), compare proba IA vs proba bookmaker.
- * @returns {Array<{ outcome, aiProb, bmProb, odd, edge, isValue, ev }>}
- */
 export function detectValueBets(aiProbs, bookmakerProbs, homeOdd, drawOdd, awayOdd) {
   const candidates = [
     { outcome: '1 — Domicile',  ai: aiProbs.home, bm: bookmakerProbs.home, odd: homeOdd },
@@ -89,15 +85,13 @@ export function detectValueBets(aiProbs, bookmakerProbs, homeOdd, drawOdd, awayO
     { outcome: '2 — Extérieur', ai: aiProbs.away, bm: bookmakerProbs.away, odd: awayOdd },
   ];
 
-  return candidates.map(c => ({
-    outcome: c.outcome,
-    aiProb:  c.ai,
-    bmProb:  c.bm,
-    odd:     c.odd,
-    edge:    c.ai - c.bm,                          // avantage IA sur le bookmaker
-    isValue: c.ai - c.bm > VALUE_THRESHOLD,
-    ev:      c.ai * c.odd - 1,                     // espérance de gain (>0 = rentable)
-  }));
+  return candidates.map(c => {
+    const edge = c.ai - c.bm;
+    const ev   = c.ai * c.odd - 1;
+    // Value bet = écart ≥ 12 pts ET espérance positive ET cote ≥ 1.40
+    const isValue = edge >= VALUE_THRESHOLD && ev > 0 && c.odd >= 1.40;
+    return { outcome: c.outcome, aiProb: c.ai, bmProb: c.bm, odd: c.odd, edge, isValue, ev };
+  });
 }
 
 // ── Analyse textuelle ───────────────────────────────────────────────────────────
