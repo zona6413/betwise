@@ -2,8 +2,8 @@
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(6px);
+  background: rgba(0,0,0,0.78);
+  backdrop-filter: blur(7px);
   z-index: 1000;
   display: flex;
   align-items: center;
@@ -11,11 +11,7 @@
   padding: 16px;
   animation: modal-fade-in 0.18s ease;
 }
-
-@keyframes modal-fade-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
+@keyframes modal-fade-in { from { opacity: 0; } to { opacity: 1; } }
 
 /* ── Window ──────────────────────────────────────────────────────── */
 .modal-window {
@@ -24,39 +20,33 @@
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 20px;
   width: 100%;
-  max-width: 760px;
+  max-width: 780px;
   max-height: 92vh;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: rgba(255,255,255,0.08) transparent;
+  scrollbar-color: rgba(255,255,255,0.07) transparent;
   animation: modal-slide-up 0.22s cubic-bezier(.34,1.56,.64,1);
 }
-
 @keyframes modal-slide-up {
-  from { transform: translateY(32px) scale(0.97); opacity: 0; }
-  to   { transform: translateY(0)    scale(1);    opacity: 1; }
+  from { transform: translateY(28px) scale(0.97); opacity: 0; }
+  to   { transform: translateY(0) scale(1); opacity: 1; }
 }
-
 .modal-window::-webkit-scrollbar { width: 4px; }
 .modal-window::-webkit-scrollbar-track { background: transparent; }
-.modal-window::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+.modal-window::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.07); border-radius: 4px; }
 
 /* ── Close ───────────────────────────────────────────────────────── */
 .modal-close {
   position: absolute;
-  top: 16px;
-  right: 16px;
-  width: 32px;
-  height: 32px;
+  top: 16px; right: 16px;
+  width: 32px; height: 32px;
   border-radius: 50%;
   background: rgba(255,255,255,0.07);
   border: none;
-  color: rgba(255,255,255,0.5);
+  color: rgba(255,255,255,0.45);
   font-size: 14px;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex; align-items: center; justify-content: center;
   transition: background 0.15s, color 0.15s;
   z-index: 2;
 }
@@ -69,362 +59,280 @@
   padding: 28px 28px 24px;
   border-radius: 20px 20px 0 0;
 }
-
 .modal-header-league {
-  font-size: 11px;
-  font-weight: 700;
-  color: rgba(255,255,255,0.4);
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
+  font-size: 11px; font-weight: 700;
+  color: rgba(255,255,255,0.38);
+  letter-spacing: 0.8px; text-transform: uppercase;
   margin-bottom: 18px;
 }
-
 .modal-header-teams {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  display: flex; align-items: center; gap: 12px;
 }
 
 /* ── Team blocks ─────────────────────────────────────────────────── */
-.modal-team {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
+.modal-team { flex: 1; display: flex; flex-direction: column; gap: 6px; }
 .modal-team--home { align-items: flex-start; }
-.modal-team--away { align-items: flex-end;   }
+.modal-team--away { align-items: flex-end; }
+.modal-team-logo { width: 48px; height: 48px; object-fit: contain; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5)); }
+.modal-team-name { font-size: 18px; font-weight: 800; color: #fff; letter-spacing: -0.3px; line-height: 1.15; }
+.modal-team-pos { font-size: 11px; color: rgba(255,255,255,0.33); font-weight: 500; }
+.modal-form { display: flex; gap: 4px; margin-top: 2px; }
 
-.modal-team-logo {
-  width: 48px;
-  height: 48px;
-  object-fit: contain;
-  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5));
-}
-
-.modal-team-name {
-  font-size: 18px;
-  font-weight: 800;
-  color: #fff;
-  letter-spacing: -0.3px;
-  line-height: 1.15;
-}
-
-.modal-team-pos {
-  font-size: 11px;
-  color: rgba(255,255,255,0.35);
-  font-weight: 500;
-}
-
-.modal-form {
-  display: flex;
-  gap: 4px;
-  margin-top: 2px;
-}
-
-/* ── Form bubbles ────────────────────────────────────────────────── */
 .form-bubble {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0;
+  width: 22px; height: 22px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 800;
 }
-.form-bubble--win  { background: rgba(0,214,143,0.18); color: #00d68f; border: 1px solid rgba(0,214,143,0.3); }
-.form-bubble--draw { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.1); }
-.form-bubble--loss { background: rgba(255,61,113,0.15); color: #ff3d71; border: 1px solid rgba(255,61,113,0.25); }
+.form-bubble--win  { background: rgba(0,214,143,0.18); color: #00d68f; border: 1px solid rgba(0,214,143,0.28); }
+.form-bubble--draw { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.45); border: 1px solid rgba(255,255,255,0.1); }
+.form-bubble--loss { background: rgba(255,61,113,0.14); color: #ff3d71; border: 1px solid rgba(255,61,113,0.22); }
 
-/* ── Center (score / time) ───────────────────────────────────────── */
+/* ── Center ──────────────────────────────────────────────────────── */
 .modal-header-center {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-  min-width: 100px;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  flex-shrink: 0; min-width: 100px;
 }
-
 .modal-score {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 36px;
-  font-weight: 900;
-  color: #fff;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -1px;
+  display: flex; align-items: center; gap: 6px;
+  font-size: 36px; font-weight: 900; color: #fff;
+  font-variant-numeric: tabular-nums; letter-spacing: -1px;
 }
 .modal-score-sep { color: rgba(255,255,255,0.25); font-weight: 300; }
-
-.modal-kickoff {
-  font-size: 28px;
-  font-weight: 900;
-  color: #fff;
-  letter-spacing: -0.5px;
-}
+.modal-kickoff { font-size: 28px; font-weight: 900; color: #fff; letter-spacing: -0.5px; }
 
 .modal-predicted {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  background: rgba(91,110,245,0.12);
-  border: 1px solid rgba(91,110,245,0.25);
-  border-radius: 10px;
-  padding: 6px 12px;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  background: rgba(91,110,245,0.11); border: 1px solid rgba(91,110,245,0.22);
+  border-radius: 10px; padding: 6px 12px;
 }
-.modal-predicted-label {
-  font-size: 9px;
-  font-weight: 700;
-  color: #818cf8;
-  text-transform: uppercase;
-  letter-spacing: 0.6px;
-}
-.modal-predicted-score {
-  font-size: 20px;
-  font-weight: 900;
-  color: #fff;
-  letter-spacing: -0.5px;
-}
+.modal-predicted-label { font-size: 9px; font-weight: 700; color: #818cf8; text-transform: uppercase; letter-spacing: 0.6px; }
+.modal-predicted-score { font-size: 20px; font-weight: 900; color: #fff; letter-spacing: -0.5px; }
 
 .modal-live-tag {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 10px;
-  font-weight: 800;
-  color: #ff3d71;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
+  display: flex; align-items: center; gap: 5px;
+  font-size: 10px; font-weight: 800; color: #ff3d71;
+  text-transform: uppercase; letter-spacing: 0.8px;
 }
 .modal-live-tag span {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #ff3d71;
+  width: 6px; height: 6px; border-radius: 50%; background: #ff3d71;
   animation: pulse-live 1.2s ease-in-out infinite;
 }
 @keyframes pulse-live {
   0%,100% { opacity: 1; transform: scale(1); }
-  50%      { opacity: 0.5; transform: scale(1.4); }
+  50% { opacity: 0.5; transform: scale(1.4); }
 }
 
 /* ── Body ────────────────────────────────────────────────────────── */
-.modal-body {
-  padding: 24px 28px 32px;
-  display: flex;
-  flex-direction: column;
-  gap: 28px;
-}
+.modal-body { padding: 24px 28px 32px; display: flex; flex-direction: column; gap: 26px; }
 
-/* ── Sections ────────────────────────────────────────────────────── */
 .modal-section {}
-
 .modal-section-title {
-  font-size: 11px;
-  font-weight: 800;
-  color: rgba(255,255,255,0.35);
-  text-transform: uppercase;
-  letter-spacing: 0.9px;
-  margin: 0 0 14px;
+  font-size: 11px; font-weight: 800;
+  color: rgba(255,255,255,0.32);
+  text-transform: uppercase; letter-spacing: 0.9px;
+  margin: 0 0 12px;
 }
 
-/* ── Story (human analysis) ──────────────────────────────────────── */
-.modal-story {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+/* ── 1. Lecture du match ─────────────────────────────────────────── */
+.modal-lecture { display: flex; flex-direction: column; gap: 10px; }
+.modal-lecture-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.lecture-pill {
+  padding: 5px 13px; border-radius: 20px;
+  font-size: 12px; font-weight: 700;
+  border: 1px solid transparent;
 }
-.modal-story p {
-  font-size: 14px;
-  line-height: 1.75;
-  color: rgba(255,255,255,0.75);
+.lecture-pill--open   { background: rgba(0,214,143,0.1); border-color: rgba(0,214,143,0.25); color: #00d68f; }
+.lecture-pill--closed { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); color: rgba(255,255,255,0.5); }
+.lecture-pill--neutral { background: rgba(91,110,245,0.09); border-color: rgba(91,110,245,0.2); color: #a5b4fc; }
+
+.modal-lecture-context {
+  font-size: 13.5px; line-height: 1.7;
+  color: rgba(255,255,255,0.68);
   margin: 0;
-  padding: 14px 16px;
-  background: rgba(255,255,255,0.03);
-  border-left: 2px solid rgba(91,110,245,0.4);
+  padding: 12px 16px;
+  background: rgba(255,255,255,0.025);
+  border-left: 2px solid rgba(91,110,245,0.35);
   border-radius: 0 8px 8px 0;
 }
 
-/* ── Bet cards ───────────────────────────────────────────────────── */
-.modal-bets {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+/* ── 2. Synthèse rapide ──────────────────────────────────────────── */
+.modal-summary {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.modal-summary-item {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.72);
+  line-height: 1.4;
+}
+.modal-summary-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #5b6ef5; flex-shrink: 0;
 }
 
-.modal-bet {
-  border-radius: 12px;
-  padding: 16px;
+/* ── 3. Tendances ────────────────────────────────────────────────── */
+.modal-tendances { display: flex; flex-direction: column; gap: 10px; }
+
+.modal-tendance {
+  border-radius: 10px; padding: 12px 14px;
   border: 1px solid transparent;
 }
-.modal-bet--safe   { background: rgba(0,214,143,0.05);  border-color: rgba(0,214,143,0.15); }
-.modal-bet--medium { background: rgba(129,140,248,0.05); border-color: rgba(129,140,248,0.15); }
-.modal-bet--value  { background: rgba(245,166,35,0.05);  border-color: rgba(245,166,35,0.15); }
+.modal-tendance--green  { background: rgba(0,214,143,0.04); border-color: rgba(0,214,143,0.14); }
+.modal-tendance--yellow { background: rgba(255,179,0,0.04);  border-color: rgba(255,179,0,0.14); }
+.modal-tendance--red    { background: rgba(255,61,113,0.04); border-color: rgba(255,61,113,0.14); }
+
+.modal-tendance-top {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 5px;
+}
+.modal-tendance-market {
+  font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.85);
+}
+.modal-tendance-right { display: flex; align-items: center; gap: 10px; }
+.modal-tendance-label { font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.38); }
+.modal-tendance-pct {
+  font-size: 15px; font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.modal-tendance--green  .modal-tendance-pct { color: #00d68f; }
+.modal-tendance--yellow .modal-tendance-pct { color: #ffb300; }
+.modal-tendance--red    .modal-tendance-pct { color: #ff3d71; }
+
+.modal-tendance-why {
+  font-size: 11px; color: rgba(255,255,255,0.38);
+  line-height: 1.5; margin: 4px 0 8px;
+}
+
+.modal-tendance-bar-track {
+  height: 3px; background: rgba(255,255,255,0.06);
+  border-radius: 2px; overflow: hidden;
+}
+.modal-tendance-bar-fill { height: 100%; border-radius: 2px; transition: width 0.6s ease; }
+.modal-tendance--green  .modal-tendance-bar-fill { background: #00d68f; }
+.modal-tendance--yellow .modal-tendance-bar-fill { background: #ffb300; }
+.modal-tendance--red    .modal-tendance-bar-fill { background: #ff3d71; }
+
+/* ── 4. Marchés chiffrés ─────────────────────────────────────────── */
+.modal-markets {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.modal-market-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.modal-market-row:last-child { border-bottom: none; }
+.modal-market-label {
+  font-size: 12px; font-weight: 500;
+  color: rgba(255,255,255,0.55);
+  min-width: 160px; flex-shrink: 0;
+}
+.modal-market-bar-track {
+  flex: 1; height: 5px; background: rgba(255,255,255,0.06);
+  border-radius: 3px; overflow: hidden;
+}
+.modal-market-bar-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+.modal-market-bar-fill--blue   { background: linear-gradient(90deg, #5b6ef5, #818cf8); }
+.modal-market-bar-fill--grey   { background: rgba(255,255,255,0.25); }
+.modal-market-bar-fill--purple { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+.modal-market-bar-fill--green  { background: linear-gradient(90deg, #00d68f, #00b4d8); }
+.modal-market-bar-fill--orange { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+.modal-market-bar-fill--teal   { background: linear-gradient(90deg, #06b6d4, #22d3ee); }
+
+.modal-market-pct {
+  font-size: 13px; font-weight: 800; color: rgba(255,255,255,0.7);
+  font-variant-numeric: tabular-nums;
+  min-width: 36px; text-align: right; flex-shrink: 0;
+}
+.modal-market-divider {
+  height: 1px; background: rgba(255,255,255,0.06); margin: 2px 0;
+}
+
+.modal-market-score-row {
+  padding: 12px 14px;
+  display: flex; flex-direction: column; gap: 3px;
+}
+.modal-market-score-label {
+  font-size: 10px; font-weight: 700;
+  color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 0.6px;
+}
+.modal-market-score-val {
+  font-size: 28px; font-weight: 900; color: #fff;
+  font-variant-numeric: tabular-nums; letter-spacing: -0.5px; line-height: 1;
+}
+.modal-market-score-sub {
+  font-size: 11px; color: rgba(255,255,255,0.3); font-weight: 500;
+}
+
+/* ── 5. Recommandations ──────────────────────────────────────────── */
+.modal-bets { display: flex; flex-direction: column; gap: 10px; }
+
+.modal-bet { border-radius: 12px; padding: 16px; border: 1px solid transparent; }
+.modal-bet--safe   { background: rgba(0,214,143,0.04); border-color: rgba(0,214,143,0.14); }
+.modal-bet--medium { background: rgba(129,140,248,0.04); border-color: rgba(129,140,248,0.14); }
+.modal-bet--value  { background: rgba(245,166,35,0.04); border-color: rgba(245,166,35,0.14); }
 
 .modal-bet--highlighted {
-  box-shadow: 0 0 0 2px currentColor;
   position: relative;
 }
-.modal-bet--safe.modal-bet--highlighted   { box-shadow: 0 0 0 2px rgba(0,214,143,0.5);  }
-.modal-bet--medium.modal-bet--highlighted { box-shadow: 0 0 0 2px rgba(129,140,248,0.5); }
-.modal-bet--value.modal-bet--highlighted  { box-shadow: 0 0 0 2px rgba(245,166,35,0.5);  }
+.modal-bet--safe.modal-bet--highlighted   { box-shadow: 0 0 0 2px rgba(0,214,143,0.45); }
+.modal-bet--medium.modal-bet--highlighted { box-shadow: 0 0 0 2px rgba(129,140,248,0.45); }
+.modal-bet--value.modal-bet--highlighted  { box-shadow: 0 0 0 2px rgba(245,166,35,0.45); }
 .modal-bet--highlighted::after {
   content: '✓ Votre profil';
-  position: absolute;
-  top: -10px;
-  right: 14px;
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.4px;
-  background: #0d1117;
-  padding: 0 6px;
-  color: rgba(255,255,255,0.4);
-  text-transform: uppercase;
+  position: absolute; top: -10px; right: 14px;
+  font-size: 9px; font-weight: 800; letter-spacing: 0.4px;
+  background: #0d1117; padding: 0 6px;
+  color: rgba(255,255,255,0.35); text-transform: uppercase;
 }
 
 .modal-bet-top {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 10px;
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 12px; margin-bottom: 10px;
 }
-
-.modal-bet-meta {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-}
-
+.modal-bet-meta { display: flex; align-items: flex-start; gap: 10px; }
 .modal-bet-icon { font-size: 18px; line-height: 1; margin-top: 1px; }
-
-.modal-bet-level {
-  font-size: 13px;
-  font-weight: 800;
-  color: #fff;
-}
-.modal-bet-desc {
-  font-size: 10px;
-  color: rgba(255,255,255,0.35);
-  font-weight: 500;
-  margin-top: 1px;
-}
+.modal-bet-level { font-size: 13px; font-weight: 800; color: #fff; }
+.modal-bet-desc { font-size: 10px; color: rgba(255,255,255,0.32); font-weight: 500; margin-top: 1px; }
 
 .modal-bet-odd-block { text-align: right; }
 .modal-bet-odd {
-  font-size: 26px;
-  font-weight: 900;
-  color: #fff;
-  letter-spacing: -0.5px;
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
+  font-size: 26px; font-weight: 900; color: #fff;
+  letter-spacing: -0.5px; line-height: 1; font-variant-numeric: tabular-nums;
 }
 .modal-bet--safe   .modal-bet-odd { color: #00d68f; }
 .modal-bet--medium .modal-bet-odd { color: #a5b4fc; }
 .modal-bet--value  .modal-bet-odd { color: #f5a623; }
+.modal-bet-prob { font-size: 11px; color: rgba(255,255,255,0.35); font-weight: 600; margin-top: 2px; font-variant-numeric: tabular-nums; }
 
-.modal-bet-prob {
-  font-size: 11px;
-  color: rgba(255,255,255,0.4);
-  font-weight: 600;
-  margin-top: 2px;
-  font-variant-numeric: tabular-nums;
-}
+.modal-bet-type { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 5px; }
+.modal-bet-why { font-size: 12px; color: rgba(255,255,255,0.45); line-height: 1.6; margin-bottom: 10px; }
 
-.modal-bet-type {
-  font-size: 15px;
-  font-weight: 700;
-  color: #fff;
-  margin-bottom: 6px;
-}
-
-.modal-bet-why {
-  font-size: 12px;
-  color: rgba(255,255,255,0.5);
-  line-height: 1.6;
-  margin-bottom: 10px;
-}
-
-.modal-bet-conf-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.modal-bet-conf-label {
-  font-size: 10px;
-  color: rgba(255,255,255,0.3);
-  font-weight: 600;
-  white-space: nowrap;
-}
-.modal-bet-conf-track {
-  flex: 1;
-  height: 3px;
-  background: rgba(255,255,255,0.07);
-  border-radius: 2px;
-  overflow: hidden;
-}
-.modal-bet-conf-fill {
-  height: 100%;
-  border-radius: 2px;
-  transition: width 0.6s ease;
-}
+.modal-bet-conf-row { display: flex; align-items: center; gap: 10px; }
+.modal-bet-conf-label { font-size: 10px; color: rgba(255,255,255,0.28); font-weight: 600; white-space: nowrap; }
+.modal-bet-conf-track { flex: 1; height: 3px; background: rgba(255,255,255,0.07); border-radius: 2px; overflow: hidden; }
+.modal-bet-conf-fill { height: 100%; border-radius: 2px; transition: width 0.6s ease; }
 .modal-bet--safe   .modal-bet-conf-fill { background: #00d68f; }
 .modal-bet--medium .modal-bet-conf-fill { background: #818cf8; }
 .modal-bet--value  .modal-bet-conf-fill { background: #f5a623; }
 
-/* ── Stats grid ──────────────────────────────────────────────────── */
-.modal-stats-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-.modal-stat {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 12px;
-  padding: 14px 16px;
-}
-
-.modal-stat-val {
-  font-size: 24px;
-  font-weight: 900;
-  color: #fff;
-  letter-spacing: -0.5px;
-  font-variant-numeric: tabular-nums;
-  line-height: 1;
-  margin-bottom: 4px;
-}
-
-.modal-stat-lbl {
-  font-size: 11px;
-  color: rgba(255,255,255,0.4);
-  font-weight: 500;
-  line-height: 1.4;
-}
-
 /* ── Disclaimer ──────────────────────────────────────────────────── */
-.modal-disclaimer {
-  font-size: 11px;
-  color: rgba(255,255,255,0.2);
-  text-align: center;
-  margin: 0;
-  line-height: 1.5;
-}
+.modal-disclaimer { font-size: 11px; color: rgba(255,255,255,0.18); text-align: center; margin: 0; line-height: 1.5; }
 
 /* ── Mobile ──────────────────────────────────────────────────────── */
 @media (max-width: 600px) {
   .modal-overlay { padding: 0; align-items: flex-end; }
   .modal-window  { border-radius: 20px 20px 0 0; max-height: 94vh; }
-  .modal-header  { padding: 22px 20px 20px; }
-  .modal-body    { padding: 20px 20px 40px; }
-  .modal-team-name { font-size: 15px; }
-  .modal-score   { font-size: 28px; }
-  .modal-kickoff { font-size: 22px; }
-  .modal-stats-grid { grid-template-columns: 1fr 1fr; }
+  .modal-header  { padding: 22px 18px 18px; }
+  .modal-body    { padding: 18px 18px 40px; }
+  .modal-team-name { font-size: 14px; }
+  .modal-score, .modal-kickoff { font-size: 24px; }
+  .modal-market-label { min-width: 120px; font-size: 11px; }
 }

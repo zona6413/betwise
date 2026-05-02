@@ -30,14 +30,129 @@ function TeamBlock({ team, side }) {
   );
 }
 
+// ── Couleur tendance ──────────────────────────────────────────────────────────
+function trendColor(prob) {
+  if (prob >= 0.65) return 'green';
+  if (prob >= 0.48) return 'yellow';
+  return 'red';
+}
+function trendLabel(prob) {
+  if (prob >= 0.65) return '🟢 Forte tendance';
+  if (prob >= 0.48) return '🟡 Modérée';
+  return '🔴 Risquée';
+}
+
+// ── Lecture du match ──────────────────────────────────────────────────────────
+function buildLecture(match) {
+  const { homeTeam, awayTeam, tieredBets, aiProbs } = match;
+  const stats = tieredBets?.stats;
+  if (!stats || !aiProbs) return null;
+
+  const totalExpG = stats.homeExpG + stats.awayExpG;
+  const isOpen    = stats.bttsProb > 0.50 || stats.over25 > 0.52;
+  const dynamic   = isOpen ? 'Match ouvert' : 'Match fermé';
+
+  const homeAdv = aiProbs.home - aiProbs.away;
+  let dominant;
+  if      (homeAdv >  0.18) dominant = `${homeTeam.name} nettement favoris`;
+  else if (homeAdv >  0.08) dominant = `Léger avantage pour ${homeTeam.name}`;
+  else if (homeAdv < -0.18) dominant = `${awayTeam.name} nettement favoris`;
+  else if (homeAdv < -0.08) dominant = `Léger avantage pour ${awayTeam.name}`;
+  else                      dominant = 'Match très équilibré';
+
+  // Contexte 1 phrase
+  const hWins = (homeTeam.form ?? '').toUpperCase().split('').slice(-5).filter(c => c === 'W').length;
+  const aWins = (awayTeam.form ?? '').toUpperCase().split('').slice(-5).filter(c => c === 'W').length;
+  let context;
+  if (hWins >= 4) context = `${homeTeam.name} arrive en grande forme avec ${hWins} victoires sur 5 — l'avantage du terrain renforce leur statut de favori.`;
+  else if (aWins >= 4) context = `${awayTeam.name} est en feu avec ${aWins} succès récents — attention à ne pas sous-estimer l'outsider.`;
+  else if (Math.abs(hWins - aWins) <= 1) context = `Les deux équipes sont dans une dynamique similaire — difficile de dégager un avantage clair sur la forme.`;
+  else if (hWins > aWins) context = `${homeTeam.name} est en meilleure forme récente et joue à domicile — contexte favorable.`;
+  else context = `${awayTeam.name} arrive avec plus de rythme — à surveiller malgré le déplacement.`;
+
+  return { dynamic, isOpen, dominant, context, totalExpG };
+}
+
+// ── Synthèse rapide ───────────────────────────────────────────────────────────
+function buildSummary(match) {
+  const { homeTeam, awayTeam, tieredBets, aiProbs } = match;
+  const stats = tieredBets?.stats;
+  if (!stats || !aiProbs) return [];
+
+  const bullets = [];
+  const totalExpG = stats.homeExpG + stats.awayExpG;
+
+  if (stats.bttsProb > 0.58 && stats.over25 > 0.52)
+    bullets.push('Match ouvert — buts des deux côtés attendus');
+  else if (stats.under25 > 0.58)
+    bullets.push('Match serré — peu de buts attendus');
+  else
+    bullets.push('Match équilibré — score difficile à anticiper');
+
+  if (aiProbs.home > 0.54)
+    bullets.push(`${homeTeam.name} favoris à domicile (${Math.round(aiProbs.home * 100)}%)`);
+  else if (aiProbs.away > 0.44)
+    bullets.push(`${awayTeam.name} peut renverser la tendance`);
+  else
+    bullets.push('Nul envisageable — probabilités proches');
+
+  if (stats.bttsProb > 0.60)      bullets.push('BTTS très probable');
+  else if (stats.bttsProb < 0.35) bullets.push('Un clean sheet probable');
+
+  if (stats.over25 > 0.62)        bullets.push('Over 2.5 à envisager sérieusement');
+  else if (stats.over15 > 0.82)   bullets.push('Over 1.5 quasi-certain');
+
+  return bullets.slice(0, 4);
+}
+
+// ── Tendances marchés ─────────────────────────────────────────────────────────
+function buildTendances(match) {
+  const { homeTeam, awayTeam, tieredBets, aiProbs } = match;
+  const stats = tieredBets?.stats;
+  if (!stats || !aiProbs) return [];
+
+  const totalExpG = stats.homeExpG + stats.awayExpG;
+  const favProb   = Math.max(aiProbs.home, aiProbs.away);
+  const favName   = aiProbs.home >= aiProbs.away ? homeTeam.name : awayTeam.name;
+
+  return [
+    {
+      market: 'Over 1.5 buts',
+      prob: stats.over15,
+      why: `xG combiné ${totalExpG.toFixed(1)} — au moins 2 buts ${stats.over15 > 0.75 ? 'quasi-certain' : 'probable'}.`,
+    },
+    {
+      market: 'Over 2.5 buts',
+      prob: stats.over25,
+      why: `${homeTeam.name} xG ${stats.homeExpG} + ${awayTeam.name} xG ${stats.awayExpG} = ${totalExpG.toFixed(1)} buts attendus.`,
+    },
+    {
+      market: 'BTTS',
+      prob: stats.bttsProb,
+      why: `Les deux attaques ont le profil pour trouver le filet (xG dom. ${stats.homeExpG} / ext. ${stats.awayExpG}).`,
+    },
+    {
+      market: `Victoire ${favName}`,
+      prob: favProb,
+      why: `Notre IA évalue la probabilité de victoire à ${Math.round(favProb * 100)}% — forme + classement combinés.`,
+    },
+    {
+      market: 'Under 2.5 buts',
+      prob: stats.under25,
+      why: `Match potentiellement fermé — xG total ${totalExpG.toFixed(1)}, défenses à surveiller.`,
+    },
+  ].filter(t => t.prob > 0.15);
+}
+
+// ── Composant BetCard ─────────────────────────────────────────────────────────
 function BetCard({ bet, which, highlighted = false }) {
   if (!bet) return null;
   const configs = {
-    SAFE:  { color: 'safe',   icon: '🛡️', label: 'Prudent',    desc: 'Probabilité élevée, risque faible' },
-    MOYEN: { color: 'medium', icon: '⚖️', label: 'Équilibré',  desc: 'Bon rapport risque / rendement' },
-    VALUE: { color: 'value',  icon: '💎', label: 'Audacieux',  desc: 'Cote attractive, prise de risque' },
+    SAFE:  { color: 'safe',   icon: '🛡️', label: 'Prudent',   desc: 'Probabilité élevée, risque faible' },
+    MOYEN: { color: 'medium', icon: '⚖️', label: 'Équilibré', desc: 'Bon rapport risque / rendement' },
+    VALUE: { color: 'value',  icon: '💎', label: 'Audacieux', desc: 'Cote attractive, prise de risque' },
   };
-  const c = configs[which];
+  const c    = configs[which];
   const prob = Math.round((bet.prob ?? 0) * 100);
 
   return (
@@ -68,51 +183,7 @@ function BetCard({ bet, which, highlighted = false }) {
   );
 }
 
-function humanAnalysis(match) {
-  const { homeTeam, awayTeam, tieredBets, bets } = match;
-  const stats = tieredBets?.stats;
-  const lines = [];
-
-  // Forme
-  const homeForm = (homeTeam.form ?? '').toUpperCase().split('').slice(-5);
-  const awayForm = (awayTeam.form ?? '').toUpperCase().split('').slice(-5);
-  const homeWins = homeForm.filter(c => c === 'W').length;
-  const awayWins = awayForm.filter(c => c === 'W').length;
-
-  if (homeWins >= 4)
-    lines.push(`${homeTeam.name} traverse une période exceptionnelle — ${homeWins} victoires sur leurs 5 derniers matchs. L'équipe est en confiance et joue à domicile, ce qui renforce clairement leur avantage.`);
-  else if (homeWins >= 3)
-    lines.push(`${homeTeam.name} est en bonne forme et reçoit à domicile — un contexte favorable pour confirmer leur dynamique positive.`);
-  else if (awayWins >= 4)
-    lines.push(`${awayTeam.name} arrive en grande forme avec ${awayWins} victoires récentes. Même en déplacement, ils ont les arguments pour créer la surprise.`);
-  else
-    lines.push(`Ce match s'annonce disputé — les deux équipes ont des résultats récents comparables. Difficile de dégager un favori clair sur la seule forme.`);
-
-  // Attaque
-  if (stats) {
-    const totalXG = stats.homeExpG + stats.awayExpG;
-    if (totalXG >= 2.8)
-      lines.push(`Les deux attaques ont le potentiel de marquer — on s'attend à un match avec des buts des deux côtés. Le profil offensif des deux équipes pousse vers un score ouvert.`);
-    else if (stats.bttsProb < 0.35)
-      lines.push(`L'une des deux défenses devrait tenir. Ce match pourrait être plus fermé qu'il n'y paraît — avec au moins un clean sheet à la clé.`);
-    else
-      lines.push(`Match équilibré attendu. Les deux équipes ont la capacité de marquer, mais la prudence reste de mise des deux côtés.`);
-  }
-
-  // Classement
-  if (homeTeam.position && awayTeam.position) {
-    const diff = awayTeam.position - homeTeam.position;
-    if (diff >= 7)
-      lines.push(`L'écart au classement parle pour ${homeTeam.name} (${homeTeam.position}e contre ${awayTeam.position}e). Sur le papier, ils sont nettement supérieurs — mais le football réserve toujours des surprises.`);
-    else if (diff <= -7)
-      lines.push(`${awayTeam.name} est bien mieux classé (${awayTeam.position}e contre ${homeTeam.position}e) et devrait logiquement prendre le dessus, malgré le déplacement.`);
-    else
-      lines.push(`Les deux équipes sont proches au classement — ce qui confirme que la rencontre devrait être serrée du début à la fin.`);
-  }
-
-  return lines.join('\n\n');
-}
-
+// ── Modal principal ───────────────────────────────────────────────────────────
 export default function AnalysisModal({ match, onClose, riskProfile = 'medium' }) {
   useEffect(() => {
     const fn = e => { if (e.key === 'Escape') onClose(); };
@@ -123,30 +194,29 @@ export default function AnalysisModal({ match, onClose, riskProfile = 'medium' }
 
   if (!match) return null;
 
-  const { homeTeam, awayTeam, tieredBets, league, leagueCountry, date, status, score, odds } = match;
+  const { homeTeam, awayTeam, tieredBets, league, leagueCountry, date, status, score, aiProbs } = match;
   const isLive  = ['1H','HT','2H','ET','P'].includes(status);
   const isEnded = status === 'FT';
   const predicted = tieredBets?.stats
-    ? `${Math.round(tieredBets.stats.homeExpG)}-${Math.round(tieredBets.stats.awayExpG)}`
+    ? `${Math.round(Math.max(0, tieredBets.stats.homeExpG))}-${Math.round(Math.max(0, tieredBets.stats.awayExpG))}`
     : null;
-  const story = humanAnalysis(match);
+
+  const lecture   = buildLecture(match);
+  const summary   = buildSummary(match);
+  const tendances = buildTendances(match);
 
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-window" onClick={e => e.stopPropagation()}>
-
-        {/* Close */}
         <button className="modal-close" onClick={onClose}>✕</button>
 
-        {/* Header */}
+        {/* ── Header ── */}
         <div className="modal-header">
           <div className="modal-header-league">
             {flagFor(leagueCountry)} {normalizeLeague(league)}
           </div>
-
           <div className="modal-header-teams">
             <TeamBlock team={homeTeam} side="home" />
-
             <div className="modal-header-center">
               {isLive || isEnded ? (
                 <div className="modal-score">
@@ -167,26 +237,99 @@ export default function AnalysisModal({ match, onClose, riskProfile = 'medium' }
               )}
               {isLive && <div className="modal-live-tag"><span />EN DIRECT</div>}
             </div>
-
             <TeamBlock team={awayTeam} side="away" />
           </div>
         </div>
 
-        {/* Body */}
+        {/* ── Body ── */}
         <div className="modal-body">
 
-          {/* Story */}
-          <section className="modal-section">
-            <h2 className="modal-section-title">Notre analyse</h2>
-            <div className="modal-story">
-              {story.split('\n\n').map((p, i) => <p key={i}>{p}</p>)}
-            </div>
-          </section>
+          {/* 1. Lecture du match */}
+          {lecture && (
+            <section className="modal-section">
+              <h2 className="modal-section-title">🔍 Lecture du match</h2>
+              <div className="modal-lecture">
+                <div className="modal-lecture-pills">
+                  <span className={`lecture-pill lecture-pill--${lecture.isOpen ? 'open' : 'closed'}`}>
+                    {lecture.dynamic}
+                  </span>
+                  <span className="lecture-pill lecture-pill--neutral">{lecture.dominant}</span>
+                </div>
+                <p className="modal-lecture-context">{lecture.context}</p>
+              </div>
+            </section>
+          )}
 
-          {/* 3 bets */}
+          {/* 2. Synthèse rapide */}
+          {summary.length > 0 && (
+            <section className="modal-section">
+              <h2 className="modal-section-title">📌 À retenir</h2>
+              <div className="modal-summary">
+                {summary.map((b, i) => (
+                  <div key={i} className="modal-summary-item">
+                    <span className="modal-summary-dot" />
+                    <span>{b}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* 3. Tendances marchés */}
+          {tendances.length > 0 && (
+            <section className="modal-section">
+              <h2 className="modal-section-title">🎯 Tendances</h2>
+              <div className="modal-tendances">
+                {tendances.map((t, i) => (
+                  <div key={i} className={`modal-tendance modal-tendance--${trendColor(t.prob)}`}>
+                    <div className="modal-tendance-top">
+                      <span className="modal-tendance-market">{t.market}</span>
+                      <div className="modal-tendance-right">
+                        <span className="modal-tendance-label">{trendLabel(t.prob)}</span>
+                        <span className="modal-tendance-pct">{Math.round(t.prob * 100)}%</span>
+                      </div>
+                    </div>
+                    <p className="modal-tendance-why">💡 {t.why}</p>
+                    <div className="modal-tendance-bar-track">
+                      <div className="modal-tendance-bar-fill" style={{ width: `${Math.round(t.prob * 100)}%` }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* 4. Marchés chiffrés */}
+          {tieredBets?.stats && (
+            <section className="modal-section">
+              <h2 className="modal-section-title">📊 Interprétation des marchés</h2>
+              <div className="modal-markets">
+                <MarketRow label="Victoire domicile" value={aiProbs?.home} color="blue" />
+                <MarketRow label="Match nul"          value={aiProbs?.draw} color="grey" />
+                <MarketRow label="Victoire extérieur" value={aiProbs?.away} color="purple" />
+                <div className="modal-market-divider" />
+                <MarketRow label="Over 1.5 buts"  value={tieredBets.stats.over15}  color="green" />
+                <MarketRow label="Over 2.5 buts"  value={tieredBets.stats.over25}  color="green" />
+                <MarketRow label="Over 3.5 buts"  value={tieredBets.stats.over35}  color="green" />
+                <MarketRow label="Under 2.5 buts" value={tieredBets.stats.under25} color="orange" />
+                <div className="modal-market-divider" />
+                <MarketRow label="BTTS (les deux équipes marquent)" value={tieredBets.stats.bttsProb} color="teal" />
+                <div className="modal-market-divider" />
+                <div className="modal-market-score-row">
+                  <span className="modal-market-score-label">Score le plus plausible</span>
+                  <span className="modal-market-score-val">{predicted ?? '—'}</span>
+                  <span className="modal-market-score-sub">
+                    xG {homeTeam.name} {tieredBets.stats.homeExpG} / {awayTeam.name} {tieredBets.stats.awayExpG}
+                  </span>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* 5. Recommandations */}
           {tieredBets && (
             <section className="modal-section">
-              <h2 className="modal-section-title">Nos recommandations</h2>
+              <h2 className="modal-section-title">✅ Recommandations</h2>
               <div className="modal-bets">
                 <BetCard bet={tieredBets.safe}   which="SAFE"  highlighted={riskProfile === 'safe'} />
                 <BetCard bet={tieredBets.medium} which="MOYEN" highlighted={riskProfile === 'medium'} />
@@ -195,33 +338,8 @@ export default function AnalysisModal({ match, onClose, riskProfile = 'medium' }
             </section>
           )}
 
-          {/* Key numbers */}
-          {tieredBets?.stats && (
-            <section className="modal-section">
-              <h2 className="modal-section-title">En bref</h2>
-              <div className="modal-stats-grid">
-                <div className="modal-stat">
-                  <div className="modal-stat-val">{Math.round(tieredBets.stats.bttsProb * 100)}%</div>
-                  <div className="modal-stat-lbl">Chance que les deux équipes marquent</div>
-                </div>
-                <div className="modal-stat">
-                  <div className="modal-stat-val">{Math.round(tieredBets.stats.over25 * 100)}%</div>
-                  <div className="modal-stat-lbl">Chance d'au moins 3 buts</div>
-                </div>
-                <div className="modal-stat">
-                  <div className="modal-stat-val">{tieredBets.stats.homeExpG}</div>
-                  <div className="modal-stat-lbl">Buts attendus par {homeTeam.name}</div>
-                </div>
-                <div className="modal-stat">
-                  <div className="modal-stat-val">{tieredBets.stats.awayExpG}</div>
-                  <div className="modal-stat-lbl">Buts attendus par {awayTeam.name}</div>
-                </div>
-              </div>
-            </section>
-          )}
-
           <p className="modal-disclaimer">
-            Ces analyses sont générées automatiquement à partir de données statistiques. Pariez de façon responsable.
+            Ces analyses sont générées automatiquement. Pariez de façon responsable.
           </p>
         </div>
       </div>
@@ -229,6 +347,22 @@ export default function AnalysisModal({ match, onClose, riskProfile = 'medium' }
   );
 }
 
+// ── MarketRow ─────────────────────────────────────────────────────────────────
+function MarketRow({ label, value, color }) {
+  if (value == null) return null;
+  const pct = Math.round(value * 100);
+  return (
+    <div className="modal-market-row">
+      <span className="modal-market-label">{label}</span>
+      <div className="modal-market-bar-track">
+        <div className={`modal-market-bar-fill modal-market-bar-fill--${color}`} style={{ width: `${pct}%` }} />
+      </div>
+      <span className="modal-market-pct">{pct}%</span>
+    </div>
+  );
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
 function normalizeLeague(name) {
   const map = { 'English Premier League':'Premier League','French Ligue 1':'Ligue 1','Spanish La Liga':'La Liga','Italian Serie A':'Serie A','German Bundesliga':'Bundesliga' };
   return map[name] ?? name;

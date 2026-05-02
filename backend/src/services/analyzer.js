@@ -186,7 +186,15 @@ export function generateTieredBets(homeName, awayName, homeStats, awayStats, aiP
     safe:   { ...safeBet,   level: 'SAFE',   confidence: probToConfidence(safeBet.prob) },
     medium: { ...mediumBet, level: 'MOYEN',  confidence: probToConfidence(mediumBet.prob) },
     value:  { ...valueBet,  level: 'VALUE',  confidence: probToConfidence(valueBet.prob) },
-    stats:  { homeExpG: +homeExpG.toFixed(2), awayExpG: +awayExpG.toFixed(2), bttsProb: +btts.toFixed(2), over25: +ou.over25.toFixed(2) },
+    stats:  {
+      homeExpG:  +homeExpG.toFixed(2),
+      awayExpG:  +awayExpG.toFixed(2),
+      bttsProb:  +btts.toFixed(2),
+      over15:    +ou.over15.toFixed(2),
+      over25:    +ou.over25.toFixed(2),
+      over35:    +ou.over35.toFixed(2),
+      under25:   +ou.under25.toFixed(2),
+    },
   };
 }
 
