@@ -83,13 +83,16 @@ function OddCell({ label, odd, bmProb, aiProb, isValue }) {
   );
 }
 
-export default function MatchCard({ match, onAnalyse }) {
+export default function MatchCard({ match, onAnalyse, riskProfile = 'medium' }) {
   const { homeTeam, awayTeam, score, odds, bookmakerProbs, aiProbs, bets, tieredBets, hasValueBet } = match;
   const isLive    = ['1H','HT','2H','ET','P'].includes(match.status);
   const isEnded   = match.status === 'FT';
   const isUpcoming = match.status === 'NS';
 
-  const bestBet   = bets?.filter(b => b.isValue).sort((a,b) => b.ev - a.ev)[0] ?? null;
+  const bestBet     = bets?.filter(b => b.isValue).sort((a,b) => b.ev - a.ev)[0] ?? null;
+  const predictedScore = tieredBets?.stats
+    ? `${Math.round(tieredBets.stats.homeExpG)}-${Math.round(tieredBets.stats.awayExpG)}`
+    : null;
   const edgeClass = bestBet
     ? (bestBet.edge > 0.18 ? 'fire' : bestBet.edge > 0.12 ? 'hot' : 'value')
     : '';
@@ -156,6 +159,12 @@ export default function MatchCard({ match, onAnalyse }) {
             <>
               <div className="kick-time">{formatTime(match.date)}</div>
               <Countdown date={match.date} />
+              {predictedScore && (
+                <div className="predicted-badge">
+                  <span className="predicted-badge-label">prédit</span>
+                  <span className="predicted-badge-score">{predictedScore}</span>
+                </div>
+              )}
               {isUrgent && <div className="urgent-tag">⏰ Commence bientôt</div>}
             </>
           )}

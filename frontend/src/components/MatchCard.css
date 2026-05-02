@@ -432,6 +432,32 @@
 }
 .confidence-bar--value { background: var(--green); }
 
+/* ── Predicted score badge ────────────────────────────────────── */
+.predicted-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  background: rgba(91,110,245,0.1);
+  border: 1px solid rgba(91,110,245,0.2);
+  border-radius: 8px;
+  padding: 4px 10px;
+}
+.predicted-badge-label {
+  font-size: 8px;
+  font-weight: 700;
+  color: #818cf8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.predicted-badge-score {
+  font-size: 14px;
+  font-weight: 900;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.3px;
+}
+
 /* ── Urgency ──────────────────────────────────────────────────── */
 .countdown--urgent { color: #ff3d71; font-weight: 600; animation: pulse 1.5s ease-in-out infinite; }
 .urgent-tag {

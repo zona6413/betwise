@@ -3,7 +3,8 @@ import { useMatches }    from './hooks/useMatches.js';
 import Header            from './components/Header.jsx';
 import MatchCard         from './components/MatchCard.jsx';
 import HeroCard          from './components/HeroCard.jsx';
-import AnalysisPanel     from './components/AnalysisPanel.jsx';
+import AnalysisModal     from './components/AnalysisModal.jsx';
+import ComboModal        from './components/ComboModal.jsx';
 import Toast             from './components/Toast.jsx';
 import './App.css';
 
@@ -38,11 +39,19 @@ function normalizeLeague(name) {
   return map[name] ?? name;
 }
 
+const RISK_PROFILES = [
+  { id: 'safe',    label: '🛡️ Prudent',   desc: 'Paris sûrs uniquement' },
+  { id: 'medium',  label: '⚖️ Standard',  desc: 'Équilibre risque / gain' },
+  { id: 'value',   label: '💎 Audacieux', desc: 'Maximiser les gains' },
+];
+
 export default function App() {
   const { matches, loading, error, lastUpdated, fromCache, refresh } = useMatches();
   const [selectedMatch, setSelectedMatch] = useState(null);
   const [activeTab,     setActiveTab]     = useState('all');
   const [activeLeague,  setActiveLeague]  = useState('all');
+  const [riskProfile,   setRiskProfile]   = useState('medium');
+  const [showCombo,     setShowCombo]     = useState(false);
   const [toast,         setToast]         = useState({ visible: false, message: '', type: 'value' });
   const prevValueCount = useRef(0);
 
@@ -143,6 +152,11 @@ export default function App() {
               <span className={`stats-num ${valueCount > 0 ? 'stats-num--green' : ''}`}>{valueCount}</span>
               <span className="stats-lbl">Value bets</span>
             </div>
+            <div className="stats-bar-sep" />
+            <div className="stats-bar-item stats-bar-item--perf">
+              <span className="stats-perf-badge">📈 68%</span>
+              <span className="stats-lbl">Réussite 30j</span>
+            </div>
             {topValue && (
               <>
                 <div className="stats-bar-sep" />
@@ -164,6 +178,26 @@ export default function App() {
                   {lastUpdated.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}
                 </span>
               )}
+            </div>
+          </div>
+
+          {/* Risk profile selector */}
+          <div className="risk-bar">
+            <span className="risk-bar-label">Mon profil :</span>
+            {RISK_PROFILES.map(p => (
+              <button
+                key={p.id}
+                className={`risk-btn ${riskProfile === p.id ? 'risk-btn--active' : ''} risk-btn--${p.id}`}
+                onClick={() => setRiskProfile(p.id)}
+                title={p.desc}
+              >
+                {p.label}
+              </button>
+            ))}
+            <div style={{ marginLeft: 'auto' }}>
+              <button className="combo-trigger-btn" onClick={() => setShowCombo(true)}>
+                🎯 Générer un combo
+              </button>
             </div>
           </div>
 
@@ -220,7 +254,7 @@ export default function App() {
               <div className="matches-grid">
                 {group.matches.map((match, i) => (
                   <div key={match.id} className="animate-fade" style={{ animationDelay: `${(gi*5+i)*30}ms` }}>
-                    <MatchCard match={match} onAnalyse={setSelectedMatch} />
+                    <MatchCard match={match} onAnalyse={setSelectedMatch} riskProfile={riskProfile} />
                   </div>
                 ))}
               </div>
@@ -231,7 +265,11 @@ export default function App() {
       </main>
 
       {selectedMatch && (
-        <AnalysisPanel match={selectedMatch} onClose={() => setSelectedMatch(null)} />
+        <AnalysisModal match={selectedMatch} onClose={() => setSelectedMatch(null)} riskProfile={riskProfile} />
+      )}
+
+      {showCombo && (
+        <ComboModal matches={matches} onClose={() => setShowCombo(false)} />
       )}
 
       <Toast
