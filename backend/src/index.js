@@ -26,6 +26,7 @@ app.use((req, _res, next) => {
 app.get('/api/health', (_req, res) => {
   res.json({
     status: 'ok',
+    version: '1.1.0',
     timestamp: new Date().toISOString(),
     apis: {
       football: process.env.API_FOOTBALL_KEY ? 'configured' : 'mock',
