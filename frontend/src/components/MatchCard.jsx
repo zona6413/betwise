@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import BetTiers from './BetTiers.jsx';
 import './MatchCard.css';
 
+// ── Status badge ──────────────────────────────────────────────────────────────
 function StatusBadge({ status }) {
   const map = {
     NS:   { label: 'À venir',       cls: 'upcoming' },
@@ -18,6 +19,7 @@ function StatusBadge({ status }) {
   return <span className={`status-badge status-badge--${cls}`}>{label}</span>;
 }
 
+// ── Form dots ─────────────────────────────────────────────────────────────────
 function FormDots({ form }) {
   if (!form) return null;
   return (
@@ -29,6 +31,7 @@ function FormDots({ form }) {
   );
 }
 
+// ── Countdown ─────────────────────────────────────────────────────────────────
 function Countdown({ date }) {
   const [label, setLabel] = useState('');
   const [urgent, setUrgent] = useState(false);
@@ -39,7 +42,7 @@ function Countdown({ date }) {
       if (diff <= 0) { setLabel('Bientôt'); setUrgent(true); return; }
       const h = Math.floor(diff / 3600000);
       const m = Math.floor((diff % 3600000) / 60000);
-      setUrgent(diff < 3600000); // rouge si < 1h
+      setUrgent(diff < 3600000);
       if (h > 23) setLabel(`dans ${Math.floor(h/24)}j`);
       else if (h > 0) setLabel(`dans ${h}h${String(m).padStart(2,'0')}`);
       else setLabel(`dans ${m}min`);
@@ -52,62 +55,115 @@ function Countdown({ date }) {
   return <span className={`countdown ${urgent ? 'countdown--urgent' : ''}`}>{label}</span>;
 }
 
-function OddCell({ label, odd, bmProb, aiProb, isValue }) {
-  const edge = aiProb != null && bmProb != null ? ((aiProb - bmProb) * 100).toFixed(1) : null;
-  const confidence = aiProb != null ? Math.round(aiProb * 100) : null;
+// ── Quick insights (synthèse, conclusion, tendances) ──────────────────────────
+function trendColor(prob) {
+  if (prob >= 0.65) return 'green';
+  if (prob >= 0.48) return 'yellow';
+  return 'red';
+}
+function trendEmoji(prob) {
+  if (prob >= 0.65) return '🟢';
+  if (prob >= 0.48) return '🟡';
+  return '🔴';
+}
+
+function buildInsights(match) {
+  const { homeTeam, awayTeam, tieredBets, aiProbs } = match;
+  const stats = tieredBets?.stats;
+  if (!stats || !aiProbs) return null;
+
+  const totalExpG = +(stats.homeExpG + stats.awayExpG).toFixed(1);
+  const isOpen    = stats.bttsProb > 0.50 || stats.over25 > 0.52;
+  const favProb   = Math.max(aiProbs.home, aiProbs.away);
+  const favName   = aiProbs.home >= aiProbs.away ? homeTeam.name : awayTeam.name;
+
+  // Synthèse (3 points max)
+  const bullets = [];
+  if (isOpen) bullets.push('Match ouvert à buts');
+  else        bullets.push('Match fermé, peu de buts');
+
+  if (aiProbs.home > 0.53)       bullets.push(`Avantage ${homeTeam.name}`);
+  else if (aiProbs.away > 0.44)  bullets.push(`${awayTeam.name} peut surprendre`);
+  else                           bullets.push('Équilibre entre les équipes');
+
+  if (stats.bttsProb > 0.58)     bullets.push('Les deux équipes devraient marquer');
+  else if (stats.over25 > 0.60)  bullets.push('Plus de 2,5 buts envisageable');
+  else if (stats.under25 > 0.60) bullets.push('Score serré attendu');
+
+  // Conclusion
+  const topBet = tieredBets?.safe;
+  const conclusion = topBet
+    ? `Privilégier : ${topBet.type}`
+    : 'Match difficile à cerner — prudence recommandée';
+
+  // Tendances (3 marchés clés)
+  const tendances = [
+    { label: 'Over 2.5', prob: stats.over25 },
+    { label: 'BTTS',     prob: stats.bttsProb },
+    { label: favName,    prob: favProb },
+  ];
+
+  return { bullets: bullets.slice(0, 3), conclusion, tendances };
+}
+
+function QuickInsights({ match }) {
+  const insights = buildInsights(match);
+  if (!insights) return null;
+  const { bullets, conclusion, tendances } = insights;
+
   return (
-    <div className={`odd-cell ${isValue ? 'odd-cell--value' : ''}`}>
-      <div className="odd-label">{label}</div>
-      <div className="odd-value">{odd?.toFixed(2) ?? '—'}</div>
-      {bmProb != null && (
-        <div className="odd-probs">
-          <span className="prob-bm">{(bmProb*100).toFixed(0)}%</span>
-          {aiProb != null && (
-            <>
-              <span className="prob-arr">→</span>
-              <span className="prob-ai">{(aiProb*100).toFixed(0)}%</span>
-            </>
-          )}
-        </div>
-      )}
-      {confidence != null && (
-        <div className="confidence-bar-wrap">
-          <div
-            className={`confidence-bar ${isValue ? 'confidence-bar--value' : ''}`}
-            style={{ width: `${confidence}%` }}
-          />
-        </div>
-      )}
-      {isValue && edge && <div className="value-tag">+{edge}pts</div>}
+    <div className="quick-insights">
+      {/* Synthèse */}
+      <div className="qi-synthesis">
+        <div className="qi-label">📌 En un coup d'œil</div>
+        <ul className="qi-bullets">
+          {bullets.map((b, i) => <li key={i}>{b}</li>)}
+        </ul>
+      </div>
+
+      {/* Conclusion */}
+      <div className="qi-conclusion">
+        <span className="qi-conclusion-icon">🎯</span>
+        <span className="qi-conclusion-text">{conclusion}</span>
+      </div>
+
+      {/* Tendances */}
+      <div className="qi-tendances">
+        {tendances.map((t, i) => (
+          <div key={i} className={`qi-tend qi-tend--${trendColor(t.prob)}`}>
+            <span className="qi-tend-emoji">{trendEmoji(t.prob)}</span>
+            <span className="qi-tend-label">{t.label}</span>
+            <span className="qi-tend-pct">{Math.round(t.prob * 100)}%</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
 
+// ── Main card ─────────────────────────────────────────────────────────────────
 export default function MatchCard({ match, onAnalyse, riskProfile = 'medium' }) {
-  const { homeTeam, awayTeam, score, odds, bookmakerProbs, aiProbs, bets, tieredBets, hasValueBet } = match;
-  const isLive    = ['1H','HT','2H','ET','P'].includes(match.status);
-  const isEnded   = match.status === 'FT';
+  const { homeTeam, awayTeam, score, odds, aiProbs, bets, tieredBets, hasValueBet } = match;
+  const isLive     = ['1H','HT','2H','ET','P'].includes(match.status);
+  const isEnded    = match.status === 'FT';
   const isUpcoming = match.status === 'NS';
 
-  const bestBet     = bets?.filter(b => b.isValue).sort((a,b) => b.ev - a.ev)[0] ?? null;
+  const bestBet        = bets?.filter(b => b.isValue).sort((a,b) => b.ev - a.ev)[0] ?? null;
   const predictedScore = tieredBets?.stats
-    ? `${Math.round(tieredBets.stats.homeExpG)}-${Math.round(tieredBets.stats.awayExpG)}`
+    ? `${Math.round(Math.max(0, tieredBets.stats.homeExpG))}-${Math.round(Math.max(0, tieredBets.stats.awayExpG))}`
     : null;
   const edgeClass = bestBet
     ? (bestBet.edge > 0.18 ? 'fire' : bestBet.edge > 0.12 ? 'hot' : 'value')
     : '';
 
-  // Urgence : match dans moins d'1h
   const minsUntil = isUpcoming ? (new Date(match.date) - Date.now()) / 60000 : Infinity;
   const isUrgent  = minsUntil > 0 && minsUntil < 60;
-
-  // Viewers simulés (stable par matchId)
-  const viewers = 80 + (match.id % 180);
+  const viewers   = 80 + (match.id % 180);
 
   return (
     <article className={[
       'match-card',
-      isLive    ? 'match-card--live' : '',
+      isLive      ? 'match-card--live' : '',
       hasValueBet ? `match-card--${edgeClass}` : '',
     ].join(' ').trim()}>
 
@@ -129,12 +185,8 @@ export default function MatchCard({ match, onAnalyse, riskProfile = 'medium' }) 
         <div className="team team--home">
           <div className="team-logo-wrap">
             {homeTeam.logo && (
-              <img
-                src={homeTeam.logo}
-                alt={homeTeam.name}
-                className="team-logo"
-                onError={e => e.target.parentElement.style.display='none'}
-              />
+              <img src={homeTeam.logo} alt={homeTeam.name} className="team-logo"
+                onError={e => e.target.parentElement.style.display='none'} />
             )}
           </div>
           <div className="team-name">{homeTeam.name}</div>
@@ -173,12 +225,8 @@ export default function MatchCard({ match, onAnalyse, riskProfile = 'medium' }) 
         <div className="team team--away">
           <div className="team-logo-wrap">
             {awayTeam.logo && (
-              <img
-                src={awayTeam.logo}
-                alt={awayTeam.name}
-                className="team-logo"
-                onError={e => e.target.parentElement.style.display='none'}
-              />
+              <img src={awayTeam.logo} alt={awayTeam.name} className="team-logo"
+                onError={e => e.target.parentElement.style.display='none'} />
             )}
           </div>
           <div className="team-name">{awayTeam.name}</div>
@@ -189,48 +237,44 @@ export default function MatchCard({ match, onAnalyse, riskProfile = 'medium' }) 
         </div>
       </div>
 
-      {/* Cotes 1X2 bookmaker */}
+      {/* Cotes simplifiées */}
       {odds && (
-        <div className="card-odds">
-          <OddCell
-            label="1" odd={odds.home}
-            bmProb={bookmakerProbs?.home} aiProb={aiProbs?.home}
-            isValue={bets?.find(b => b.outcome.startsWith('1'))?.isValue}
-          />
-          <OddCell
-            label="X" odd={odds.draw}
-            bmProb={bookmakerProbs?.draw} aiProb={aiProbs?.draw}
-            isValue={bets?.find(b => b.outcome.startsWith('X'))?.isValue}
-          />
-          <OddCell
-            label="2" odd={odds.away}
-            bmProb={bookmakerProbs?.away} aiProb={aiProbs?.away}
-            isValue={bets?.find(b => b.outcome.startsWith('2'))?.isValue}
-          />
-          <div className="odds-bm">{odds.bookmaker}</div>
+        <div className="card-odds-simple">
+          <OddPill label="Domicile" odd={odds.home} isValue={bets?.find(b => b.outcome.startsWith('1'))?.isValue} />
+          <OddPill label="Nul"      odd={odds.draw} isValue={bets?.find(b => b.outcome.startsWith('X'))?.isValue} />
+          <OddPill label="Extérieur" odd={odds.away} isValue={bets?.find(b => b.outcome.startsWith('2'))?.isValue} />
         </div>
       )}
 
-      {/* 3 niveaux de paris */}
-      <BetTiers tieredBets={tieredBets} />
+      {/* Synthèse rapide + tendances */}
+      <QuickInsights match={match} />
 
       {/* Footer */}
       <div className="card-footer">
-        <div className="card-footer-meta">
-          <span className="card-viewers">👁 {viewers}</span>
-        </div>
+        <span className="card-viewers">👁 {viewers} personnes regardent</span>
         <button
           className="btn-analyse"
           onClick={() => onAnalyse(match)}
-          disabled={!match.analysis}
         >
-          Voir l'analyse IA →
+          Analyse complète →
         </button>
       </div>
     </article>
   );
 }
 
+// ── OddPill ───────────────────────────────────────────────────────────────────
+function OddPill({ label, odd, isValue }) {
+  return (
+    <div className={`odd-pill ${isValue ? 'odd-pill--value' : ''}`}>
+      <span className="odd-pill-label">{label}</span>
+      <span className="odd-pill-val">{odd?.toFixed(2) ?? '—'}</span>
+      {isValue && <span className="odd-pill-tag">value</span>}
+    </div>
+  );
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
 function formatTime(dateStr) {
   if (!dateStr) return '—';
   return new Date(dateStr).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });

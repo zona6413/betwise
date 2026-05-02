@@ -134,6 +134,10 @@ export default function App() {
       />
 
       <main className="main">
+        <div className="site-tagline">
+          <span className="site-tagline-icon">📊</span>
+          Analyse rapide des matchs pour mieux comprendre les tendances
+        </div>
         <div className="container">
 
           {/* Stats bar */}
