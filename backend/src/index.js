@@ -5,6 +5,10 @@ import matchesRouter from './routes/matches.js';
 
 dotenv.config();
 
+// Nettoie les variables d'env (évite les \n invisibles copiés-collés)
+if (process.env.ODDS_API_KEY) process.env.ODDS_API_KEY = process.env.ODDS_API_KEY.trim();
+if (process.env.API_FOOTBALL_KEY) process.env.API_FOOTBALL_KEY = process.env.API_FOOTBALL_KEY.trim();
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 
