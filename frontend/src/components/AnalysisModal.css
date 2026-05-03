@@ -460,7 +460,6 @@
 @media (max-width: 600px) {
   .modal-players { grid-template-columns: 1fr; }
   .modal-player-note { padding-left: 0; }
-}
   .modal-overlay { padding: 0; align-items: flex-end; }
   .modal-window  { border-radius: 20px 20px 0 0; max-height: 94vh; }
   .modal-header  { padding: 22px 18px 18px; }
