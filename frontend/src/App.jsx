@@ -3,6 +3,7 @@ import { useMatches }    from './hooks/useMatches.js';
 import Header            from './components/Header.jsx';
 import MatchCard         from './components/MatchCard.jsx';
 import HeroCard          from './components/HeroCard.jsx';
+import TopPicksStrip     from './components/TopPicksStrip.jsx';
 import AnalysisModal     from './components/AnalysisModal.jsx';
 import ComboModal        from './components/ComboModal.jsx';
 import Toast             from './components/Toast.jsx';
@@ -237,6 +238,11 @@ export default function App() {
 
           {loading && !matches.length && <Skeleton />}
           {error && <ErrorBanner message={error} onRetry={refresh} />}
+
+          {/* Top Picks du jour */}
+          {!loading && activeTab === 'all' && (
+            <TopPicksStrip matches={matches} onAnalyse={setSelectedMatch} />
+          )}
 
           {/* Hero card — match du moment */}
           {heroMatch && !loading && (

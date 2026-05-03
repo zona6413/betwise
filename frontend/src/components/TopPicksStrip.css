@@ -1,0 +1,215 @@
+.top-picks {
+  margin-bottom: 28px;
+}
+
+.top-picks-header {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.top-picks-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.3px;
+}
+
+.top-picks-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* ── Grid ──────────────────────────────────────────────────────────────────── */
+
+.top-picks-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+/* ── Card ──────────────────────────────────────────────────────────────────── */
+
+.tp-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 14px 12px;
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tp-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-mid);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+}
+
+.tp-card--best {
+  border-color: #22c55e44;
+  background: linear-gradient(160deg, #0d1f14 0%, var(--surface) 100%);
+  box-shadow: 0 0 0 1px #22c55e33;
+}
+
+/* ── Top row ──────────────────────────────────────────────────────────────── */
+
+.tp-card-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tp-medal {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.tp-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  flex: 1;
+}
+
+.tp-convergence-badge {
+  font-size: 9px;
+  font-weight: 700;
+  background: #f59e0b22;
+  color: #f59e0b;
+  border: 1px solid #f59e0b44;
+  border-radius: 20px;
+  padding: 2px 7px;
+  white-space: nowrap;
+}
+
+/* ── Match info ───────────────────────────────────────────────────────────── */
+
+.tp-match-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.3;
+}
+
+.tp-flag {
+  margin-right: 4px;
+}
+
+.tp-vs {
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--text-muted);
+  margin: 0 4px;
+}
+
+.tp-league {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: -4px;
+}
+
+/* ── Bet box ─────────────────────────────────────────────────────────────── */
+
+.tp-bet-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  padding: 7px 10px;
+  margin-top: 2px;
+}
+
+.tp-bet-type {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.tp-bet-odd {
+  font-size: 13px;
+  font-weight: 800;
+  color: #22c55e;
+}
+
+/* ── Confidence bar ────────────────────────────────────────────────────────── */
+
+.tp-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tp-bar-track {
+  flex: 1;
+  height: 5px;
+  background: var(--border);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.tp-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.4s ease;
+}
+
+.tp-bar-pct {
+  font-size: 11px;
+  font-weight: 800;
+  min-width: 34px;
+  text-align: right;
+}
+
+/* ── Footer ─────────────────────────────────────────────────────────────── */
+
+.tp-footer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.tp-why {
+  font-size: 10px;
+  color: var(--text-muted);
+  line-height: 1.4;
+  flex: 1;
+}
+
+.tp-cta {
+  font-size: 10px;
+  font-weight: 700;
+  color: #6b7fa3;
+  white-space: nowrap;
+  transition: color 0.15s;
+}
+
+.tp-card:hover .tp-cta {
+  color: #22c55e;
+}
+
+/* ── Mobile ─────────────────────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .top-picks-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .tp-card:not(.tp-card--best) {
+    display: none;
+  }
+
+  .top-picks-sub {
+    display: none;
+  }
+}

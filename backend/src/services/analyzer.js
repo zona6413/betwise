@@ -164,50 +164,91 @@ function doubleChanceOdd(prob) {
   return Math.max(1.05, Math.round((1 / prob) * 1.07 * 20) / 20);
 }
 
+// ── Fiabilité de marché ──────────────────────────────────────────────────────
+const MARKET_RELIABILITY = {
+  'Over 1.5 buts':                  0.96,
+  'Double chance 1X':               0.93,
+  'Double chance X2':               0.90,
+  'Double chance 12':               0.87,
+  'Over 2.5 buts':                  0.80,
+  'Under 2.5 buts':                 0.78,
+  'BTTS — Les deux équipes scorent': 0.75,
+  'Victoire':                        0.70,
+};
+function marketReliability(type) {
+  for (const [k, v] of Object.entries(MARKET_RELIABILITY)) {
+    if (type.startsWith(k)) return v;
+  }
+  return 0.65;
+}
+
+// ── Convergence des signaux ───────────────────────────────────────────────────
+// Renvoie un bonus 0-0.15 quand forme, rang ET xG pointent dans le même sens
+function convergenceBonus(homeStats, awayStats, homeExpG, awayExpG) {
+  const formAdv = formScore(homeStats?.form) - formScore(awayStats?.form);
+  const rankAdv = rankScore(homeStats?.position) - rankScore(awayStats?.position);
+  const xgAdv   = homeExpG - awayExpG;
+  // Chaque signal vaut 1 si il penche clairement pour l'équipe dominante
+  const hStreak = detectStreak(homeStats?.form);
+  const streakBonus = hStreak.type === 'win' && hStreak.count >= 3 ? 1 : 0;
+  const agreed = [Math.abs(formAdv) > 0.08, Math.abs(rankAdv) > 0.08, Math.abs(xgAdv) > 0.25]
+    .filter(Boolean).length + streakBonus;
+  if (agreed >= 4) return 0.15;
+  if (agreed === 3) return 0.10;
+  if (agreed === 2) return 0.05;
+  return 0;
+}
+
+// ── pickScore : score composite de qualité du pari ────────────────────────────
+function computePickScore(bet, homeStats, awayStats, homeExpG, awayExpG) {
+  const reliability = marketReliability(bet.type);
+  const conv        = convergenceBonus(homeStats, awayStats, homeExpG, awayExpG);
+  return +(bet.prob * reliability * (1 + conv)).toFixed(3);
+}
+
 // ── Génération des 3 niveaux de paris ────────────────────────────────────────
 
 export function generateTieredBets(homeName, awayName, homeStats, awayStats, aiProbs, bmProbs, odds, players) {
-  const homeExpG = estimateExpectedGoals(homeStats, awayStats, true);
-  const awayExpG = estimateExpectedGoals(awayStats, homeStats, false);
-  const totalExpG = homeExpG + awayExpG;
-  const btts      = computeBTTSProb(homeExpG, awayExpG);
-  const ou        = computeOverUnderProbs(homeExpG, awayExpG);
-  const dc        = doubleChanceProbs(aiProbs);
+  const homeExpG   = estimateExpectedGoals(homeStats, awayStats, true);
+  const awayExpG   = estimateExpectedGoals(awayStats, homeStats, false);
+  const totalExpG  = homeExpG + awayExpG;
+  const btts       = computeBTTSProb(homeExpG, awayExpG);
+  const ou         = computeOverUnderProbs(homeExpG, awayExpG);
+  const dc         = doubleChanceProbs(aiProbs);
 
-  // ─ SAFE ─────────────────────────────────────────────────────────────────
-  // Cherche le pari le plus probable (>65% préféré)
-  let safeBet = null;
-
-  // Candidats safe triés par probabilité décroissante
+  // ─ SAFE ──────────────────────────────────────────────────────────────────
+  // Priorité : Over 1.5 si total xG > 1.8, sinon DC, toujours prob > 0.70
   const safeCandidates = [
-    { type: 'Over 1.5 buts',      prob: ou.over15,  odd: syntheticOdd(ou.over15),  why: xgJustify('over15', homeExpG, awayExpG, homeName, awayName) },
-    { type: `Double chance 1X`,   prob: dc['1X'],    odd: doubleChanceOdd(dc['1X']), why: dcJustify('1X', homeName, awayName, aiProbs) },
-    { type: `Double chance X2`,   prob: dc['X2'],    odd: doubleChanceOdd(dc['X2']), why: dcJustify('X2', homeName, awayName, aiProbs) },
-    { type: `Double chance 12`,   prob: dc['12'],    odd: doubleChanceOdd(dc['12']), why: dcJustify('12', homeName, awayName, aiProbs) },
-  ].sort((a, b) => b.prob - a.prob);
+    { type: 'Over 1.5 buts',    prob: ou.over15,  odd: syntheticOdd(ou.over15),   why: xgJustify('over15',  homeExpG, awayExpG, homeName, awayName) },
+    { type: 'Double chance 1X', prob: dc['1X'],    odd: doubleChanceOdd(dc['1X']), why: dcJustify('1X', homeName, awayName, aiProbs) },
+    { type: 'Double chance X2', prob: dc['X2'],    odd: doubleChanceOdd(dc['X2']), why: dcJustify('X2', homeName, awayName, aiProbs) },
+    { type: 'Double chance 12', prob: dc['12'],    odd: doubleChanceOdd(dc['12']), why: dcJustify('12', homeName, awayName, aiProbs) },
+    { type: 'Under 2.5 buts',   prob: ou.under25,  odd: syntheticOdd(ou.under25), why: xgJustify('under25', homeExpG, awayExpG, homeName, awayName) },
+  ]
+    .sort((a, b) => computePickScore(b, homeStats, awayStats, homeExpG, awayExpG)
+                  - computePickScore(a, homeStats, awayStats, homeExpG, awayExpG));
 
-  safeBet = safeCandidates[0];
-  // Contrainte : cote > 1.10 pour que ce soit intéressant
-  safeBet = safeCandidates.find(c => c.odd > 1.10) ?? safeCandidates[0];
+  const safeBet = safeCandidates.find(c => c.odd > 1.08 && c.prob >= 0.68) ?? safeCandidates[0];
 
   // ─ MOYEN ─────────────────────────────────────────────────────────────────
-  // Résultat 1X2 le plus probable, ou BTTS, ou O/U 2.5
   const favProb  = Math.max(aiProbs.home, aiProbs.away);
   const favLabel = aiProbs.home >= aiProbs.away ? homeName : awayName;
   const favOdd   = aiProbs.home >= aiProbs.away ? odds.home : odds.away;
   const favIs1   = aiProbs.home >= aiProbs.away;
 
   const mediumCandidates = [
-    { type: `Victoire ${favLabel}`, prob: favProb, odd: favOdd,
+    { type: `Victoire ${favLabel}`,                prob: favProb,     odd: favOdd,
       why: winJustify(favLabel, favIs1 ? homeStats : awayStats, homeName, awayName) },
-    { type: 'BTTS — Les deux équipes scorent', prob: btts, odd: syntheticOdd(btts),
+    { type: 'BTTS — Les deux équipes scorent',     prob: btts,        odd: syntheticOdd(btts),
       why: bttsJustify(homeExpG, awayExpG, homeName, awayName) },
-    { type: 'Over 2.5 buts', prob: ou.over25, odd: syntheticOdd(ou.over25),
+    { type: 'Over 2.5 buts',                       prob: ou.over25,   odd: syntheticOdd(ou.over25),
       why: xgJustify('over25', homeExpG, awayExpG, homeName, awayName) },
-    { type: 'Under 2.5 buts', prob: ou.under25, odd: syntheticOdd(ou.under25),
+    { type: 'Under 2.5 buts',                      prob: ou.under25,  odd: syntheticOdd(ou.under25),
       why: xgJustify('under25', homeExpG, awayExpG, homeName, awayName) },
-  ].filter(c => c.odd > 1.25 && c.prob > 0.35)
-   .sort((a, b) => (b.prob * Math.log(b.odd)) - (a.prob * Math.log(a.odd)));
+  ]
+    .filter(c => c.odd > 1.25 && c.prob > 0.38)
+    .sort((a, b) => computePickScore(b, homeStats, awayStats, homeExpG, awayExpG)
+                  - computePickScore(a, homeStats, awayStats, homeExpG, awayExpG));
 
   const mediumBet = mediumCandidates[0] ?? {
     type: 'Over 2.5 buts', prob: ou.over25, odd: syntheticOdd(ou.over25),
@@ -215,26 +256,27 @@ export function generateTieredBets(homeName, awayName, homeStats, awayStats, aiP
   };
 
   // ─ VALUE ─────────────────────────────────────────────────────────────────
-  // Outsider, BTTS + Over, ou score exact logique
   const outsiderProb = Math.min(aiProbs.home, aiProbs.away);
   const outsiderName = aiProbs.home < aiProbs.away ? homeName : awayName;
   const outsiderOdd  = aiProbs.home < aiProbs.away ? odds.home : odds.away;
   const bttsO25prob  = btts * ou.over25;
   const predictedScore = findMostLikelyScore(homeExpG, awayExpG);
+  const exactOdd = Math.round((6 + Math.floor(Math.abs((homeExpG - awayExpG) * 3)) * 0.5) * 20) / 20;
 
   const valueCandidates = [
     { type: `Victoire ${outsiderName} (outsider)`, prob: outsiderProb, odd: outsiderOdd,
       why: outsiderJustify(outsiderName, outsiderProb, outsiderOdd) },
     { type: 'BTTS + Over 2.5 buts', prob: bttsO25prob, odd: syntheticOdd(bttsO25prob),
-      why: `xG total estimé : ${totalExpG.toFixed(1)} but${totalExpG >= 2 ? 's' : ''} — les deux équipes devraient marquer dans un match ouvert.` },
-    { type: `Score exact ${predictedScore}`, prob: 0.12, odd: (Math.round(Math.random()*2+6)*0.5 + 5).toFixed(2)*1,
-      why: `Profil de match : ${homeName} xG ${homeExpG.toFixed(1)} vs ${awayName} xG ${awayExpG.toFixed(1)} → score le plus probable selon Poisson.` },
-  ].filter(c => c.odd > 2.0)
-   .sort((a, b) => (b.prob * b.odd) - (a.prob * a.odd));
+      why: `xG total ${totalExpG.toFixed(1)} — les deux équipes devraient marquer dans un match ouvert.` },
+    { type: `Score exact ${predictedScore}`, prob: 0.12, odd: exactOdd,
+      why: `Mode Poisson : ${homeName} xG ${homeExpG.toFixed(1)} vs ${awayName} xG ${awayExpG.toFixed(1)}.` },
+  ]
+    .filter(c => c.odd > 2.0)
+    .sort((a, b) => (b.prob * b.odd) - (a.prob * a.odd));
 
-  const valueBet = valueCandidates[0] ?? valueCandidates[0];
+  const valueBet = valueCandidates[0] ?? valueCandidates[valueCandidates.length - 1];
 
-  // ── Pari buteur (si joueur connu) ──────────────────────────────────────
+  // ── Buteurs probables ────────────────────────────────────────────────────
   const hScorer = players?.home?.topScorer;
   const aScorer = players?.away?.topScorer;
   const scorerBets = [];
@@ -247,19 +289,25 @@ export function generateTieredBets(homeName, awayName, homeStats, awayStats, aiP
     scorerBets.push({ player: aScorer.name, team: awayName, prob: +prob.toFixed(2), goals: aScorer.goals });
   }
 
+  const safePickScore  = computePickScore(safeBet,  homeStats, awayStats, homeExpG, awayExpG);
+  const medPickScore   = computePickScore(mediumBet, homeStats, awayStats, homeExpG, awayExpG);
+  const conv           = convergenceBonus(homeStats, awayStats, homeExpG, awayExpG);
+
   return {
-    safe:   { ...safeBet,   level: 'SAFE',   confidence: probToConfidence(safeBet.prob) },
-    medium: { ...mediumBet, level: 'MOYEN',  confidence: probToConfidence(mediumBet.prob) },
-    value:  { ...valueBet,  level: 'VALUE',  confidence: probToConfidence(valueBet.prob) },
+    safe:   { ...safeBet,   level: 'SAFE',  confidence: probToConfidence(safeBet.prob),  pickScore: safePickScore },
+    medium: { ...mediumBet, level: 'MOYEN', confidence: probToConfidence(mediumBet.prob), pickScore: medPickScore },
+    value:  { ...valueBet,  level: 'VALUE', confidence: probToConfidence(valueBet.prob) },
     scorerBets,
     stats:  {
-      homeExpG:  +homeExpG.toFixed(2),
-      awayExpG:  +awayExpG.toFixed(2),
-      bttsProb:  +btts.toFixed(2),
-      over15:    +ou.over15.toFixed(2),
-      over25:    +ou.over25.toFixed(2),
-      over35:    +ou.over35.toFixed(2),
-      under25:   +ou.under25.toFixed(2),
+      homeExpG:    +homeExpG.toFixed(2),
+      awayExpG:    +awayExpG.toFixed(2),
+      bttsProb:    +btts.toFixed(2),
+      over15:      +ou.over15.toFixed(2),
+      over25:      +ou.over25.toFixed(2),
+      over35:      +ou.over35.toFixed(2),
+      under25:     +ou.under25.toFixed(2),
+      pickScore:   safePickScore,
+      convergence: conv,
       homePlayers: players?.home ?? null,
       awayPlayers: players?.away ?? null,
     },
