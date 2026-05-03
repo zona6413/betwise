@@ -684,3 +684,28 @@
   margin: 0;
   font-style: italic;
 }
+
+/* ── Mobile ───────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .card-body      { padding: 12px 8px; gap: 4px; }
+  .score-box      { min-width: 60px; }
+  .score-n        { font-size: 26px; }
+  .kick-time      { font-size: 22px; }
+  .team-logo-wrap { width: 36px; height: 36px; }
+  .team-logo      { width: 28px; height: 28px; }
+  .team-name      { font-size: 13px; }
+  .team-rank      { font-size: 9px; }
+  .card-odds-simple { padding: 8px 10px; gap: 5px; }
+  .odd-pill-val   { font-size: 16px; }
+  .odd-pill-label { font-size: 9px; }
+  .qi-section     { padding: 11px 12px; }
+  .qi-section-title { font-size: 10px; margin-bottom: 7px; }
+  .qi-bullets li  { font-size: 13px; }
+  .qi-conclusion-text { font-size: 14px; }
+  .qi-tend-pct    { font-size: 14px; }
+  .qi-tend-label  { font-size: 10px; }
+  .qi-analyse-text { font-size: 13px; }
+  .card-footer    { padding: 8px 12px; }
+  .card-viewers   { font-size: 11px; }
+  .btn-analyse    { font-size: 12px; padding: 8px 10px; }
+}

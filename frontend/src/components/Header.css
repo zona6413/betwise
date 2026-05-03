@@ -136,7 +136,10 @@
 .btn-refresh.spinning { animation: spin 0.7s linear infinite; }
 
 @media (max-width: 640px) {
-  .header-inner { padding: 0 16px; gap: 10px; }
-  .logo-text    { font-size: 17px; }
+  .header-inner { padding: 0 12px; gap: 8px; height: 54px; }
+  .logo-text    { display: none; }
+  .logo-tag     { display: none; }
   .header-time  { display: none; }
+  .nav-pill     { padding: 5px 10px; font-size: 12px; }
+  .btn-refresh  { width: 30px; height: 30px; font-size: 15px; }
 }

@@ -427,12 +427,23 @@
 /* ── Responsive ───────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .main { padding: 0 0 70px; }
-  .container { padding: 0 16px; }
+  .container { padding: 0 12px; }
   .matches-grid { grid-template-columns: 1fr; gap: 10px; }
-  .stats-bar { border-radius: var(--radius); }
-  .stats-bar-item { padding: 12px 14px; }
-  .stats-num { font-size: 22px; }
-  .stats-hot-match { max-width: 160px; }
-  .risk-bar { gap: 6px; }
+  .stats-bar { border-radius: var(--radius); overflow-x: auto; scrollbar-width: none; flex-wrap: nowrap; }
+  .stats-bar::-webkit-scrollbar { display: none; }
+  .stats-bar-item { padding: 10px 12px; flex-shrink: 0; }
+  .stats-num { font-size: 20px; }
+  .stats-lbl { font-size: 9px; }
+  .stats-hot-match { max-width: 130px; }
+  .stats-bar-item--hot { display: none; }
+  .stats-bar-item--perf { flex-shrink: 0; }
+  .stats-bar-refresh { flex-shrink: 0; padding-right: 10px; }
+  .stats-time { display: none; }
+  .risk-bar { gap: 6px; flex-wrap: wrap; }
   .risk-btn { padding: 5px 11px; font-size: 11px; }
+  .combo-trigger-btn { font-size: 11px; padding: 5px 12px; }
+  .site-tagline { font-size: 14px; padding: 11px 16px; letter-spacing: 0; word-break: keep-all; }
+  .site-tagline-icon { font-size: 16px; }
+  .tab-btn { padding: 6px 12px; font-size: 12px; }
+  .date-group-label { font-size: 12px; }
 }
