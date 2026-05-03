@@ -114,7 +114,7 @@ function doubleChanceOdd(prob) {
 
 // ── Génération des 3 niveaux de paris ────────────────────────────────────────
 
-export function generateTieredBets(homeName, awayName, homeStats, awayStats, aiProbs, bmProbs, odds) {
+export function generateTieredBets(homeName, awayName, homeStats, awayStats, aiProbs, bmProbs, odds, players) {
   const homeExpG = estimateExpectedGoals(homeStats, awayStats);
   const awayExpG = estimateExpectedGoals(awayStats, homeStats);
   const totalExpG = homeExpG + awayExpG;
@@ -182,10 +182,24 @@ export function generateTieredBets(homeName, awayName, homeStats, awayStats, aiP
 
   const valueBet = valueCandidates[0] ?? valueCandidates[0];
 
+  // ── Pari buteur (si joueur connu) ──────────────────────────────────────
+  const hScorer = players?.home?.topScorer;
+  const aScorer = players?.away?.topScorer;
+  const scorerBets = [];
+  if (hScorer) {
+    const prob = Math.min(0.55, 0.22 + (homeExpG - 0.8) * 0.18);
+    scorerBets.push({ player: hScorer.name, team: homeName, prob: +prob.toFixed(2), goals: hScorer.goals });
+  }
+  if (aScorer) {
+    const prob = Math.min(0.48, 0.18 + (awayExpG - 0.8) * 0.15);
+    scorerBets.push({ player: aScorer.name, team: awayName, prob: +prob.toFixed(2), goals: aScorer.goals });
+  }
+
   return {
     safe:   { ...safeBet,   level: 'SAFE',   confidence: probToConfidence(safeBet.prob) },
     medium: { ...mediumBet, level: 'MOYEN',  confidence: probToConfidence(mediumBet.prob) },
     value:  { ...valueBet,  level: 'VALUE',  confidence: probToConfidence(valueBet.prob) },
+    scorerBets,
     stats:  {
       homeExpG:  +homeExpG.toFixed(2),
       awayExpG:  +awayExpG.toFixed(2),
@@ -194,6 +208,8 @@ export function generateTieredBets(homeName, awayName, homeStats, awayStats, aiP
       over25:    +ou.over25.toFixed(2),
       over35:    +ou.over35.toFixed(2),
       under25:   +ou.under25.toFixed(2),
+      homePlayers: players?.home ?? null,
+      awayPlayers: players?.away ?? null,
     },
   };
 }
@@ -265,44 +281,66 @@ export function detectValueBets(aiProbs, bookmakerProbs, homeOdd, drawOdd, awayO
   });
 }
 
-// ── Analyse textuelle ─────────────────────────────────────────────────────────
+// ── Analyse textuelle enrichie (avec joueurs) ──────────────────────────────
 
-export function generateAnalysis(homeTeam, awayTeam, homeStats, awayStats, bets, tiered) {
+export function generateAnalysis(homeTeam, awayTeam, homeStats, awayStats, bets, tiered, players) {
   const lines = [];
   const hForm = formScore(homeStats?.form);
   const aForm = formScore(awayStats?.form);
   const hPos  = homeStats?.position;
   const aPos  = awayStats?.position;
+  const hP    = players?.home;
+  const aP    = players?.away;
 
+  // ── Dynamique de forme ───────────────────────────────────────────────────
   if (hForm > aForm + 0.15)
-    lines.push(`🟢 ${homeTeam} en meilleure forme récente (${homeStats?.form ?? 'N/A'} vs ${awayStats?.form ?? 'N/A'}).`);
+    lines.push(`🟢 ${homeTeam} en bien meilleure forme (${homeStats?.form ?? 'N/A'} vs ${awayStats?.form ?? 'N/A'}).`);
   else if (aForm > hForm + 0.15)
-    lines.push(`🟢 ${awayTeam} en meilleure forme récente (${awayStats?.form ?? 'N/A'} vs ${homeStats?.form ?? 'N/A'}).`);
+    lines.push(`🟢 ${awayTeam} en bien meilleure forme (${awayStats?.form ?? 'N/A'} vs ${homeStats?.form ?? 'N/A'}).`);
   else
-    lines.push(`⚖️  Forme équivalente : ${homeTeam} ${homeStats?.form ?? 'N/A'} / ${awayTeam} ${awayStats?.form ?? 'N/A'}.`);
+    lines.push(`⚖️ Forme similaire : ${homeTeam} ${homeStats?.form ?? 'N/A'} / ${awayTeam} ${awayStats?.form ?? 'N/A'}.`);
 
+  // ── Classement ───────────────────────────────────────────────────────────
   if (hPos && aPos) {
-    if (hPos < aPos)      lines.push(`📊 ${homeTeam} mieux classé (${hPos}e vs ${aPos}e).`);
-    else if (aPos < hPos) lines.push(`📊 ${awayTeam} mieux classé (${aPos}e vs ${hPos}e).`);
-    else                  lines.push(`📊 Même position au classement (${hPos}e).`);
+    if (hPos < aPos - 2)      lines.push(`📊 ${homeTeam} nettement mieux classé (${hPos}e vs ${aPos}e) — avantage structurel clair.`);
+    else if (aPos < hPos - 2) lines.push(`📊 ${awayTeam} nettement mieux classé (${aPos}e vs ${hPos}e) — supériorité sur la durée.`);
+    else                       lines.push(`📊 Classements proches (${hPos}e vs ${aPos}e) — équilibre attendu.`);
   }
 
-  lines.push(`🏠 Avantage terrain pour ${homeTeam}.`);
+  // ── Avantage terrain ──────────────────────────────────────────────────────
+  lines.push(`🏠 ${homeTeam} joue à domicile — bonus historique estimé à +8% de probabilité de victoire.`);
 
+  // ── Joueurs clés ──────────────────────────────────────────────────────────
+  if (hP?.topScorer) {
+    lines.push(`⚽ Buteur danger côté ${homeTeam} : ${hP.topScorer.name} (${hP.topScorer.goals} buts cette saison).`);
+  }
+  if (aP?.topScorer) {
+    lines.push(`⚽ Buteur danger côté ${awayTeam} : ${aP.topScorer.name} (${aP.topScorer.goals} buts cette saison).`);
+  }
+  if (hP?.dangerMan) {
+    lines.push(`🎯 À surveiller pour ${homeTeam} : ${hP.dangerMan.name} — ${hP.dangerMan.note}.`);
+  }
+  if (aP?.dangerMan) {
+    lines.push(`🎯 À surveiller pour ${awayTeam} : ${aP.dangerMan.name} — ${aP.dangerMan.note}.`);
+  }
+
+  // ── Style de jeu ──────────────────────────────────────────────────────────
+  if (hP?.style && aP?.style) {
+    lines.push(`📋 Styles : ${homeTeam} (${hP.style}) vs ${awayTeam} (${aP.style}).`);
+  }
+
+  // ── Stats xG ─────────────────────────────────────────────────────────────
   if (tiered) {
-    lines.push(`⚽ xG estimé : ${homeTeam} ${tiered.stats.homeExpG} — ${awayTeam} ${tiered.stats.awayExpG}`);
-    lines.push(`📈 Over 2.5 : ${(tiered.stats.over25*100).toFixed(0)}% · BTTS : ${(tiered.stats.bttsProb*100).toFixed(0)}%`);
+    lines.push(`📈 xG estimé : ${homeTeam} ${tiered.stats.homeExpG} — ${awayTeam} ${tiered.stats.awayExpG} · Over 2.5 : ${(tiered.stats.over25*100).toFixed(0)}% · BTTS : ${(tiered.stats.bttsProb*100).toFixed(0)}%`);
   }
 
+  // ── Value bets ────────────────────────────────────────────────────────────
   const valueBets = bets.filter(b => b.isValue);
   if (valueBets.length > 0) {
-    lines.push(`💰 Value bet 1X2 : ${valueBets.map(b => `${b.outcome} (${b.odd.toFixed(2)})`).join(' · ')}`);
-  } else {
-    lines.push(`⚠️  Pas de value bet 1X2 clair sur ce match.`);
+    lines.push(`💰 Value bet 1X2 détecté : ${valueBets.map(b => `${b.outcome} @ ${b.odd.toFixed(2)}`).join(' · ')}`);
   }
-
   if (tiered?.safe) {
-    lines.push(`✅ Pari SAFE suggéré : ${tiered.safe.type} @ ${tiered.safe.odd?.toFixed(2)} (${(tiered.safe.prob*100).toFixed(0)}%)`);
+    lines.push(`✅ Pari SAFE : ${tiered.safe.type} @ ${tiered.safe.odd?.toFixed(2)} (${(tiered.safe.prob*100).toFixed(0)}% de chances)`);
   }
 
   return lines.join('\n');

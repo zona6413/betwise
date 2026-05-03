@@ -72,9 +72,11 @@ function buildInsights(match) {
   const stats = tieredBets?.stats;
   if (!stats || !aiProbs) return null;
 
-  const isOpen  = stats.bttsProb > 0.50 || stats.over25 > 0.52;
-  const favProb = Math.max(aiProbs.home, aiProbs.away);
-  const favName = aiProbs.home >= aiProbs.away ? homeTeam.name : awayTeam.name;
+  const isOpen    = stats.bttsProb > 0.50 || stats.over25 > 0.52;
+  const favProb   = Math.max(aiProbs.home, aiProbs.away);
+  const favName   = aiProbs.home >= aiProbs.away ? homeTeam.name : awayTeam.name;
+  const hPlayers  = stats.homePlayers;
+  const aPlayers  = stats.awayPlayers;
 
   // 📌 Synthèse (3 points)
   const bullets = [];
@@ -85,12 +87,22 @@ function buildInsights(match) {
   else if (aiProbs.away > 0.44) bullets.push(`${awayTeam.name} en position de surprendre`);
   else                          bullets.push('Match équilibré entre les deux équipes');
 
-  if (stats.bttsProb > 0.58)     bullets.push('Les deux équipes devraient marquer');
-  else if (stats.over25 > 0.60)  bullets.push('Plus de 2,5 buts envisageable');
-  else if (stats.under25 > 0.60) bullets.push('Score serré attendu');
+  // Mention joueur si dispo, sinon stat xG
+  const hScorer = hPlayers?.topScorer;
+  const aScorer = aPlayers?.topScorer;
+  if (hScorer && aiProbs.home > 0.45) {
+    bullets.push(`${hScorer.name} (${hScorer.goals} buts) à surveiller côté domicile`);
+  } else if (aScorer && aiProbs.away > 0.40) {
+    bullets.push(`${aScorer.name} (${aScorer.goals} buts) dangereux côté extérieur`);
+  } else if (stats.bttsProb > 0.58) {
+    bullets.push('Les deux équipes devraient marquer');
+  } else if (stats.under25 > 0.60) {
+    bullets.push('Score serré attendu — défenses solides');
+  }
 
   // 🎯 Conclusion
   const topBet = tieredBets?.safe;
+  const scorerBet = tieredBets?.scorerBets?.[0];
   const conclusion = topBet
     ? `Mise recommandée : ${topBet.type}`
     : 'Match difficile à cerner — prudence recommandée';
@@ -102,12 +114,12 @@ function buildInsights(match) {
     { label: favName,    prob: favProb },
   ];
 
-  // 🔍 Analyse courte
+  // 🔍 Analyse : première phrase de l'analyse enrichie
   const analyse = analysis
-    ? analysis.split('.')[0].trim() + '.'
-    : `${favName} part favori avec ${Math.round(favProb * 100)}% de chances de victoire selon notre modèle.`;
+    ? analysis.split('\n')[0].replace(/^[🟢⚖️📊🏠⚽🎯📋📈💰✅⚠️]\s?/u, '').trim()
+    : `${favName} part favori avec ${Math.round(favProb * 100)}% de chances selon notre modèle.`;
 
-  return { bullets: bullets.slice(0, 3), conclusion, tendances, analyse };
+  return { bullets: bullets.slice(0, 3), conclusion, tendances, analyse, scorerBet };
 }
 
 function QuickInsights({ match }) {
@@ -149,6 +161,15 @@ function QuickInsights({ match }) {
       <div className="qi-section qi-analyse">
         <div className="qi-section-title">🔍 Analyse</div>
         <p className="qi-analyse-text">{analyse}</p>
+        {scorerBet && (
+          <div className="qi-scorer-badge">
+            <span className="qi-scorer-icon">⚽</span>
+            <span className="qi-scorer-text">
+              <strong>{scorerBet.player}</strong> buteur probable
+              <span className="qi-scorer-pct"> {Math.round(scorerBet.prob * 100)}%</span>
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );

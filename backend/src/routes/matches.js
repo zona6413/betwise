@@ -5,6 +5,7 @@ import { getTodayFixtures }        from '../services/footballApi.js';
 import { getOdds }                 from '../services/oddsApi.js';
 import { mergeData }               from '../services/merger.js';
 import { getTeamStatsMap, randomBookmaker } from '../services/standingsApi.js';
+import { getMatchPlayers } from '../services/playerStats.js';
 import {
   impliedProbabilities,
   computeAIProbability,
@@ -72,13 +73,15 @@ function buildMatch(fixture, teamStats, realOddsMap) {
     ? realOdds
     : generateSyntheticOdds(homeStats, awayStats);
 
+  const players        = getMatchPlayers(homeId, awayId);
   const bookmakerProbs = impliedProbabilities(homeOdd, drawOdd, awayOdd);
   const aiProbs        = computeAIProbability(homeStats, awayStats);
   const bets           = detectValueBets(aiProbs, bookmakerProbs, homeOdd, drawOdd, awayOdd);
   const tieredBets     = generateTieredBets(
     fixture.teams.home.name, fixture.teams.away.name,
     homeStats, awayStats, aiProbs, bookmakerProbs,
-    { home: homeOdd, draw: drawOdd, away: awayOdd }
+    { home: homeOdd, draw: drawOdd, away: awayOdd },
+    players
   );
   const analysis       = generateAnalysis(
     fixture.teams.home.name,
@@ -86,7 +89,8 @@ function buildMatch(fixture, teamStats, realOddsMap) {
     homeStats,
     awayStats,
     bets,
-    tieredBets
+    tieredBets,
+    players
   );
 
   return {

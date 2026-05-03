@@ -327,7 +327,140 @@
 .modal-disclaimer { font-size: 11px; color: rgba(255,255,255,0.18); text-align: center; margin: 0; line-height: 1.5; }
 
 /* ── Mobile ──────────────────────────────────────────────────────── */
+/* ── Joueurs clés ─────────────────────────────────────────────────── */
+.modal-players {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.modal-player-block {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.modal-player-block--home { border-top: 2px solid rgba(91,110,245,0.4); }
+.modal-player-block--away { border-top: 2px solid rgba(255,107,53,0.4); }
+
+.modal-player-team {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  margin-bottom: 2px;
+}
+
+.modal-player-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.modal-player-role {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-dim);
+  min-width: 52px;
+  flex-shrink: 0;
+}
+.modal-player-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  flex: 1;
+  min-width: 80px;
+}
+.modal-player-stat {
+  font-size: 11px;
+  font-weight: 800;
+  color: #00d68f;
+  background: rgba(0,214,143,0.1);
+  border: 1px solid rgba(0,214,143,0.2);
+  padding: 2px 7px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+.modal-player-note {
+  font-size: 11px;
+  color: var(--text-muted);
+  flex-basis: 100%;
+  padding-left: 57px;
+  line-height: 1.3;
+}
+.modal-player-row--danger .modal-player-name { color: #ffb300; }
+.modal-player-style {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-style: italic;
+  margin-top: 2px;
+  line-height: 1.4;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  padding-top: 6px;
+}
+.modal-player-unknown {
+  font-size: 12px;
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+/* ── Buteurs probables ────────────────────────────────────────────── */
+.modal-scorer-bets { display: flex; flex-direction: column; gap: 8px; }
+.modal-scorer-bets-title {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 4px;
+}
+.modal-scorer-bet-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.modal-scorer-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  min-width: 120px;
+  flex-shrink: 0;
+}
+.modal-scorer-team {
+  font-size: 11px;
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+.modal-scorer-bar-track {
+  flex: 1;
+  height: 4px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.modal-scorer-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00d68f, #3b82f6);
+  border-radius: 2px;
+  transition: width 0.6s cubic-bezier(.4,0,.2,1);
+}
+.modal-scorer-pct {
+  font-size: 12px;
+  font-weight: 700;
+  color: #00d68f;
+  min-width: 32px;
+  text-align: right;
+}
+
 @media (max-width: 600px) {
+  .modal-players { grid-template-columns: 1fr; }
+  .modal-player-note { padding-left: 0; }
+}
   .modal-overlay { padding: 0; align-items: flex-end; }
   .modal-window  { border-radius: 20px 20px 0 0; max-height: 94vh; }
   .modal-header  { padding: 22px 18px 18px; }

@@ -144,6 +144,45 @@ function buildTendances(match) {
   ].filter(t => t.prob > 0.15);
 }
 
+// ── Joueurs clés ──────────────────────────────────────────────────────────────
+function PlayerBlock({ team, players, side }) {
+  if (!players) return (
+    <div className={`modal-player-block modal-player-block--${side}`}>
+      <div className="modal-player-team">{team.name}</div>
+      <div className="modal-player-unknown">Données indisponibles</div>
+    </div>
+  );
+  return (
+    <div className={`modal-player-block modal-player-block--${side}`}>
+      <div className="modal-player-team">{team.name}</div>
+      {players.topScorer && (
+        <div className="modal-player-row modal-player-row--scorer">
+          <span className="modal-player-role">⚽ Buteur</span>
+          <span className="modal-player-name">{players.topScorer.name}</span>
+          <span className="modal-player-stat">{players.topScorer.goals} buts</span>
+        </div>
+      )}
+      {players.keyPlayer && (
+        <div className="modal-player-row">
+          <span className="modal-player-role">🎯 Clé</span>
+          <span className="modal-player-name">{players.keyPlayer.name}</span>
+          <span className="modal-player-note">{players.keyPlayer.role}</span>
+        </div>
+      )}
+      {players.dangerMan && (
+        <div className="modal-player-row modal-player-row--danger">
+          <span className="modal-player-role">⚡ Danger</span>
+          <span className="modal-player-name">{players.dangerMan.name}</span>
+          <span className="modal-player-note">{players.dangerMan.note}</span>
+        </div>
+      )}
+      {players.style && (
+        <div className="modal-player-style">📋 {players.style}</div>
+      )}
+    </div>
+  );
+}
+
 // ── Composant BetCard ─────────────────────────────────────────────────────────
 function BetCard({ bet, which, highlighted = false }) {
   if (!bet) return null;
@@ -260,7 +299,33 @@ export default function AnalysisModal({ match, onClose, riskProfile = 'medium' }
             </section>
           )}
 
-          {/* 2. Synthèse rapide */}
+          {/* 2. Joueurs clés */}
+          {(tieredBets?.stats?.homePlayers || tieredBets?.stats?.awayPlayers) && (
+            <section className="modal-section">
+              <h2 className="modal-section-title">👤 Joueurs clés</h2>
+              <div className="modal-players">
+                <PlayerBlock team={homeTeam} players={tieredBets.stats.homePlayers} side="home" />
+                <PlayerBlock team={awayTeam} players={tieredBets.stats.awayPlayers} side="away" />
+              </div>
+              {tieredBets?.scorerBets?.length > 0 && (
+                <div className="modal-scorer-bets">
+                  <div className="modal-scorer-bets-title">⚽ Buteurs probables</div>
+                  {tieredBets.scorerBets.map((sb, i) => (
+                    <div key={i} className="modal-scorer-bet-row">
+                      <span className="modal-scorer-name">{sb.player}</span>
+                      <span className="modal-scorer-team">({sb.team})</span>
+                      <div className="modal-scorer-bar-track">
+                        <div className="modal-scorer-bar-fill" style={{ width: `${Math.round(sb.prob * 100)}%` }} />
+                      </div>
+                      <span className="modal-scorer-pct">{Math.round(sb.prob * 100)}%</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+          )}
+
+          {/* 3. Synthèse rapide */}
           {summary.length > 0 && (
             <section className="modal-section">
               <h2 className="modal-section-title">📌 À retenir</h2>
