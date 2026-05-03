@@ -67,8 +67,6 @@ app.get('/api/debug/odds', async (_req, res) => {
 
 // Cache clear
 app.get('/api/cache/clear', (_req, res) => {
-  const NodeCache = require('node-cache');
-  // Signal routes/matches.js to clear its cache on next request
   process.env.FORCE_CACHE_CLEAR = Date.now().toString();
   res.json({ ok: true, message: 'Cache clear signalé — prochain appel /api/matches rechargera les données.' });
 });
