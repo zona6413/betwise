@@ -18,19 +18,19 @@ const LEAGUES = [
 
 const BOOKMAKERS = ['Unibet', 'Betclic', 'Winamax', 'Bet365', 'PMU'];
 
-function winRateToForm(wins, draws, losses) {
+function winRateToForm(wins, draws, losses, teamId = 0) {
   const total = wins + draws + losses;
   if (total === 0) return 'WDWLW';
-  const winRate = wins / total;
+  const winRate  = wins  / total;
   const drawRate = draws / total;
+  // Deterministic LCG — stable across cache refreshes, unique per team
+  let s = Math.abs((wins * 1337 + draws * 421 + losses * 97 + (teamId % 997) * 31) % 65537) || 1;
+  const rand = () => { s = (s * 1664525 + 1013904223) & 0x7fffffff; return s / 0x7fffffff; };
   const result = [];
   for (let i = 0; i < 5; i++) {
-    const r = Math.random();
-    if (r < winRate) result.push('W');
-    else if (r < winRate + drawRate) result.push('D');
-    else result.push('L');
+    const r = rand();
+    result.push(r < winRate ? 'W' : r < winRate + drawRate ? 'D' : 'L');
   }
-  // Always seed with real performance trend (recent = right)
   return result.join('');
 }
 
@@ -55,7 +55,7 @@ export async function getTeamStatsMap() {
           map[t.idTeam] = {
             position: pos,
             wins, draws, losses,
-            form: winRateToForm(wins, draws, losses),
+            form: winRateToForm(wins, draws, losses, parseInt(t.idTeam)),
             points: parseInt(t.intPoints || wins * 3 + draws),
           };
         }
@@ -151,7 +151,7 @@ export async function getTeamStatsMap() {
     if (!map[id]) {
       map[id] = {
         ...stats,
-        form: winRateToForm(stats.wins, stats.draws, stats.losses),
+        form: winRateToForm(stats.wins, stats.draws, stats.losses, parseInt(id)),
         points: stats.wins * 3 + stats.draws,
       };
     }

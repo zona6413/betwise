@@ -76,13 +76,13 @@ function buildMatch(fixture, teamStats, realOddsMap) {
   const players        = getMatchPlayers(homeId, awayId);
   const bookmakerProbs = impliedProbabilities(homeOdd, drawOdd, awayOdd);
   const aiProbs        = computeAIProbability(homeStats, awayStats);
-  const bets           = detectValueBets(aiProbs, bookmakerProbs, homeOdd, drawOdd, awayOdd);
   const tieredBets     = generateTieredBets(
     fixture.teams.home.name, fixture.teams.away.name,
     homeStats, awayStats, aiProbs, bookmakerProbs,
     { home: homeOdd, draw: drawOdd, away: awayOdd },
     players
   );
+  const bets           = detectValueBets(aiProbs, bookmakerProbs, homeOdd, drawOdd, awayOdd, tieredBets.stats);
   const analysis       = generateAnalysis(
     fixture.teams.home.name,
     fixture.teams.away.name,
