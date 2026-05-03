@@ -125,7 +125,7 @@ function buildInsights(match) {
 function QuickInsights({ match }) {
   const insights = buildInsights(match);
   if (!insights) return null;
-  const { bullets, conclusion, tendances, analyse } = insights;
+  const { bullets, conclusion, tendances, analyse, scorerBet } = insights;
 
   return (
     <div className="quick-insights">
