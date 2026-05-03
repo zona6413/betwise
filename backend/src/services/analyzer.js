@@ -53,12 +53,26 @@ export function computeAIProbability(homeStats, awayStats) {
 
 // ── Expected Goals (xG estimé) ───────────────────────────────────────────────
 
-export function estimateExpectedGoals(attackStats, defenceStats) {
-  const attackStr  = formScore(attackStats?.form) * 0.5 + rankScore(attackStats?.position) * 0.5;
-  const defenceStr = formScore(defenceStats?.form) * 0.5 + rankScore(defenceStats?.position) * 0.5;
+export function estimateExpectedGoals(attackStats, defenceStats, isHome = false) {
+  const attackStr  = formScore(attackStats?.form) * 0.45 + rankScore(attackStats?.position) * 0.55;
+  const defenceStr = formScore(defenceStats?.form) * 0.45 + rankScore(defenceStats?.position) * 0.55;
   const defWeakness = 1 - defenceStr;
-  // base ~1.25 buts par équipe par match en moyenne européenne
-  return Math.max(0.3, 1.25 * (0.5 + attackStr * 0.8) * (0.5 + defWeakness * 0.8));
+  // Base différenciée domicile/extérieur — structure additive pour garder la plage réaliste
+  const base = isHome ? 1.40 : 1.20;
+  const xg   = base * (0.5 + attackStr * 0.8) * (0.5 + defWeakness * 0.8);
+  return Math.max(0.25, Math.min(3.5, xg));
+}
+
+// ── Score le plus probable (mode joint de Poisson) ───────────────────────────
+function findMostLikelyScore(homeExpG, awayExpG) {
+  let bestProb = -1, bestH = 0, bestA = 0;
+  for (let h = 0; h <= 5; h++) {
+    for (let a = 0; a <= 5; a++) {
+      const p = poissonProb(homeExpG, h) * poissonProb(awayExpG, a);
+      if (p > bestProb) { bestProb = p; bestH = h; bestA = a; }
+    }
+  }
+  return `${bestH}-${bestA}`;
 }
 
 // ── Poisson simplifié ────────────────────────────────────────────────────────
@@ -115,8 +129,8 @@ function doubleChanceOdd(prob) {
 // ── Génération des 3 niveaux de paris ────────────────────────────────────────
 
 export function generateTieredBets(homeName, awayName, homeStats, awayStats, aiProbs, bmProbs, odds, players) {
-  const homeExpG = estimateExpectedGoals(homeStats, awayStats);
-  const awayExpG = estimateExpectedGoals(awayStats, homeStats);
+  const homeExpG = estimateExpectedGoals(homeStats, awayStats, true);
+  const awayExpG = estimateExpectedGoals(awayStats, homeStats, false);
   const totalExpG = homeExpG + awayExpG;
   const btts      = computeBTTSProb(homeExpG, awayExpG);
   const ou        = computeOverUnderProbs(homeExpG, awayExpG);
@@ -168,7 +182,7 @@ export function generateTieredBets(homeName, awayName, homeStats, awayStats, aiP
   const outsiderName = aiProbs.home < aiProbs.away ? homeName : awayName;
   const outsiderOdd  = aiProbs.home < aiProbs.away ? odds.home : odds.away;
   const bttsO25prob  = btts * ou.over25;
-  const predictedScore = predictScore(homeExpG, awayExpG);
+  const predictedScore = findMostLikelyScore(homeExpG, awayExpG);
 
   const valueCandidates = [
     { type: `Victoire ${outsiderName} (outsider)`, prob: outsiderProb, odd: outsiderOdd,
@@ -228,11 +242,6 @@ function probToConfidence(prob) {
   return 'Faible';
 }
 
-function predictScore(homeExpG, awayExpG) {
-  const h = Math.round(homeExpG);
-  const a = Math.round(awayExpG);
-  return `${Math.max(0, h)}-${Math.max(0, a)}`;
-}
 
 function xgJustify(type, homeExpG, awayExpG, homeName, awayName) {
   const total = homeExpG + awayExpG;
