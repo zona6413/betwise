@@ -16,6 +16,7 @@ const TABS = [
   { id: 'value',    label: '💰 Value bets' },
   { id: 'today',    label: "Aujourd'hui" },
   { id: 'tomorrow', label: 'Demain' },
+  { id: 'ucl',      label: '⭐ Champions League' },
   { id: 'taux',     label: '📊 Taux' },
 ];
 
@@ -92,6 +93,9 @@ export default function App() {
     if (activeTab === 'tomorrow') {
       const tom = new Date(); tom.setDate(tom.getDate()+1);
       list = list.filter(m => new Date(m.date).toDateString() === tom.toDateString());
+    }
+    if (activeTab === 'ucl') {
+      list = list.filter(m => m.league?.includes('Champions League'));
     }
     return list;
   }, [matches, activeTab, activeLeague]);
