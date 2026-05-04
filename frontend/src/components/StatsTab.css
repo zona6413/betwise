@@ -1,0 +1,275 @@
+.stats-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 8px 0 40px;
+}
+
+/* ── Section ─────────────────────────────────────────────────────────────── */
+.st-section {
+  background: var(--card-bg);
+  border: 1px solid var(--border-lite);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.st-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px 0;
+}
+.st-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  padding: 14px 18px 10px;
+  margin: 0;
+}
+.st-section-date {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-weight: 500;
+  text-transform: capitalize;
+  padding: 14px 18px 0;
+}
+
+/* ── Pick cards ──────────────────────────────────────────────────────────── */
+.st-picks-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 4px 14px 16px;
+}
+@media (max-width: 700px) {
+  .st-picks-grid { grid-template-columns: 1fr; }
+}
+
+.st-pick-card {
+  border-radius: 10px;
+  padding: 14px;
+  border: 1px solid var(--border-lite);
+  background: rgba(255,255,255,0.03);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.st-pick-card--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-dim);
+  font-size: 12px;
+  min-height: 80px;
+}
+.st-pick-card--safe     { border-left: 3px solid var(--green); }
+.st-pick-card--moderate { border-left: 3px solid #818cf8; }
+.st-pick-card--risky    { border-left: 3px solid #ef4444; }
+
+.st-pick-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+.st-pick-badge {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  padding: 3px 8px;
+  border-radius: 5px;
+  text-transform: uppercase;
+}
+.st-pick-badge--safe     { background: rgba(0,214,143,0.12); color: var(--green); border: 1px solid rgba(0,214,143,0.2); }
+.st-pick-badge--moderate { background: rgba(129,140,248,0.12); color: #818cf8;   border: 1px solid rgba(129,140,248,0.2); }
+.st-pick-badge--risky    { background: rgba(239,68,68,0.12);  color: #ef4444;    border: 1px solid rgba(239,68,68,0.25); }
+
+.st-pick-match {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.3;
+}
+.st-pick-vs { color: var(--text-dim); font-weight: 400; margin: 0 3px; }
+
+.st-pick-bet {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.2px;
+}
+.st-pick-stats {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.st-pick-odd  { font-size: 14px; font-weight: 900; color: var(--text); }
+.st-pick-prob { font-size: 11px; color: var(--text-dim); font-weight: 600; }
+
+.st-pick-score {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+.st-pick-score strong { color: var(--text-soft); }
+
+.st-pick-analyse {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+}
+.st-pick-analyse:hover { text-decoration: underline; }
+
+/* ── Result badge ────────────────────────────────────────────────────────── */
+.st-result {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.st-result--win     { background: rgba(0,214,143,0.15); color: var(--green); }
+.st-result--loss    { background: rgba(239,68,68,0.12); color: #ef4444; }
+.st-result--pending { background: rgba(255,255,255,0.06); color: var(--text-dim); }
+
+/* ── Combo banner ────────────────────────────────────────────────────────── */
+.st-combo-banner {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 12px 16px;
+  background: rgba(129,140,248,0.07);
+  border-top: 1px solid rgba(129,140,248,0.15);
+  margin: 0 14px 14px;
+  border-radius: 10px;
+}
+.st-combo-label { font-size: 12px; font-weight: 700; color: var(--text-soft); flex: 1; }
+.st-combo-odd   { font-size: 13px; font-weight: 800; color: #a5b4fc; }
+.st-combo-odd strong { color: #818cf8; }
+.st-combo-note  { font-size: 10px; color: var(--text-dim); width: 100%; }
+
+/* ── Bilan du jour ───────────────────────────────────────────────────────── */
+.st-bilan-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  padding: 4px 14px 16px;
+}
+@media (max-width: 700px) {
+  .st-bilan-grid { grid-template-columns: 1fr; }
+}
+.st-bilan-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border-lite);
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.st-bilan-card--safe     { border-top: 2px solid var(--green); }
+.st-bilan-card--moderate { border-top: 2px solid #818cf8; }
+.st-bilan-card--risky    { border-top: 2px solid #ef4444; }
+.st-bilan-label { font-size: 10px; font-weight: 800; letter-spacing: 0.7px; text-transform: uppercase; color: var(--text-dim); }
+.st-bilan-bet   { font-size: 12px; font-weight: 700; color: var(--text); }
+.st-bilan-odd   { font-size: 14px; font-weight: 900; color: var(--text-soft); }
+.st-bilan-na    { font-size: 11px; color: var(--text-dim); font-style: italic; }
+
+/* ── Taux de réussite ────────────────────────────────────────────────────── */
+.st-rates {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 4px 18px 18px;
+}
+.st-rate-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.st-rate-row--combo {
+  border-top: 1px solid var(--border-lite);
+  padding-top: 14px;
+  margin-top: 2px;
+}
+.st-rate-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-soft);
+  min-width: 155px;
+  flex-shrink: 0;
+}
+.st-rate-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+.st-rate-bar-empty { font-size: 12px; color: var(--text-dim); }
+.st-rate-bar-track {
+  flex: 1;
+  height: 6px;
+  background: var(--border-lite);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.st-rate-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.6s ease;
+}
+.st-rate-bar-fill--safe     { background: var(--green); }
+.st-rate-bar-fill--moderate { background: #818cf8; }
+.st-rate-bar-fill--risky    { background: #ef4444; }
+.st-rate-bar-fill--combo    { background: linear-gradient(90deg, var(--green), #818cf8, #ef4444); }
+.st-rate-pct    { font-size: 14px; font-weight: 800; color: var(--text); min-width: 38px; text-align: right; }
+.st-rate-detail { font-size: 10px; color: var(--text-dim); font-weight: 500; white-space: nowrap; }
+
+/* ── Historique ──────────────────────────────────────────────────────────── */
+.st-history {
+  margin: 0 14px 14px;
+  border: 1px solid var(--border-lite);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.st-history-head {
+  display: grid;
+  grid-template-columns: 80px repeat(3, 1fr);
+  gap: 0;
+  background: rgba(0,0,0,0.2);
+  padding: 8px 14px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.st-history-row {
+  display: grid;
+  grid-template-columns: 80px repeat(3, 1fr);
+  padding: 9px 14px;
+  border-top: 1px solid var(--border-lite);
+  font-size: 12px;
+  align-items: center;
+}
+.st-history-row:hover { background: rgba(255,255,255,0.02); }
+.st-hist-date { color: var(--text-soft); font-weight: 600; }
+.st-hist-cell { font-weight: 700; text-align: center; }
+.st-hist-cell.win     { color: var(--green); }
+.st-hist-cell.loss    { color: #ef4444; }
+.st-hist-cell.pending { color: var(--text-dim); }
+
+/* ── Empty state ─────────────────────────────────────────────────────────── */
+.st-empty-history {
+  text-align: center;
+  padding: 30px 20px;
+  color: var(--text-dim);
+  font-size: 13px;
+  line-height: 1.7;
+}

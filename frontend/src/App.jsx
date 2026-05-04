@@ -7,6 +7,7 @@ import TopPicksStrip     from './components/TopPicksStrip.jsx';
 import AnalysisModal     from './components/AnalysisModal.jsx';
 import ComboModal        from './components/ComboModal.jsx';
 import Toast             from './components/Toast.jsx';
+import StatsTab          from './components/StatsTab.jsx';
 import './App.css';
 
 const TABS = [
@@ -15,6 +16,7 @@ const TABS = [
   { id: 'value',    label: '💰 Value bets' },
   { id: 'today',    label: "Aujourd'hui" },
   { id: 'tomorrow', label: 'Demain' },
+  { id: 'taux',     label: '📊 Taux' },
 ];
 
 const LIVE_STATUSES = ['1H','HT','2H','ET','P'];
@@ -239,21 +241,26 @@ export default function App() {
           {loading && !matches.length && <Skeleton />}
           {error && <ErrorBanner message={error} onRetry={refresh} />}
 
+          {/* Onglet Taux */}
+          {activeTab === 'taux' && (
+            <StatsTab matches={matches} onAnalyse={setSelectedMatch} />
+          )}
+
           {/* Top Picks du jour */}
           {!loading && activeTab === 'all' && (
             <TopPicksStrip matches={matches} onAnalyse={setSelectedMatch} />
           )}
 
           {/* Hero card — match du moment */}
-          {heroMatch && !loading && (
+          {heroMatch && !loading && activeTab !== 'taux' && (
             <HeroCard match={heroMatch} onAnalyse={setSelectedMatch} />
           )}
 
-          {!loading && !error && filtered.length === 0 && (
+          {!loading && !error && filtered.length === 0 && activeTab !== 'taux' && (
             <Empty tab={activeTab} onReset={() => setActiveTab('all')} />
           )}
 
-          {groupedGrid.map((group, gi) => (
+          {activeTab !== 'taux' && groupedGrid.map((group, gi) => (
             <div key={group.label} className="date-group">
               <div className="date-group-header">
                 <span className="date-group-label">{group.label}</span>

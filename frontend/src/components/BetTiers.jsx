@@ -1,9 +1,9 @@
 import './BetTiers.css';
 
 const LEVELS = {
-  SAFE:  { icon: '🛡️', color: 'safe',  label: 'SAFE' },
-  MOYEN: { icon: '⚖️', color: 'medium', label: 'ÉQUILIBRÉ' },
-  VALUE: { icon: '💎', color: 'value',  label: 'VALUE' },
+  SAFE:   { icon: '🛡️', color: 'safe',   label: 'SAFE' },
+  MOYEN:  { icon: '⚖️', color: 'medium', label: 'MODÉRÉ' },
+  RISQUE: { icon: '🔥', color: 'risky',  label: 'RISQUÉ' },
 };
 
 function ConfidenceBar({ confidence }) {
@@ -49,9 +49,9 @@ export default function BetTiers({ tieredBets }) {
         <span>Paris recommandés</span>
         <span className="bet-tiers-sub">IA · 3 niveaux de risque</span>
       </div>
-      <BetRow bet={tieredBets.safe}   which="SAFE"  />
-      <BetRow bet={tieredBets.medium} which="MOYEN" />
-      <BetRow bet={tieredBets.value}  which="VALUE" />
+      <BetRow bet={tieredBets.safe}   which="SAFE"   />
+      <BetRow bet={tieredBets.medium} which="MOYEN"  />
+      <BetRow bet={tieredBets.value}  which="RISQUE" />
       {tieredBets.stats && (
         <div className="bet-tiers-stats">
           <span>xG dom. <strong>{tieredBets.stats.homeExpG}</strong></span>
