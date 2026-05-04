@@ -12,6 +12,10 @@ const LEAGUES = [
   { id: '4335', name: 'Spanish La Liga',          country: 'Spain'   },
   { id: '4332', name: 'Italian Serie A',          country: 'Italy'   },
   { id: '4331', name: 'German Bundesliga',        country: 'Germany' },
+  { id: '4480', name: 'UEFA Champions League',    country: 'Europe'  },
+  { id: '4481', name: 'UEFA Europa League',       country: 'Europe'  },
+  { id: '4337', name: 'Dutch Eredivisie',         country: 'Netherlands' },
+  { id: '4344', name: 'Portuguese Primeira Liga', country: 'Portugal' },
 ];
 
 const STATUS_MAP = {
@@ -26,7 +30,8 @@ const client = axios.create({ baseURL: BASE_URL, timeout: 10_000 });
 
 function getNextDates(days = 4) {
   const dates = [];
-  for (let i = 0; i < days; i++) {
+  // Start from D-1 to handle server UTC vs user timezone differences
+  for (let i = -1; i < days; i++) {
     const d = new Date();
     d.setDate(d.getDate() + i);
     dates.push(d.toISOString().split('T')[0]);
@@ -81,7 +86,11 @@ export async function getTodayFixtures() {
         if (seen.has(f.fixture.id)) return false;
         seen.add(f.fixture.id);
         const matchDate = f.fixture.date.split('T')[0];
-        if (f.fixture.status.short === 'FT' && matchDate < todayStr) return false;
+        // Keep FT from yesterday and today; drop older FT matches
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = yesterday.toISOString().split('T')[0];
+        if (f.fixture.status.short === 'FT' && matchDate < yesterdayStr) return false;
         return true;
       })
       .sort((a, b) => new Date(a.fixture.date) - new Date(b.fixture.date));
