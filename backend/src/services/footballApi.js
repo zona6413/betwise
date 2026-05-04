@@ -28,15 +28,16 @@ const STATUS_MAP = {
 
 const client = axios.create({ baseURL: BASE_URL, timeout: 10_000 });
 
-function getNextDates(days = 4) {
-  const dates = [];
-  // Start from D-1 to handle server UTC vs user timezone differences
-  for (let i = -1; i < days; i++) {
-    const d = new Date();
-    d.setDate(d.getDate() + i);
-    dates.push(d.toISOString().split('T')[0]);
-  }
-  return dates;
+function getParisDateStr(offsetDays = 0) {
+  const d = new Date();
+  d.setDate(d.getDate() + offsetDays);
+  // fr-CA locale gives ISO format YYYY-MM-DD in Paris timezone
+  return d.toLocaleDateString('fr-CA', { timeZone: 'Europe/Paris' });
+}
+
+function getNextDates() {
+  // Today and tomorrow in Paris time only
+  return [getParisDateStr(0), getParisDateStr(1)];
 }
 
 function mapEvent(e, leagueInfo) {
@@ -66,7 +67,7 @@ function mapEvent(e, leagueInfo) {
 
 export async function getTodayFixtures() {
   try {
-    const dates = getNextDates(4);
+    const dates = getNextDates();
     const requests = [];
     for (const date of dates) {
       for (const league of LEAGUES) {
@@ -79,18 +80,19 @@ export async function getTodayFixtures() {
     }
     const results = await Promise.all(requests);
     const seen = new Set();
-    const todayStr = new Date().toISOString().split('T')[0];
     const fixtures = results
       .flatMap(r => (r.events || []).map(e => mapEvent(e, r.league)))
       .filter(f => {
         if (seen.has(f.fixture.id)) return false;
         seen.add(f.fixture.id);
         const matchDate = f.fixture.date.split('T')[0];
-        // Keep FT from yesterday and today; drop older FT matches
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayStr = yesterday.toISOString().split('T')[0];
-        if (f.fixture.status.short === 'FT' && matchDate < yesterdayStr) return false;
+        const todayParis    = getParisDateStr(0);
+        const tomorrowParis = getParisDateStr(1);
+        // Only keep matches from today or tomorrow (Paris time)
+        // Exception: keep live matches (1H, 2H, HT, ET) regardless of date
+        const status = f.fixture.status.short;
+        const isLive = ['1H', '2H', 'HT', 'ET', 'P'].includes(status);
+        if (!isLive && matchDate !== todayParis && matchDate !== tomorrowParis) return false;
         return true;
       })
       .sort((a, b) => new Date(a.fixture.date) - new Date(b.fixture.date));
