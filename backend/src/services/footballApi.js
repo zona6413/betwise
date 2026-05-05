@@ -47,7 +47,7 @@ function mapEvent(e, leagueInfo) {
   return {
     fixture: {
       id:     parseInt(e.idEvent),
-      date:   e.strTimestamp || `${e.dateEvent}T${e.strTime || '00:00:00'}`,
+      date:   (e.strTimestamp || `${e.dateEvent}T${e.strTime || '00:00:00'}`) + 'Z',
       status: { short: STATUS_MAP[rawStatus] || rawStatus },
       venue:  { name: e.strVenue || '', city: e.strCity || '' },
     },
