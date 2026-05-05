@@ -1,7 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import matchesRouter from './routes/matches.js';
+import matchesRouter  from './routes/matches.js';
+import learningRouter from './routes/learning.js';
 
 dotenv.config();
 
@@ -35,7 +36,8 @@ app.get('/api/health', (_req, res) => {
   });
 });
 
-app.use('/api/matches', matchesRouter);
+app.use('/api/matches',  matchesRouter);
+app.use('/api/learning', learningRouter);
 
 // Debug key
 app.get('/api/debug/key', (_req, res) => {

@@ -208,7 +208,76 @@ function RateBar({ won, total, cls }) {
 }
 
 // ── Main ──────────────────────────────────────────────────────────────────────
-export default function StatsTab({ matches, onAnalyse }) {
+const MARKET_LABELS = {
+  homeWin: 'Victoire domicile', draw: 'Match nul', awayWin: 'Victoire extérieur',
+  over15: 'Over 1.5', over25: 'Over 2.5', over35: 'Over 3.5',
+  btts: 'BTTS', under25: 'Under 2.5',
+};
+
+function CalibrationSection({ stats }) {
+  if (!stats) return null;
+  const { totalOutcomes, minForCalibration, isCalibrated, calibration, recentAccuracy, bestMarket, worstMarket } = stats;
+
+  return (
+    <section className="st-section">
+      <h2 className="st-section-title">🧠 Apprentissage du modèle IA</h2>
+      <div className="st-cal-summary">
+        <div className="st-cal-stat">
+          <span className="st-cal-num">{totalOutcomes}</span>
+          <span className="st-cal-lbl">résultats analysés</span>
+        </div>
+        <div className="st-cal-stat">
+          <span className={`st-cal-num ${isCalibrated ? 'green' : 'dim'}`}>
+            {isCalibrated ? 'Actif' : `${totalOutcomes}/${minForCalibration}`}
+          </span>
+          <span className="st-cal-lbl">calibration</span>
+        </div>
+        {recentAccuracy !== null && (
+          <div className="st-cal-stat">
+            <span className={`st-cal-num ${recentAccuracy >= 0.6 ? 'green' : recentAccuracy >= 0.45 ? 'orange' : 'red'}`}>
+              {Math.round(recentAccuracy * 100)}%
+            </span>
+            <span className="st-cal-lbl">précision récente</span>
+          </div>
+        )}
+      </div>
+
+      {!isCalibrated && (
+        <p className="st-cal-notice">
+          Le modèle s'auto-calibre après {minForCalibration} matchs terminés. Il apprend actuellement ({totalOutcomes}/{minForCalibration}).
+        </p>
+      )}
+
+      {isCalibrated && calibration && (
+        <>
+          {bestMarket && (
+            <div className="st-cal-highlight st-cal-highlight--best">
+              ✅ Meilleur marché : <strong>{MARKET_LABELS[bestMarket.market]}</strong> — {Math.round(bestMarket.accuracy * 100)}% de précision ({bestMarket.n} paris)
+            </div>
+          )}
+          {worstMarket && worstMarket.market !== bestMarket?.market && (
+            <div className="st-cal-highlight st-cal-highlight--worst">
+              ⚠️ À améliorer : <strong>{MARKET_LABELS[worstMarket.market]}</strong> — {Math.round(worstMarket.accuracy * 100)}% de précision
+            </div>
+          )}
+          <div className="st-cal-grid">
+            {Object.entries(calibration).map(([market, data]) => (
+              <div key={market} className={`st-cal-row ${data.bias === 'calibré' ? 'ok' : 'off'}`}>
+                <span className="st-cal-market">{MARKET_LABELS[market] ?? market}</span>
+                <span className="st-cal-acc">{Math.round(data.accuracy * 100)}%</span>
+                <span className={`st-cal-bias ${data.bias === 'calibré' ? 'ok' : 'warn'}`}>{data.bias}</span>
+                <span className="st-cal-factor">×{data.factor.toFixed(2)}</span>
+                <span className="st-cal-n">{data.n} matchs</span>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </section>
+  );
+}
+
+export default function StatsTab({ matches, onAnalyse, learningStats }) {
   const date = todayParis();
 
   // État des picks du jour (persisté dans localStorage)
@@ -383,6 +452,9 @@ export default function StatsTab({ matches, onAnalyse }) {
           })}
         </div>
       </section>
+
+      {/* ── APPRENTISSAGE IA ───────────────────────────────── */}
+      <CalibrationSection stats={learningStats} />
 
       {/* ── HISTORIQUE ─────────────────────────────────────── */}
       <section className="st-section">

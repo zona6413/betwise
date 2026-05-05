@@ -9,6 +9,9 @@ import { getMatchPlayers } from '../services/playerStats.js';
 import {
   impliedProbabilities,
   computeAIProbability,
+  computeOverUnderProbs,
+  computeBTTSProb,
+  estimateExpectedGoals,
   detectValueBets,
   generateAnalysis,
   generateTieredBets,
@@ -76,6 +79,20 @@ function buildMatch(fixture, teamStats, realOddsMap) {
   const players        = getMatchPlayers(homeId, awayId);
   const bookmakerProbs = impliedProbabilities(homeOdd, drawOdd, awayOdd);
   const aiProbs        = computeAIProbability(homeStats, awayStats);
+  // Prédictions brutes exposées pour le moteur d'apprentissage
+  const hxg = estimateExpectedGoals(homeStats, awayStats, true);
+  const axg = estimateExpectedGoals(awayStats, homeStats, false);
+  const ou  = computeOverUnderProbs(hxg, axg);
+  const rawPredictions = {
+    homeWin: +aiProbs.home.toFixed(3),
+    draw:    +aiProbs.draw.toFixed(3),
+    awayWin: +aiProbs.away.toFixed(3),
+    over15:  +ou.over15.toFixed(3),
+    over25:  +ou.over25.toFixed(3),
+    over35:  +ou.over35.toFixed(3),
+    btts:    +computeBTTSProb(hxg, axg).toFixed(3),
+    under25: +ou.under25.toFixed(3),
+  };
   const tieredBets     = generateTieredBets(
     fixture.teams.home.name, fixture.teams.away.name,
     homeStats, awayStats, aiProbs, bookmakerProbs,
@@ -122,6 +139,7 @@ function buildMatch(fixture, teamStats, realOddsMap) {
     bets,
     tieredBets,
     analysis,
+    rawPredictions,
     hasValueBet: bets.some(b => b.isValue),
   };
 }

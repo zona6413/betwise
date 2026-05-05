@@ -2,7 +2,9 @@
  * Moteur d'analyse complet
  * - Probabilités 1X2, BTTS, Over/Under via Poisson simplifié
  * - Génération automatique de 3 niveaux de paris : SAFE / MOYEN / VALUE
+ * - Calibration automatique depuis les résultats réels (learningEngine)
  */
+import { applyCalibration } from './learningEngine.js';
 
 // ── Utilitaires ─────────────────────────────────────────────────────────────
 
@@ -82,10 +84,18 @@ export function computeAIProbability(homeStats, awayStats) {
   const drawPool = Math.min(0.32, 0.20 + (1 - gap) * 0.10);
 
   const total = homeScore + awayScore + drawPool;
+  const raw = {
+    homeWin: homeScore / total,
+    draw:    drawPool  / total,
+    awayWin: awayScore / total,
+  };
+  const cal = applyCalibration(raw);
+  // Re-normalise après calibration pour que la somme reste 1
+  const sum = cal.homeWin + cal.draw + cal.awayWin;
   return {
-    home: homeScore / total,
-    draw: drawPool  / total,
-    away: awayScore / total,
+    home: cal.homeWin / sum,
+    draw: cal.draw    / sum,
+    away: cal.awayWin / sum,
   };
 }
 
@@ -141,12 +151,13 @@ export function computeBTTSProb(homeExpG, awayExpG) {
 
 export function computeOverUnderProbs(homeExpG, awayExpG) {
   const total = homeExpG + awayExpG;
-  return {
+  const raw = {
     over15:  overProb(total, 1),
     over25:  overProb(total, 2),
     over35:  overProb(total, 3),
     under25: 1 - overProb(total, 2),
   };
+  return applyCalibration(raw);
 }
 
 // ── Double chance ─────────────────────────────────────────────────────────────

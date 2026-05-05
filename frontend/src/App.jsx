@@ -8,6 +8,7 @@ import AnalysisModal     from './components/AnalysisModal.jsx';
 import ComboModal        from './components/ComboModal.jsx';
 import Toast             from './components/Toast.jsx';
 import StatsTab          from './components/StatsTab.jsx';
+import { useLearning }   from './hooks/useLearning.js';
 import './App.css';
 
 const TABS = [
@@ -51,6 +52,7 @@ const RISK_PROFILES = [
 
 export default function App() {
   const { matches, loading, error, lastUpdated, fromCache, refresh } = useMatches();
+  const learningStats = useLearning(matches);
   const [selectedMatch, setSelectedMatch] = useState(null);
   const [activeTab,     setActiveTab]     = useState('all');
   const [activeLeague,  setActiveLeague]  = useState('all');
@@ -247,7 +249,7 @@ export default function App() {
 
           {/* Onglet Taux */}
           {activeTab === 'taux' && (
-            <StatsTab matches={matches} onAnalyse={setSelectedMatch} />
+            <StatsTab matches={matches} onAnalyse={setSelectedMatch} learningStats={learningStats} />
           )}
 
           {/* Top Picks du jour */}
