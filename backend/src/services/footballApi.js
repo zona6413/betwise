@@ -64,17 +64,20 @@ function mapFixture(item) {
   };
 }
 
-async function fetchFixturesForDate(date) {
-  const requests = LEAGUES.map(league =>
-    client.get('/fixtures', { params: { league: league.id, season: SEASON, date } })
-      .then(r => (r.data?.response ?? []).map(item => mapFixture(item)))
-      .catch(err => {
-        console.warn(`[footballApi] League ${league.id} date ${date}:`, err.message);
-        return [];
-      })
-  );
-  const results = await Promise.all(requests);
-  return results.flat();
+// IDs des ligues qu'on veut afficher
+const LEAGUE_IDS = new Set(LEAGUES.map(l => l.id));
+
+async function fetchAllFixturesForDate(date) {
+  // Une seule requête pour toutes les ligues — timezone Paris pour coller aux dates
+  try {
+    const res = await client.get('/fixtures', {
+      params: { date, timezone: 'Europe/Paris' },
+    });
+    return (res.data?.response ?? []).map(item => mapFixture(item));
+  } catch (err) {
+    console.warn(`[footballApi] Fetch date ${date}:`, err.message);
+    return [];
+  }
 }
 
 export async function getTodayFixtures() {
@@ -87,10 +90,10 @@ export async function getTodayFixtures() {
     const todayParis    = getParisDateStr(0);
     const tomorrowParis = getParisDateStr(1);
 
-    // Fetch aujourd'hui + demain en parallèle
+    // 2 requêtes seulement (aujourd'hui + demain)
     const [todayItems, tomorrowItems] = await Promise.all([
-      fetchFixturesForDate(todayParis),
-      fetchFixturesForDate(tomorrowParis),
+      fetchAllFixturesForDate(todayParis),
+      fetchAllFixturesForDate(tomorrowParis),
     ]);
 
     const seen     = new Set();
@@ -100,8 +103,10 @@ export async function getTodayFixtures() {
       if (seen.has(item.fixture.id)) continue;
       seen.add(item.fixture.id);
 
+      // Filtre : seulement les ligues qu'on suit
+      if (!LEAGUE_IDS.has(item.league.id)) continue;
+
       const status = item.fixture.status.short;
-      // Garde les matchs live quoi qu'il arrive
       if (!LIVE_STATUSES.has(status)) {
         const matchDate = item.fixture.date.split('T')[0];
         if (matchDate !== todayParis && matchDate !== tomorrowParis) continue;
@@ -113,11 +118,11 @@ export async function getTodayFixtures() {
     fixtures.sort((a, b) => new Date(a.fixture.date) - new Date(b.fixture.date));
 
     if (!fixtures.length) {
-      console.warn('[footballApi] Aucun match — fallback mock');
+      console.warn('[footballApi] Aucun match dans nos ligues — fallback mock');
       return getMockFixtures();
     }
 
-    console.log(`[footballApi] ${fixtures.length} matchs via API-Football`);
+    console.log(`[footballApi] ${fixtures.length} matchs récupérés`);
     return fixtures;
 
   } catch (err) {
