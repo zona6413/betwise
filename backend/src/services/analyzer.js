@@ -111,16 +111,19 @@ export function estimateExpectedGoals(attackStats, defenceStats, isHome = false)
   return Math.max(0.25, Math.min(3.2, xg));
 }
 
-// ── Score le plus probable (mode joint de Poisson) ───────────────────────────
-function findMostLikelyScore(homeExpG, awayExpG) {
-  let bestProb = -1, bestH = 0, bestA = 0;
-  for (let h = 0; h <= 5; h++) {
-    for (let a = 0; a <= 5; a++) {
-      const p = poissonProb(homeExpG, h) * poissonProb(awayExpG, a);
-      if (p > bestProb) { bestProb = p; bestH = h; bestA = a; }
+// ── Top 3 scores probables (Poisson joint) ────────────────────────────────────
+function findTopScores(homeExpG, awayExpG, n = 3) {
+  const scores = [];
+  for (let h = 0; h <= 6; h++) {
+    for (let a = 0; a <= 6; a++) {
+      scores.push({ score: `${h}-${a}`, prob: poissonProb(homeExpG, h) * poissonProb(awayExpG, a) });
     }
   }
-  return `${bestH}-${bestA}`;
+  return scores.sort((a, b) => b.prob - a.prob).slice(0, n);
+}
+
+function findMostLikelyScore(homeExpG, awayExpG) {
+  return findTopScores(homeExpG, awayExpG, 1)[0]?.score ?? '1-1';
 }
 
 // ── Poisson simplifié ────────────────────────────────────────────────────────
@@ -248,8 +251,23 @@ function computeScorerBet(player, teamXG) {
 // ── Génération des 3 niveaux de paris ────────────────────────────────────────
 
 export function generateTieredBets(homeName, awayName, homeStats, awayStats, aiProbs, bmProbs, odds, players, h2h = null) {
-  const homeExpG   = estimateExpectedGoals(homeStats, awayStats, true);
-  const awayExpG   = estimateExpectedGoals(awayStats, homeStats, false);
+  let homeExpG = estimateExpectedGoals(homeStats, awayStats, true);
+  let awayExpG = estimateExpectedGoals(awayStats, homeStats, false);
+
+  // ── Boost élite : deux équipes top 2 qui s'affrontent scorent plus ──────────
+  const bothElite = (homeStats?.position ?? 99) <= 2 && (awayStats?.position ?? 99) <= 2;
+  if (bothElite) { homeExpG *= 1.18; awayExpG *= 1.18; }
+
+  // ── Blending H2H → xG (60% H2H si ≥4 matchs, 45% si 2-3 matchs) ───────────
+  if (h2h && h2h.total >= 2 && h2h.avgGoals > 0) {
+    const modelTotal  = homeExpG + awayExpG;
+    const blendW      = h2h.total >= 4 ? 0.60 : 0.45;
+    const blended     = modelTotal * (1 - blendW) + h2h.avgGoals * blendW;
+    const ratio       = Math.min(2.2, Math.max(0.6, blended / modelTotal));
+    homeExpG = Math.min(4.0, homeExpG * ratio);
+    awayExpG = Math.min(4.0, awayExpG * ratio);
+  }
+
   const totalExpG  = homeExpG + awayExpG;
   const btts       = computeBTTSProb(homeExpG, awayExpG);
   const ou         = computeOverUnderProbs(homeExpG, awayExpG);
@@ -349,6 +367,7 @@ export function generateTieredBets(homeName, awayName, homeStats, awayStats, aiP
     stats:  {
       homeExpG:    +homeExpG.toFixed(2),
       awayExpG:    +awayExpG.toFixed(2),
+      topScores:   findTopScores(homeExpG, awayExpG, 3).map(s => ({ score: s.score, pct: Math.round(s.prob * 100) })),
       bttsProb:    +btts.toFixed(2),
       over15:      +ou.over15.toFixed(2),
       over25:      +ou.over25.toFixed(2),

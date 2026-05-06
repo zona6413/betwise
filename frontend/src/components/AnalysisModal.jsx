@@ -323,9 +323,10 @@ export default function AnalysisModal({ match, onClose, riskProfile = 'medium' }
   const { homeTeam, awayTeam, tieredBets, league, leagueCountry, date, status, score, aiProbs, h2h } = match;
   const isLive  = ['1H','HT','2H','ET','P'].includes(status);
   const isEnded = status === 'FT';
-  const predicted = tieredBets?.stats
-    ? `${Math.round(Math.max(0, tieredBets.stats.homeExpG))}-${Math.round(Math.max(0, tieredBets.stats.awayExpG))}`
-    : null;
+  const predicted = tieredBets?.stats?.topScores?.[0]?.score
+    ?? (tieredBets?.stats
+      ? `${Math.round(Math.max(0, tieredBets.stats.homeExpG))}-${Math.round(Math.max(0, tieredBets.stats.awayExpG))}`
+      : null);
 
   const lecture   = buildLecture(match);
   const summary   = buildSummary(match);
@@ -464,8 +465,15 @@ export default function AnalysisModal({ match, onClose, riskProfile = 'medium' }
                 <MarketRow label="BTTS (les deux équipes marquent)" value={tieredBets.stats.bttsProb} color="teal" />
                 <div className="modal-market-divider" />
                 <div className="modal-market-score-row">
-                  <span className="modal-market-score-label">Score le plus plausible</span>
-                  <span className="modal-market-score-val">{predicted ?? '—'}</span>
+                  <span className="modal-market-score-label">Scores les plus probables</span>
+                  <div className="modal-top-scores">
+                    {(tieredBets.stats.topScores ?? [{ score: predicted, pct: null }]).map((s, i) => (
+                      <div key={i} className={`modal-top-score ${i === 0 ? 'modal-top-score--best' : ''}`}>
+                        <span className="modal-top-score-val">{s.score}</span>
+                        {s.pct != null && <span className="modal-top-score-pct">{s.pct}%</span>}
+                      </div>
+                    ))}
+                  </div>
                   <span className="modal-market-score-sub">
                     xG {homeTeam.name} {tieredBets.stats.homeExpG} / {awayTeam.name} {tieredBets.stats.awayExpG}
                   </span>

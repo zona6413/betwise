@@ -517,6 +517,14 @@
   font-weight: 600;
 }
 
+/* ── Top scores ───────────────────────────────────────────────────── */
+.modal-top-scores { display: flex; gap: 8px; margin: 6px 0 4px; }
+.modal-top-score { display: flex; flex-direction: column; align-items: center; background: rgba(255,255,255,0.05); border-radius: 8px; padding: 6px 14px; border: 1px solid rgba(255,255,255,0.07); }
+.modal-top-score--best { background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.35); }
+.modal-top-score-val { font-size: 18px; font-weight: 800; color: #f59e0b; }
+.modal-top-score--best .modal-top-score-val { font-size: 22px; }
+.modal-top-score-pct { font-size: 10px; color: #6b7280; margin-top: 2px; }
+
 /* ── H2H ──────────────────────────────────────────────────────────── */
 .modal-h2h { background: rgba(255,255,255,0.03); border-radius: 12px; padding: 16px; }
 .modal-h2h-title { font-size: 12px; font-weight: 700; color: #a0aec0; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 14px; }
