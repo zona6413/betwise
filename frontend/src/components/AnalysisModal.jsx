@@ -44,13 +44,16 @@ function trendLabel(prob) {
 
 // ── Lecture du match ──────────────────────────────────────────────────────────
 function buildLecture(match) {
-  const { homeTeam, awayTeam, tieredBets, aiProbs } = match;
+  const { homeTeam, awayTeam, tieredBets, aiProbs, h2h } = match;
   const stats = tieredBets?.stats;
   if (!stats || !aiProbs) return null;
 
   const totalExpG = stats.homeExpG + stats.awayExpG;
-  const isOpen    = stats.bttsProb > 0.50 || stats.over25 > 0.52;
-  const dynamic   = isOpen ? 'Match ouvert' : 'Match fermé';
+  const h2hAvg    = h2h?.avgGoals ?? 0;
+
+  // Match ouvert si xG élevé OU H2H prolifique OU btts probable
+  const isOpen = totalExpG > 2.2 || h2hAvg >= 2.5 || stats.bttsProb > 0.48 || stats.over25 > 0.42;
+  const dynamic = isOpen ? 'Match ouvert' : 'Match fermé';
 
   const homeAdv = aiProbs.home - aiProbs.away;
   let dominant;
@@ -60,86 +63,128 @@ function buildLecture(match) {
   else if (homeAdv < -0.08) dominant = `Léger avantage pour ${awayTeam.name}`;
   else                      dominant = 'Match très équilibré';
 
-  // Contexte 1 phrase
+  // Contexte : H2H en priorité, puis forme
+  let context;
   const hWins = (homeTeam.form ?? '').toUpperCase().split('').slice(-5).filter(c => c === 'W').length;
   const aWins = (awayTeam.form ?? '').toUpperCase().split('').slice(-5).filter(c => c === 'W').length;
-  let context;
-  if (hWins >= 4) context = `${homeTeam.name} arrive en grande forme avec ${hWins} victoires sur 5 — l'avantage du terrain renforce leur statut de favori.`;
-  else if (aWins >= 4) context = `${awayTeam.name} est en feu avec ${aWins} succès récents — attention à ne pas sous-estimer l'outsider.`;
-  else if (Math.abs(hWins - aWins) <= 1) context = `Les deux équipes sont dans une dynamique similaire — difficile de dégager un avantage clair sur la forme.`;
-  else if (hWins > aWins) context = `${homeTeam.name} est en meilleure forme récente et joue à domicile — contexte favorable.`;
-  else context = `${awayTeam.name} arrive avec plus de rythme — à surveiller malgré le déplacement.`;
+
+  if (h2h && h2h.total >= 3) {
+    const domH = h2h.homeWins > h2h.awayWins + 1;
+    const domA = h2h.awayWins > h2h.homeWins + 1;
+    if (h2hAvg >= 3.0)
+      context = `Les confrontations entre ces deux équipes sont historiquement explosives (${h2hAvg} buts/match sur ${h2h.total} matchs) — s'attendre à un match à buts.`;
+    else if (h2hAvg >= 2.4)
+      context = `H2H prolifique (${h2hAvg} buts/match) — les deux équipes se connaissent et ça marque souvent.`;
+    else if (domH)
+      context = `${homeTeam.name} domine l'historique récent (${h2h.homeWins}/${h2h.total} victoires) — avantage psychologique notable.`;
+    else if (domA)
+      context = `${awayTeam.name} tient bien face à ${homeTeam.name} historiquement (${h2h.awayWins}/${h2h.total} victoires en déplacement).`;
+    else
+      context = `Historique équilibré entre ces deux équipes (${h2h.homeWins}V-${h2h.draws}N-${h2h.awayWins}V) — résultat ouvert.`;
+  } else if (hWins >= 4)
+    context = `${homeTeam.name} arrive en grande forme (${hWins}/5 victoires) — l'avantage du terrain renforce leur statut de favori.`;
+  else if (aWins >= 4)
+    context = `${awayTeam.name} est en feu avec ${aWins} succès récents — attention à ne pas sous-estimer l'outsider.`;
+  else if (hWins > aWins)
+    context = `${homeTeam.name} en meilleure forme récente et à domicile — contexte favorable.`;
+  else if (aWins > hWins)
+    context = `${awayTeam.name} arrive avec plus de rythme — à surveiller malgré le déplacement.`;
+  else
+    context = `Deux équipes dans une dynamique similaire — équilibre des forces attendu.`;
 
   return { dynamic, isOpen, dominant, context, totalExpG };
 }
 
 // ── Synthèse rapide ───────────────────────────────────────────────────────────
 function buildSummary(match) {
-  const { homeTeam, awayTeam, tieredBets, aiProbs } = match;
+  const { homeTeam, awayTeam, tieredBets, aiProbs, h2h } = match;
   const stats = tieredBets?.stats;
   if (!stats || !aiProbs) return [];
 
-  const bullets = [];
+  const bullets   = [];
   const totalExpG = stats.homeExpG + stats.awayExpG;
+  const h2hAvg    = h2h?.avgGoals ?? 0;
 
-  if (stats.bttsProb > 0.58 && stats.over25 > 0.52)
+  // 1. Caractère du match — H2H en priorité
+  if (h2hAvg >= 3.0)
+    bullets.push(`Choc historiquement explosif — ${h2hAvg} buts/match en H2H (${h2h.total} matchs)`);
+  else if (h2hAvg >= 2.5)
+    bullets.push(`Match à buts attendu — H2H moyen de ${h2hAvg} buts/rencontre`);
+  else if (totalExpG > 2.4 || stats.bttsProb > 0.52)
     bullets.push('Match ouvert — buts des deux côtés attendus');
-  else if (stats.under25 > 0.58)
-    bullets.push('Match serré — peu de buts attendus');
+  else if (stats.under25 > 0.68)
+    bullets.push('Match serré — peu de buts attendus (défenses solides)');
   else
-    bullets.push('Match équilibré — score difficile à anticiper');
+    bullets.push('Match équilibré — résultat difficile à anticiper');
 
-  if (aiProbs.home > 0.54)
-    bullets.push(`${homeTeam.name} favoris à domicile (${Math.round(aiProbs.home * 100)}%)`);
+  // 2. Favori
+  if (aiProbs.home > 0.52)
+    bullets.push(`${homeTeam.name} favoris à domicile (${Math.round(aiProbs.home * 100)}% IA)`);
   else if (aiProbs.away > 0.44)
-    bullets.push(`${awayTeam.name} peut renverser la tendance`);
+    bullets.push(`${awayTeam.name} légèrement favori malgré le déplacement (${Math.round(aiProbs.away * 100)}%)`);
   else
-    bullets.push('Nul envisageable — probabilités proches');
+    bullets.push(`Nul envisageable — ${Math.round(aiProbs.draw * 100)}% de probabilité selon l'IA`);
 
-  if (stats.bttsProb > 0.60)      bullets.push('BTTS très probable');
-  else if (stats.bttsProb < 0.35) bullets.push('Un clean sheet probable');
+  // 3. Marché buts
+  if (stats.bttsProb > 0.55 || h2hAvg >= 2.8)
+    bullets.push('BTTS (les deux équipes marquent) très probable');
+  else if (stats.over25 > 0.55)
+    bullets.push('Over 2.5 buts à envisager sérieusement');
+  else if (stats.over15 > 0.80)
+    bullets.push('Over 1.5 buts quasi-certain');
+  else if (stats.bttsProb < 0.32 && h2hAvg < 2.0)
+    bullets.push('Clean sheet possible — défenses dominantes');
 
-  if (stats.over25 > 0.62)        bullets.push('Over 2.5 à envisager sérieusement');
-  else if (stats.over15 > 0.82)   bullets.push('Over 1.5 quasi-certain');
+  // 4. H2H dominance
+  if (h2h && h2h.total >= 3) {
+    if (h2h.homeWins >= h2h.total * 0.65)
+      bullets.push(`${homeTeam.name} domine le H2H (${h2h.homeWins}/${h2h.total} victoires)`);
+    else if (h2h.awayWins >= h2h.total * 0.55)
+      bullets.push(`${awayTeam.name} résiste bien historiquement (${h2h.awayWins}/${h2h.total} victoires)`);
+  }
 
   return bullets.slice(0, 4);
 }
 
 // ── Tendances marchés ─────────────────────────────────────────────────────────
 function buildTendances(match) {
-  const { homeTeam, awayTeam, tieredBets, aiProbs } = match;
+  const { homeTeam, awayTeam, tieredBets, aiProbs, h2h } = match;
   const stats = tieredBets?.stats;
   if (!stats || !aiProbs) return [];
 
   const totalExpG = stats.homeExpG + stats.awayExpG;
   const favProb   = Math.max(aiProbs.home, aiProbs.away);
   const favName   = aiProbs.home >= aiProbs.away ? homeTeam.name : awayTeam.name;
+  const h2hAvg    = h2h?.avgGoals;
+  const h2hNote   = h2hAvg ? ` · H2H : ${h2hAvg} buts/match en moyenne.` : '';
 
   return [
     {
       market: 'Over 1.5 buts',
       prob: stats.over15,
-      why: `xG combiné ${totalExpG.toFixed(1)} — au moins 2 buts ${stats.over15 > 0.75 ? 'quasi-certain' : 'probable'}.`,
+      why: `xG combiné ${totalExpG.toFixed(1)} — au moins 2 buts ${stats.over15 > 0.78 ? 'quasi-certain' : 'très probable'}.${h2hNote}`,
     },
     {
       market: 'Over 2.5 buts',
       prob: stats.over25,
-      why: `${homeTeam.name} xG ${stats.homeExpG} + ${awayTeam.name} xG ${stats.awayExpG} = ${totalExpG.toFixed(1)} buts attendus.`,
+      why: `${homeTeam.name} xG ${stats.homeExpG} + ${awayTeam.name} xG ${stats.awayExpG} = ${totalExpG.toFixed(1)} buts attendus.${h2hNote}`,
     },
     {
       market: 'BTTS',
       prob: stats.bttsProb,
-      why: `Les deux attaques ont le profil pour trouver le filet (xG dom. ${stats.homeExpG} / ext. ${stats.awayExpG}).`,
+      why: `Les deux attaques ont le profil pour trouver le filet (xG dom. ${stats.homeExpG} / ext. ${stats.awayExpG}).${h2hNote}`,
     },
     {
       market: `Victoire ${favName}`,
       prob: favProb,
-      why: `Notre IA évalue la probabilité de victoire à ${Math.round(favProb * 100)}% — forme + classement combinés.`,
+      why: `Notre IA évalue la probabilité de victoire à ${Math.round(favProb * 100)}% — forme + classement + H2H combinés.`,
     },
     {
       market: 'Under 2.5 buts',
       prob: stats.under25,
-      why: `Match potentiellement fermé — xG total ${totalExpG.toFixed(1)}, défenses à surveiller.`,
+      why: h2hAvg && h2hAvg >= 2.5
+        ? `Attention — le H2H moyen est de ${h2hAvg} buts/match, ce marché va à l'encontre de l'historique.`
+        : `xG total ${totalExpG.toFixed(1)} — match potentiellement fermé, défenses à surveiller.`,
     },
   ].filter(t => t.prob > 0.15);
 }
