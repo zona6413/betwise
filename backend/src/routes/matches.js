@@ -146,14 +146,16 @@ function buildMatch(fixture, teamStats, realOddsMap) {
   };
 }
 
+// ── POST /api/matches/refresh — vide le cache ────────────────────────────────────
+router.post('/refresh', (_req, res) => {
+  cache.flushAll();
+  res.json({ ok: true, message: 'Cache vidé' });
+});
+
 // ── GET /api/matches ─────────────────────────────────────────────────────────────
-router.get('/', async (_req, res) => {
+router.get('/', async (req, res) => {
   try {
-    // Vider le cache si demandé
-    if (process.env.FORCE_CACHE_CLEAR) {
-      cache.flushAll();
-      delete process.env.FORCE_CACHE_CLEAR;
-    }
+    if (req.query.refresh === 'true') cache.flushAll();
     const cached = cache.get('matches');
     if (cached) return res.json({ data: cached, cached: true, count: cached.length });
 
