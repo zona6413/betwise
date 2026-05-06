@@ -517,6 +517,18 @@
   font-weight: 600;
 }
 
+/* ── Injuries ─────────────────────────────────────────────────────── */
+.modal-injuries { display: flex; flex-direction: column; gap: 12px; }
+.modal-injury-group { background: rgba(255,255,255,0.03); border-radius: 10px; padding: 12px 14px; }
+.modal-injury-team { font-size: 11px; font-weight: 700; color: #a0aec0; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px; }
+.modal-injury-row { display: flex; align-items: center; gap: 10px; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+.modal-injury-row:last-child { border-bottom: none; }
+.modal-injury-badge { font-size: 11px; font-weight: 700; white-space: nowrap; }
+.modal-injury-row--injury .modal-injury-badge { color: #f87171; }
+.modal-injury-row--suspended .modal-injury-badge { color: #fbbf24; }
+.modal-injury-name { font-size: 13px; font-weight: 600; color: #e2e8f0; flex: 1; }
+.modal-injury-reason { font-size: 11px; color: #6b7280; }
+
 /* ── Top scores ───────────────────────────────────────────────────── */
 .modal-top-scores { display: flex; gap: 8px; margin: 6px 0 4px; }
 .modal-top-score { display: flex; flex-direction: column; align-items: center; background: rgba(255,255,255,0.05); border-radius: 8px; padding: 6px 14px; border: 1px solid rgba(255,255,255,0.07); }
@@ -551,10 +563,22 @@
   .modal-players { grid-template-columns: 1fr; }
   .modal-player-note { padding-left: 0; }
   .modal-overlay { padding: 0; align-items: flex-end; }
-  .modal-window  { border-radius: 20px 20px 0 0; max-height: 94vh; }
-  .modal-header  { padding: 22px 18px 18px; }
-  .modal-body    { padding: 18px 18px 40px; }
-  .modal-team-name { font-size: 14px; }
-  .modal-score, .modal-kickoff { font-size: 24px; }
-  .modal-market-label { min-width: 120px; font-size: 11px; }
+  .modal-window  { border-radius: 20px 20px 0 0; max-height: 96vh; width: 100%; }
+  .modal-header  { padding: 20px 16px 16px; }
+  .modal-body    { padding: 14px 14px 48px; gap: 14px; }
+  .modal-team-name { font-size: 13px; }
+  .modal-team-logo { width: 40px; height: 40px; }
+  .modal-score, .modal-kickoff { font-size: 22px; }
+  .modal-market-label { min-width: 110px; font-size: 11px; }
+  .modal-scorers-grid { grid-template-columns: 1fr; }
+  .modal-scorer-card { padding: 10px; }
+  .modal-h2h-row { grid-template-columns: 48px 1fr 44px 1fr; font-size: 11px; }
+  .modal-bet { padding: 12px; }
+  .modal-bet-top { flex-direction: column; gap: 8px; }
+  .modal-bet-odd-block { align-self: flex-start; }
+  .modal-top-scores { flex-wrap: wrap; }
+  .modal-section-title { font-size: 12px; }
+  .modal-injuries { gap: 8px; }
+  .modal-lecture-pills { flex-wrap: wrap; gap: 6px; }
+  .modal-close { top: 14px; right: 14px; width: 30px; height: 30px; font-size: 14px; }
 }

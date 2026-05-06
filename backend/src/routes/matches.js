@@ -1,7 +1,7 @@
 import { Router }    from 'express';
 import NodeCache      from 'node-cache';
 
-import { getTodayFixtures, getHeadToHead } from '../services/footballApi.js';
+import { getTodayFixtures, getHeadToHead, getInjuries } from '../services/footballApi.js';
 import { getOdds }                 from '../services/oddsApi.js';
 import { mergeData }               from '../services/merger.js';
 import { getTeamStatsMap, randomBookmaker } from '../services/standingsApi.js';
@@ -21,7 +21,8 @@ const router = Router();
 // 10 min avec vraie API, 90s avec mock
 const CACHE_TTL = process.env.API_FOOTBALL_KEY ? 600 : 90;
 const cache    = new NodeCache({ stdTTL: CACHE_TTL });
-const h2hCache = new NodeCache({ stdTTL: 86400 }); // H2H : 24h
+const h2hCache     = new NodeCache({ stdTTL: 86400 }); // H2H : 24h
+const injuryCache  = new NodeCache({ stdTTL: 10800 }); // injuries : 3h
 
 const DEFAULT_STATS = { form: 'WDWLW', position: 12, wins: 10, draws: 8, losses: 10 };
 
@@ -67,7 +68,7 @@ function generateSyntheticOdds(homeStats, awayStats) {
 }
 
 // ── Enrichit un fixture avec stats + cotes + analyse IA ─────────────────────────
-function buildMatch(fixture, teamStats, realOddsMap, h2h = null) {
+function buildMatch(fixture, teamStats, realOddsMap, h2h = null, injuries = []) {
   const homeId    = String(fixture.teams.home.id);
   const awayId    = String(fixture.teams.away.id);
   const homeStats = teamStats[homeId] ?? DEFAULT_STATS;
@@ -111,7 +112,8 @@ function buildMatch(fixture, teamStats, realOddsMap, h2h = null) {
     bets,
     tieredBets,
     players,
-    h2h
+    h2h,
+    injuries
   );
 
   return {
@@ -144,6 +146,7 @@ function buildMatch(fixture, teamStats, realOddsMap, h2h = null) {
     tieredBets,
     analysis,
     h2h,
+    injuries,
     rawPredictions,
     hasValueBet: bets.some(b => b.isValue),
   };
@@ -182,19 +185,27 @@ router.get('/', async (req, res) => {
       }
     }
 
-    // H2H : un appel par match, cache 24h
-    const h2hResults = await Promise.all(
-      fixtures.map(async f => {
+    // H2H + injuries : en parallèle, avec cache
+    const [h2hResults, injuryResults] = await Promise.all([
+      Promise.all(fixtures.map(async f => {
         const key = `h2h_${f.teams.home.id}_${f.teams.away.id}`;
         const hit = h2hCache.get(key);
         if (hit !== undefined) return hit;
         const data = await getHeadToHead(f.teams.home.id, f.teams.away.id);
         h2hCache.set(key, data);
         return data;
-      })
-    );
+      })),
+      Promise.all(fixtures.map(async f => {
+        const key = `inj_${f.fixture.id}`;
+        const hit = injuryCache.get(key);
+        if (hit !== undefined) return hit;
+        const data = await getInjuries(f.fixture.id);
+        injuryCache.set(key, data);
+        return data;
+      })),
+    ]);
 
-    const matches = fixtures.map((f, i) => buildMatch(f, teamStats, realOddsMap, h2hResults[i]));
+    const matches = fixtures.map((f, i) => buildMatch(f, teamStats, realOddsMap, h2hResults[i], injuryResults[i]));
     cache.set('matches', matches);
 
     return res.json({ data: matches, cached: false, count: matches.length });

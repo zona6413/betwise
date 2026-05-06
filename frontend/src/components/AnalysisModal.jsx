@@ -320,7 +320,7 @@ export default function AnalysisModal({ match, onClose, riskProfile = 'medium' }
 
   if (!match) return null;
 
-  const { homeTeam, awayTeam, tieredBets, league, leagueCountry, date, status, score, aiProbs, h2h } = match;
+  const { homeTeam, awayTeam, tieredBets, league, leagueCountry, date, status, score, aiProbs, h2h, injuries } = match;
   const isLive  = ['1H','HT','2H','ET','P'].includes(status);
   const isEnded = status === 'FT';
   const predicted = tieredBets?.stats?.topScores?.[0]?.score
@@ -401,7 +401,34 @@ export default function AnalysisModal({ match, onClose, riskProfile = 'medium' }
             </section>
           )}
 
-          {/* 3. Face-à-face */}
+          {/* 3. Blessures & suspensions */}
+          {injuries?.length > 0 && (
+            <section className="modal-section">
+              <h2 className="modal-section-title">🏥 Absents du match</h2>
+              <div className="modal-injuries">
+                {[homeTeam, awayTeam].map(team => {
+                  const teamInj = injuries.filter(i =>
+                    i.team?.toLowerCase().includes(team.name.toLowerCase().split(' ')[0].toLowerCase())
+                  );
+                  if (!teamInj.length) return null;
+                  return (
+                    <div key={team.name} className="modal-injury-group">
+                      <div className="modal-injury-team">{team.name}</div>
+                      {teamInj.map((inj, i) => (
+                        <div key={i} className={`modal-injury-row modal-injury-row--${inj.type}`}>
+                          <span className="modal-injury-badge">{inj.type === 'suspended' ? '🟥 Suspendu' : '🤕 Blessé'}</span>
+                          <span className="modal-injury-name">{inj.name}</span>
+                          <span className="modal-injury-reason">{inj.reason}</span>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          )}
+
+          {/* 4. Face-à-face */}
           {h2h && h2h.total >= 2 && (
             <section className="modal-section">
               <h2 className="modal-section-title">🔁 Historique face-à-face</h2>
@@ -409,7 +436,7 @@ export default function AnalysisModal({ match, onClose, riskProfile = 'medium' }
             </section>
           )}
 
-          {/* 4. Synthèse rapide */}
+          {/* 5. Synthèse rapide */}
           {summary.length > 0 && (
             <section className="modal-section">
               <h2 className="modal-section-title">📌 À retenir</h2>

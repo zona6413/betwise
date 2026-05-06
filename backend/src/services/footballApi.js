@@ -133,6 +133,23 @@ export async function getTodayFixtures() {
 
 export async function getTeamStats() { return null; }
 
+// ── Blessures & suspensions ───────────────────────────────────────────────────
+export async function getInjuries(fixtureId) {
+  if (!API_KEY) return [];
+  try {
+    const res = await client.get('/injuries', { params: { fixture: fixtureId } });
+    return (res.data?.response ?? []).map(item => ({
+      name:   item.player.name,
+      teamId: item.team.id,
+      team:   item.team.name,
+      type:   item.type === 'Yellow Cards' ? 'suspended' : 'injury',
+      reason: item.reason ?? item.type ?? 'Blessure',
+    }));
+  } catch {
+    return [];
+  }
+}
+
 // ── Face-à-face ───────────────────────────────────────────────────────────────
 export async function getHeadToHead(homeId, awayId, last = 10) {
   if (!API_KEY) return null;

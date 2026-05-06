@@ -476,7 +476,7 @@ export function detectValueBets(aiProbs, bookmakerProbs, homeOdd, drawOdd, awayO
 
 // ── Analyse textuelle enrichie (avec joueurs, forme, force, value) ──────────
 
-export function generateAnalysis(homeTeam, awayTeam, homeStats, awayStats, bets, tiered, players, h2h = null) {
+export function generateAnalysis(homeTeam, awayTeam, homeStats, awayStats, bets, tiered, players, h2h = null, injuries = []) {
   const lines   = [];
   const hStr    = computeTeamStrength(homeStats);
   const aStr    = computeTeamStrength(awayStats);
@@ -554,6 +554,35 @@ export function generateAnalysis(homeTeam, awayTeam, homeStats, awayStats, bets,
   // ── Style de jeu ──────────────────────────────────────────────────────────
   if (hP?.style && aP?.style)
     lines.push(`📋 Tactique : ${homeTeam} (${hP.style}) vs ${awayTeam} (${aP.style}).`);
+
+  // ── Blessures & suspensions ───────────────────────────────────────────────
+  if (injuries?.length > 0) {
+    const homeInj = injuries.filter(i => i.team === homeTeam || i.teamId?.toString() === homeStats?.teamId?.toString());
+    const awayInj = injuries.filter(i => i.team === awayTeam || i.teamId?.toString() === awayStats?.teamId?.toString());
+    // Fallback: split by team name match
+    const allInj  = injuries;
+    const hInj = allInj.filter(i => i.team?.toLowerCase().includes(homeTeam.toLowerCase().split(' ')[0]));
+    const aInj = allInj.filter(i => i.team?.toLowerCase().includes(awayTeam.toLowerCase().split(' ')[0]));
+    const showInj = (team, list) => {
+      if (!list.length) return;
+      const suspended = list.filter(i => i.type === 'suspended');
+      const injured   = list.filter(i => i.type === 'injury');
+      const parts = [];
+      if (injured.length)   parts.push(`🤕 Blessés : ${injured.map(i => i.name).join(', ')}`);
+      if (suspended.length) parts.push(`🟥 Suspendus : ${suspended.map(i => i.name).join(', ')}`);
+      if (parts.length) lines.push(`⚠️ ${team} — ${parts.join(' · ')}`);
+    };
+    if (hInj.length || aInj.length) {
+      showInj(homeTeam, hInj);
+      showInj(awayTeam, aInj);
+    } else {
+      // Fallback: show all injuries without filtering
+      const suspended = allInj.filter(i => i.type === 'suspended');
+      const injured   = allInj.filter(i => i.type === 'injury');
+      if (injured.length)   lines.push(`🤕 Blessés : ${injured.map(i => `${i.name} (${i.team})`).join(', ')}`);
+      if (suspended.length) lines.push(`🟥 Suspendus : ${suspended.map(i => `${i.name} (${i.team})`).join(', ')}`);
+    }
+  }
 
   // ── Face-à-face ───────────────────────────────────────────────────────────
   if (h2h && h2h.total >= 3) {
