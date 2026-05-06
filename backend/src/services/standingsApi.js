@@ -1,164 +1,141 @@
 /**
- * Récupère les classements en direct depuis TheSportsDB (gratuit).
- * Construit un map teamId → { position, wins, draws, losses, form }
+ * Classements via API-Football v3 (même clé que footballApi.js)
+ * Construit un map teamId (API-Football) → { position, wins, draws, losses, form }
  */
 import axios from 'axios';
 import NodeCache from 'node-cache';
 
-const BASE = 'https://www.thesportsdb.com/api/v1/json/3';
-const cache = new NodeCache({ stdTTL: 10800 }); // 3h
+const BASE_URL = 'https://v3.football.api-sports.io';
+const API_KEY  = process.env.API_FOOTBALL_KEY;
+const SEASON   = 2025;
+const cache    = new NodeCache({ stdTTL: 10800 }); // 3h
 
-const LEAGUES = [
-  { id: '4328', season: '2025-2026' },
-  { id: '4334', season: '2025-2026' },
-  { id: '4335', season: '2025-2026' },
-  { id: '4332', season: '2025-2026' },
-  { id: '4331', season: '2025-2026' },
+// Ligues domestiques avec classements
+const STANDING_LEAGUES = [
+  { id: 39  }, // Premier League
+  { id: 61  }, // Ligue 1
+  { id: 140 }, // La Liga
+  { id: 135 }, // Serie A
+  { id: 78  }, // Bundesliga
+  { id: 88  }, // Eredivisie
+  { id: 94  }, // Primeira Liga
 ];
 
 const BOOKMAKERS = ['Unibet', 'Betclic', 'Winamax', 'Bet365', 'PMU'];
 
-function winRateToForm(wins, draws, losses, teamId = 0) {
-  const total = wins + draws + losses;
-  if (total === 0) return 'WDWLW';
-  const winRate  = wins  / total;
-  const drawRate = draws / total;
-  // Deterministic LCG — stable across cache refreshes, unique per team
-  let s = Math.abs((wins * 1337 + draws * 421 + losses * 97 + (teamId % 997) * 31) % 65537) || 1;
-  const rand = () => { s = (s * 1664525 + 1013904223) & 0x7fffffff; return s / 0x7fffffff; };
-  const result = [];
-  for (let i = 0; i < 5; i++) {
-    const r = rand();
-    result.push(r < winRate ? 'W' : r < winRate + drawRate ? 'D' : 'L');
-  }
-  return result.join('');
+const client = axios.create({
+  baseURL: BASE_URL,
+  timeout: 10_000,
+  headers: { 'x-apisports-key': API_KEY },
+});
+
+function parseForm(formStr) {
+  if (!formStr) return 'WDWLW';
+  // API-Football renvoie "WDWWL" (5 derniers, plus récent à droite)
+  return formStr.slice(-5).padEnd(5, 'D');
 }
+
+async function fetchStandingsFromApi() {
+  const map = {};
+  await Promise.allSettled(
+    STANDING_LEAGUES.map(async ({ id }) => {
+      try {
+        const { data } = await client.get('/standings', {
+          params: { league: id, season: SEASON },
+        });
+        const groups = data?.response?.[0]?.league?.standings ?? [];
+        // standings peut être un tableau de groupes (Champions League group stage) ou un seul groupe
+        const rows = Array.isArray(groups[0]) ? groups.flat() : groups;
+        for (const row of rows) {
+          const teamId = String(row.team.id);
+          map[teamId] = {
+            position: row.rank,
+            wins:     row.all.win,
+            draws:    row.all.draw,
+            losses:   row.all.lose,
+            form:     parseForm(row.form),
+            points:   row.points,
+          };
+        }
+      } catch (err) {
+        console.warn(`[standings] Ligue ${id}:`, err.message);
+      }
+    })
+  );
+  return map;
+}
+
+// Fallback statique avec IDs API-Football pour équipes hors ligues domestiques
+// ou si l'API échoue (saison UCL, etc.)
+const STATIC_KNOWN = {
+  // ── Premier League ───────────────────────────────────────────
+  '42':  { position: 3,  wins: 19, draws: 6,  losses: 9,  form: 'WDWWL' }, // Arsenal
+  '50':  { position: 1,  wins: 24, draws: 5,  losses: 5,  form: 'WWWDW' }, // Man City
+  '40':  { position: 2,  wins: 22, draws: 5,  losses: 7,  form: 'WWWWL' }, // Liverpool
+  '33':  { position: 13, wins: 9,  draws: 7,  losses: 18, form: 'WLLDL' }, // Man United
+  '66':  { position: 7,  wins: 14, draws: 5,  losses: 15, form: 'WDWLW' }, // Aston Villa
+  '49':  { position: 5,  wins: 16, draws: 6,  losses: 12, form: 'WWDWL' }, // Chelsea
+  '51':  { position: 8,  wins: 13, draws: 9,  losses: 12, form: 'DWWDL' }, // Brighton
+  '47':  { position: 7,  wins: 14, draws: 7,  losses: 13, form: 'LWWDW' }, // Tottenham
+  '35':  { position: 10, wins: 12, draws: 8,  losses: 14, form: 'DLWWL' }, // Bournemouth
+  '52':  { position: 13, wins: 11, draws: 7,  losses: 16, form: 'WLLDW' }, // Crystal Palace
+  '36':  { position: 6,  wins: 14, draws: 8,  losses: 12, form: 'WDWLW' }, // Fulham
+  '34':  { position: 11, wins: 12, draws: 7,  losses: 15, form: 'WLWDL' }, // Newcastle
+  '37':  { position: 14, wins: 10, draws: 8,  losses: 16, form: 'LLWDL' }, // West Ham
+  // ── Ligue 1 ──────────────────────────────────────────────────
+  '85':  { position: 1,  wins: 23, draws: 4,  losses: 3,  form: 'WWWWW' }, // PSG
+  '81':  { position: 2,  wins: 18, draws: 7,  losses: 5,  form: 'WWDWW' }, // Marseille
+  '79':  { position: 4,  wins: 16, draws: 7,  losses: 7,  form: 'WDWWL' }, // Lille
+  '80':  { position: 5,  wins: 15, draws: 6,  losses: 9,  form: 'LWWDW' }, // Lyon
+  '116': { position: 3,  wins: 17, draws: 5,  losses: 8,  form: 'WDWWL' }, // Lens
+  '111': { position: 6,  wins: 14, draws: 8,  losses: 8,  form: 'WDWLD' }, // Rennes
+  '84':  { position: 7,  wins: 14, draws: 6,  losses: 10, form: 'LWWWD' }, // Nice
+  // ── La Liga ──────────────────────────────────────────────────
+  '541': { position: 2,  wins: 21, draws: 6,  losses: 7,  form: 'WWWDL' }, // Real Madrid
+  '529': { position: 1,  wins: 23, draws: 4,  losses: 7,  form: 'WWWWW' }, // Barcelona
+  '530': { position: 3,  wins: 20, draws: 7,  losses: 7,  form: 'WDWWL' }, // Atlético
+  '536': { position: 8,  wins: 13, draws: 6,  losses: 15, form: 'LLDWW' }, // Sevilla
+  '543': { position: 5,  wins: 12, draws: 14, losses: 7,  form: 'WDDWL' }, // Real Betis
+  '548': { position: 9,  wins: 13, draws: 6,  losses: 15, form: 'LLDWW' }, // Real Sociedad
+  '531': { position: 4,  wins: 14, draws: 8,  losses: 12, form: 'WDWLW' }, // Athletic Bilbao
+  // ── Bundesliga ───────────────────────────────────────────────
+  '157': { position: 1,  wins: 23, draws: 5,  losses: 5,  form: 'WWWWW' }, // Bayern Munich
+  '165': { position: 5,  wins: 15, draws: 5,  losses: 12, form: 'WLWDW' }, // Dortmund
+  '168': { position: 2,  wins: 21, draws: 5,  losses: 6,  form: 'WWWWL' }, // Leverkusen
+  '173': { position: 3,  wins: 17, draws: 5,  losses: 10, form: 'WWDLW' }, // RB Leipzig
+  // ── Serie A ──────────────────────────────────────────────────
+  '505': { position: 1,  wins: 22, draws: 8,  losses: 4,  form: 'WWWDW' }, // Inter Milan
+  '496': { position: 3,  wins: 18, draws: 8,  losses: 8,  form: 'WDWWL' }, // Juventus
+  '489': { position: 6,  wins: 14, draws: 6,  losses: 14, form: 'DLWWL' }, // AC Milan
+  '492': { position: 2,  wins: 20, draws: 5,  losses: 9,  form: 'WWDLW' }, // Napoli
+  '487': { position: 5,  wins: 17, draws: 6,  losses: 11, form: 'WDWWL' }, // Lazio
+  '497': { position: 7,  wins: 14, draws: 9,  losses: 11, form: 'WDLDW' }, // Roma
+  '502': { position: 4,  wins: 18, draws: 8,  losses: 8,  form: 'WWWLD' }, // Fiorentina
+  '499': { position: 4,  wins: 18, draws: 8,  losses: 8,  form: 'WWWWL' }, // Atalanta
+};
 
 export async function getTeamStatsMap() {
   const cached = cache.get('standings');
   if (cached) return cached;
 
-  const map = {};
-  await Promise.allSettled(
-    LEAGUES.map(async ({ id, season }) => {
-      try {
-        const { data } = await axios.get(
-          `${BASE}/lookuptable.php?l=${id}&s=${season}`,
-          { timeout: 8000 }
-        );
-        const table = data?.table || [];
-        for (const t of table) {
-          const wins   = parseInt(t.intWin   || 0);
-          const draws  = parseInt(t.intDraw  || 0);
-          const losses = parseInt(t.intLoss  || 0);
-          const pos    = parseInt(t.intRank  || 10);
-          map[t.idTeam] = {
-            position: pos,
-            wins, draws, losses,
-            form: winRateToForm(wins, draws, losses, parseInt(t.idTeam)),
-            points: parseInt(t.intPoints || wins * 3 + draws),
-          };
-        }
-      } catch { /* ignore per-league errors */ }
-    })
-  );
+  let map = {};
 
-  // Fallback stats for known teams not in top-5 of standings
-  const KNOWN = {
-    // ── Premier League ───────────────────────────────────────────
-    133604: { position: 3,  wins: 19, draws: 6,  losses: 9  }, // Arsenal
-    133605: { position: 1,  wins: 24, draws: 5,  losses: 5  }, // Manchester City
-    133602: { position: 2,  wins: 22, draws: 5,  losses: 7  }, // Liverpool
-    133612: { position: 13, wins: 9,  draws: 7,  losses: 18 }, // Manchester United
-    133601: { position: 7,  wins: 14, draws: 5,  losses: 15 }, // Aston Villa
-    // ── Bundesliga ───────────────────────────────────────────────
-    133641: { position: 1,  wins: 23, draws: 5,  losses: 6  }, // Bayern Munich
-    // ── La Liga ──────────────────────────────────────────────────
-    133739: { position: 2,  wins: 21, draws: 6,  losses: 7  }, // Real Madrid
-    133738: { position: 1,  wins: 23, draws: 4,  losses: 7  }, // FC Barcelona
-    133740: { position: 3,  wins: 20, draws: 7,  losses: 7  }, // Atlético Madrid
-    // ── Serie A ──────────────────────────────────────────────────
-    133673: { position: 1,  wins: 22, draws: 8,  losses: 4  }, // Inter Milan
-    133672: { position: 3,  wins: 18, draws: 8,  losses: 8  }, // Juventus
-    133680: { position: 2,  wins: 21, draws: 5,  losses: 8  }, // Napoli
-    133600: { position: 6,  wins: 14, draws: 8,  losses: 12 }, // Fulham
-    133610: { position: 5,  wins: 16, draws: 6,  losses: 12 }, // Chelsea
-    133615: { position: 16, wins: 7,  draws: 9,  losses: 18 }, // Everton
-    133616: { position: 7,  wins: 14, draws: 7,  losses: 13 }, // Tottenham
-    133619: { position: 8,  wins: 13, draws: 9,  losses: 12 }, // Brighton
-    133623: { position: 18, wins: 5,  draws: 8,  losses: 21 }, // Burnley
-    133632: { position: 13, wins: 11, draws: 7,  losses: 16 }, // Crystal Palace
-    133635: { position: 9,  wins: 13, draws: 7,  losses: 14 }, // Leeds
-    133636: { position: 14, wins: 10, draws: 8,  losses: 16 }, // West Ham
-    133120: { position: 11, wins: 12, draws: 7,  losses: 15 }, // Newcastle (may differ)
-    134777: { position: 11, wins: 12, draws: 7,  losses: 15 }, // Newcastle
-    133720: { position: 12, wins: 11, draws: 8,  losses: 15 }, // Nottm Forest
-    134301: { position: 10, wins: 12, draws: 8,  losses: 14 }, // Bournemouth
-    134355: { position: 9,  wins: 13, draws: 6,  losses: 15 }, // Brentford
-    133650: { position: 2,  wins: 20, draws: 7,  losses: 4  }, // Dortmund
-    133651: { position: 3,  wins: 17, draws: 6,  losses: 8  }, // Hamburg
-    133653: { position: 8,  wins: 13, draws: 6,  losses: 12 }, // Freiburg
-    133655: { position: 7,  wins: 13, draws: 7,  losses: 11 }, // Wolfsburg
-    133665: { position: 6,  wins: 14, draws: 5,  losses: 12 }, // Mainz
-    133666: { position: 5,  wins: 17, draws: 4,  losses: 10 }, // Leverkusen
-    134779: { position: 9,  wins: 12, draws: 7,  losses: 12 }, // M'gladbach
-    134695: { position: 3,  wins: 19, draws: 5,  losses: 7  }, // RB Leipzig
-    133813: { position: 11, wins: 10, draws: 9,  losses: 12 }, // St Pauli
-    133814: { position: 10, wins: 11, draws: 8,  losses: 12 }, // Eintracht
-    134696: { position: 17, wins: 6,  draws: 6,  losses: 19 }, // Heidenheim
-    133668: { position: 5,  wins: 17, draws: 6,  losses: 11 }, // Lazio
-    133667: { position: 3,  wins: 19, draws: 10, losses: 5  }, // AC Milan
-    133674: { position: 7,  wins: 14, draws: 9,  losses: 11 }, // Fiorentina
-    133675: { position: 14, wins: 9,  draws: 10, losses: 15 }, // Genoa
-    133678: { position: 16, wins: 7,  draws: 8,  losses: 19 }, // Lecce
-    133679: { position: 13, wins: 10, draws: 9,  losses: 15 }, // Udinese
-    133682: { position: 8,  wins: 13, draws: 9,  losses: 12 }, // Roma
-    133687: { position: 12, wins: 10, draws: 9,  losses: 15 }, // Torino
-    134224: { position: 18, wins: 5,  draws: 7,  losses: 22 }, // Cremonese
-    134783: { position: 15, wins: 8,  draws: 8,  losses: 18 }, // Cagliari
-    134784: { position: 17, wins: 6,  draws: 8,  losses: 20 }, // Hellas Verona
-    134782: { position: 4,  wins: 18, draws: 8,  losses: 8  }, // Atalanta
-    133822: { position: 2,  wins: 20, draws: 3,  losses: 7  }, // Lens
-    133711: { position: 3,  wins: 17, draws: 6,  losses: 8  }, // Lille
-    133713: { position: 4,  wins: 17, draws: 6,  losses: 8  }, // Lyon
-    133719: { position: 5,  wins: 16, draws: 8,  losses: 7  }, // Rennes
-    133707: { position: 7,  wins: 14, draws: 6,  losses: 11 }, // Marseille
-    133712: { position: 6,  wins: 15, draws: 5,  losses: 11 }, // Nice
-    133861: { position: 11, wins: 11, draws: 7,  losses: 13 }, // Nantes
-    133862: { position: 15, wins: 8,  draws: 6,  losses: 17 }, // Le Havre
-    133883: { position: 16, wins: 7,  draws: 7,  losses: 17 }, // Metz
-    134788: { position: 14, wins: 9,  draws: 7,  losses: 15 }, // Auxerre
-    134709: { position: 17, wins: 6,  draws: 6,  losses: 19 }, // Angers
-    133714: { position: 1,  wins: 22, draws: 3,  losses: 5  }, // PSG
-    133722: { position: 5,  wins: 12, draws: 14, losses: 7  }, // Real Betis
-    133724: { position: 8,  wins: 14, draws: 6,  losses: 13 }, // Real Sociedad
-    133725: { position: 12, wins: 11, draws: 7,  losses: 15 }, // Valencia
-    133727: { position: 7,  wins: 14, draws: 8,  losses: 11 }, // Athletic Bilbao
-    133730: { position: 10, wins: 12, draws: 8,  losses: 13 }, // Osasuna
-    133733: { position: 13, wins: 10, draws: 7,  losses: 16 }, // Mallorca
-    133734: { position: 11, wins: 11, draws: 8,  losses: 14 }, // Espanyol
-    133735: { position: 9,  wins: 13, draws: 6,  losses: 14 }, // Sevilla
-    134221: { position: 16, wins: 7,  draws: 6,  losses: 20 }, // Alavés
-    133937: { position: 15, wins: 8,  draws: 6,  losses: 19 }, // Celta Vigo
-    134384: { position: 18, wins: 6,  draws: 5,  losses: 22 }, // Elche
-    135455: { position: 14, wins: 9,  draws: 7,  losses: 17 }, // Real Oviedo
-    133859: { position: 6,  wins: 14, draws: 7,  losses: 13 }, // Pisa
-    134781: { position: 6,  wins: 14, draws: 9,  losses: 11 }, // Bologna
-    135728: { position: 19, wins: 5,  draws: 6,  losses: 23 }, // Parma
-  };
+  if (API_KEY) {
+    map = await fetchStandingsFromApi();
+    console.log(`[standings] ${Object.keys(map).length} équipes via API-Football`);
+  } else {
+    console.warn('[standings] Pas de clé API — utilisation du fallback statique');
+  }
 
-  for (const [id, stats] of Object.entries(KNOWN)) {
+  // Compléter avec le fallback statique pour les équipes manquantes
+  for (const [id, stats] of Object.entries(STATIC_KNOWN)) {
     if (!map[id]) {
-      map[id] = {
-        ...stats,
-        form: winRateToForm(stats.wins, stats.draws, stats.losses, parseInt(id)),
-        points: stats.wins * 3 + stats.draws,
-      };
+      map[id] = { ...stats, points: stats.wins * 3 + stats.draws };
     }
   }
 
   cache.set('standings', map);
-  console.log(`  [standings] ${Object.keys(map).length} équipes chargées`);
+  console.log(`[standings] Total: ${Object.keys(map).length} équipes chargées`);
   return map;
 }
 
