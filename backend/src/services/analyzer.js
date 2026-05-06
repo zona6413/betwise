@@ -217,6 +217,34 @@ function computePickScore(bet, homeStats, awayStats, homeExpG, awayExpG) {
   return +(bet.prob * reliability * (1 + conv)).toFixed(3);
 }
 
+// ── Modèle buteur ────────────────────────────────────────────────────────────
+// Multiplicateur par position : les attaquants de pointe scorent plus souvent
+const POS_MULT = { BU: 1.00, AT: 0.82, AG: 0.72, AD: 0.72, MO: 0.58 };
+
+function computeScorerBet(player, teamXG) {
+  if (!player?.name) return null;
+  const gpm     = player.goals / Math.max(player.matchesPlayed ?? 30, 1);
+  const posM    = POS_MULT[player.pos] ?? 0.65;
+  // Probabilité "marquer à tout moment" : taux buts/match × ajustement xG × position
+  // xG 1.35 = moyenne européenne → ratio ajuste la probabilité selon l'attaque du match
+  const xgRatio = teamXG / 1.35;
+  const prob    = Math.min(0.70, Math.max(0.06, gpm * xgRatio * posM * 1.25));
+  // Cote "marquer à tout moment" (marge 10%)
+  const anytimeOdd = Math.round(Math.max(1.20, 1.10 / prob) * 20) / 20;
+  // Cote "1er buteur" ≈ anytime × 3.2 (environ 1/3 des buts marqués en premier)
+  const firstOdd   = Math.round(Math.max(3.50, anytimeOdd * 3.2) * 4) / 4;
+  return {
+    player:      player.name,
+    pos:         player.pos ?? '—',
+    goals:       player.goals,
+    matchesPlayed: player.matchesPlayed ?? 30,
+    gpm:         +gpm.toFixed(2),
+    prob:        +prob.toFixed(2),
+    anytimeOdd,
+    firstOdd,
+  };
+}
+
 // ── Génération des 3 niveaux de paris ────────────────────────────────────────
 
 export function generateTieredBets(homeName, awayName, homeStats, awayStats, aiProbs, bmProbs, odds, players) {
@@ -287,18 +315,18 @@ export function generateTieredBets(homeName, awayName, homeStats, awayStats, aiP
 
   const valueBet = valueCandidates[0] ?? valueCandidates[valueCandidates.length - 1];
 
-  // ── Buteurs probables ────────────────────────────────────────────────────
-  const hScorer = players?.home?.topScorer;
-  const aScorer = players?.away?.topScorer;
+  // ── Buteurs probables (modèle buts/match × xG × position) ──────────────
   const scorerBets = [];
-  if (hScorer) {
-    const prob = Math.min(0.55, 0.22 + (homeExpG - 0.8) * 0.18);
-    scorerBets.push({ player: hScorer.name, team: homeName, prob: +prob.toFixed(2), goals: hScorer.goals });
-  }
-  if (aScorer) {
-    const prob = Math.min(0.48, 0.18 + (awayExpG - 0.8) * 0.15);
-    scorerBets.push({ player: aScorer.name, team: awayName, prob: +prob.toFixed(2), goals: aScorer.goals });
-  }
+  const addScorers = (playerGroup, teamXG, teamName) => {
+    for (const key of ['topScorer', 'scorer2', 'scorer3']) {
+      const p = playerGroup?.[key];
+      if (!p) continue;
+      const sb = computeScorerBet(p, teamXG);
+      if (sb) scorerBets.push({ ...sb, team: teamName });
+    }
+  };
+  addScorers(players?.home, homeExpG, homeName);
+  addScorers(players?.away, awayExpG, awayName);
 
   const safePickScore  = computePickScore(safeBet,  homeStats, awayStats, homeExpG, awayExpG);
   const medPickScore   = computePickScore(mediumBet, homeStats, awayStats, homeExpG, awayExpG);

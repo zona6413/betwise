@@ -18,7 +18,9 @@ import {
 } from '../services/analyzer.js';
 
 const router = Router();
-const cache  = new NodeCache({ stdTTL: 90 });
+// 10 min avec vraie API, 90s avec mock
+const CACHE_TTL = process.env.API_FOOTBALL_KEY ? 600 : 90;
+const cache = new NodeCache({ stdTTL: CACHE_TTL });
 
 const DEFAULT_STATS = { form: 'WDWLW', position: 12, wins: 10, draws: 8, losses: 10 };
 
@@ -76,7 +78,7 @@ function buildMatch(fixture, teamStats, realOddsMap) {
     ? realOdds
     : generateSyntheticOdds(homeStats, awayStats);
 
-  const players        = getMatchPlayers(homeId, awayId);
+  const players = getMatchPlayers(homeId, awayId, fixture.teams.home.name, fixture.teams.away.name);
   const bookmakerProbs = impliedProbabilities(homeOdd, drawOdd, awayOdd);
   const aiProbs        = computeAIProbability(homeStats, awayStats);
   // Prédictions brutes exposées pour le moteur d'apprentissage

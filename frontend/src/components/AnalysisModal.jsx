@@ -183,6 +183,54 @@ function PlayerBlock({ team, players, side }) {
   );
 }
 
+// ── Buteurs probables ─────────────────────────────────────────────────────────
+const POS_LABELS = { BU: 'Avant-centre', AT: 'Attaquant', AG: 'Ailier G', AD: 'Ailier D', MO: 'Milieu off.' };
+const POS_COLORS = { BU: 'striker', AT: 'attacker', AG: 'winger', AD: 'winger', MO: 'midfield' };
+
+function ScorerBetsSection({ scorerBets }) {
+  // Séparer domicile / extérieur et trier par probabilité décroissante
+  const home = scorerBets.filter((_, i) => i < scorerBets.length / 2).sort((a, b) => b.prob - a.prob);
+  const away = scorerBets.filter((_, i) => i >= scorerBets.length / 2).sort((a, b) => b.prob - a.prob);
+
+  return (
+    <div className="modal-scorers">
+      <div className="modal-scorers-title">⚽ Buteurs probables</div>
+      <div className="modal-scorers-grid">
+        {[home, away].map((group, gi) => (
+          <div key={gi} className="modal-scorers-col">
+            {group.map((sb, i) => (
+              <div key={i} className={`modal-scorer-card ${i === 0 ? 'modal-scorer-card--top' : ''}`}>
+                <div className="modal-scorer-card-top">
+                  <span className={`modal-scorer-pos modal-scorer-pos--${POS_COLORS[sb.pos] ?? 'midfield'}`}>
+                    {POS_LABELS[sb.pos] ?? sb.pos}
+                  </span>
+                  <span className="modal-scorer-goals">{sb.goals} buts · {sb.gpm} / match</span>
+                </div>
+                <div className="modal-scorer-card-name">{sb.player}</div>
+                <div className="modal-scorer-card-team">{sb.team}</div>
+                <div className="modal-scorer-card-bar-track">
+                  <div className="modal-scorer-card-bar-fill" style={{ width: `${Math.round(sb.prob * 100)}%` }} />
+                </div>
+                <div className="modal-scorer-card-odds">
+                  <div className="modal-scorer-odd-block">
+                    <span className="modal-scorer-odd-label">Marquer</span>
+                    <span className="modal-scorer-odd-val">@ {sb.anytimeOdd?.toFixed(2)}</span>
+                    <span className="modal-scorer-odd-pct">{Math.round(sb.prob * 100)}%</span>
+                  </div>
+                  <div className="modal-scorer-odd-block modal-scorer-odd-block--first">
+                    <span className="modal-scorer-odd-label">1er but</span>
+                    <span className="modal-scorer-odd-val">@ {sb.firstOdd?.toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ── Composant BetCard ─────────────────────────────────────────────────────────
 function BetCard({ bet, which, highlighted = false }) {
   if (!bet) return null;
@@ -308,19 +356,7 @@ export default function AnalysisModal({ match, onClose, riskProfile = 'medium' }
                 <PlayerBlock team={awayTeam} players={tieredBets.stats.awayPlayers} side="away" />
               </div>
               {tieredBets?.scorerBets?.length > 0 && (
-                <div className="modal-scorer-bets">
-                  <div className="modal-scorer-bets-title">⚽ Buteurs probables</div>
-                  {tieredBets.scorerBets.map((sb, i) => (
-                    <div key={i} className="modal-scorer-bet-row">
-                      <span className="modal-scorer-name">{sb.player}</span>
-                      <span className="modal-scorer-team">({sb.team})</span>
-                      <div className="modal-scorer-bar-track">
-                        <div className="modal-scorer-bar-fill" style={{ width: `${Math.round(sb.prob * 100)}%` }} />
-                      </div>
-                      <span className="modal-scorer-pct">{Math.round(sb.prob * 100)}%</span>
-                    </div>
-                  ))}
-                </div>
+                <ScorerBetsSection scorerBets={tieredBets.scorerBets} />
               )}
             </section>
           )}

@@ -410,51 +410,111 @@
 }
 
 /* ── Buteurs probables ────────────────────────────────────────────── */
-.modal-scorer-bets { display: flex; flex-direction: column; gap: 8px; }
-.modal-scorer-bets-title {
+/* ── Buteurs probables ──────────────────────────────────────────────── */
+.modal-scorers { margin-top: 12px; }
+.modal-scorers-title {
   font-size: 11px;
   font-weight: 800;
   color: var(--text-dim);
   text-transform: uppercase;
   letter-spacing: 0.6px;
-  margin-bottom: 4px;
+  margin-bottom: 10px;
 }
-.modal-scorer-bet-row {
+.modal-scorers-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.modal-scorers-col { display: flex; flex-direction: column; gap: 8px; }
+
+.modal-scorer-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 10px;
+  padding: 10px 12px;
+  transition: border-color 0.2s;
+}
+.modal-scorer-card--top {
+  border-color: rgba(251,191,36,0.25);
+  background: rgba(251,191,36,0.04);
+}
+.modal-scorer-card-top {
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: space-between;
+  margin-bottom: 5px;
 }
-.modal-scorer-name {
+.modal-scorer-pos {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 20px;
+  letter-spacing: 0.3px;
+}
+.modal-scorer-pos--striker  { background: rgba(239,68,68,0.18);  color: #f87171; }
+.modal-scorer-pos--attacker { background: rgba(249,115,22,0.18); color: #fb923c; }
+.modal-scorer-pos--winger   { background: rgba(59,130,246,0.18); color: #60a5fa; }
+.modal-scorer-pos--midfield { background: rgba(139,92,246,0.18); color: #a78bfa; }
+
+.modal-scorer-goals {
+  font-size: 10px;
+  color: var(--text-dim);
+}
+.modal-scorer-card-name {
   font-size: 13px;
   font-weight: 700;
   color: var(--text);
-  min-width: 120px;
-  flex-shrink: 0;
+  margin-bottom: 1px;
 }
-.modal-scorer-team {
+.modal-scorer-card-team {
   font-size: 11px;
   color: var(--text-dim);
-  flex-shrink: 0;
+  margin-bottom: 7px;
 }
-.modal-scorer-bar-track {
-  flex: 1;
-  height: 4px;
+.modal-scorer-card-bar-track {
+  height: 3px;
   background: rgba(255,255,255,0.06);
   border-radius: 2px;
   overflow: hidden;
+  margin-bottom: 8px;
 }
-.modal-scorer-bar-fill {
+.modal-scorer-card-bar-fill {
   height: 100%;
   background: linear-gradient(90deg, #00d68f, #3b82f6);
   border-radius: 2px;
   transition: width 0.6s cubic-bezier(.4,0,.2,1);
 }
-.modal-scorer-pct {
-  font-size: 12px;
-  font-weight: 700;
+.modal-scorer-card-odds {
+  display: flex;
+  gap: 8px;
+}
+.modal-scorer-odd-block {
+  flex: 1;
+  background: rgba(255,255,255,0.04);
+  border-radius: 7px;
+  padding: 5px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.modal-scorer-odd-block--first {
+  background: rgba(251,191,36,0.06);
+}
+.modal-scorer-odd-label {
+  font-size: 9px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+.modal-scorer-odd-val {
+  font-size: 13px;
+  font-weight: 800;
+  color: #f59e0b;
+}
+.modal-scorer-odd-pct {
+  font-size: 10px;
   color: #00d68f;
-  min-width: 32px;
-  text-align: right;
+  font-weight: 600;
 }
 
 @media (max-width: 600px) {
