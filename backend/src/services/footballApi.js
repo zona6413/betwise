@@ -133,6 +133,53 @@ export async function getTodayFixtures() {
 
 export async function getTeamStats() { return null; }
 
+// ── Face-à-face ───────────────────────────────────────────────────────────────
+export async function getHeadToHead(homeId, awayId, last = 10) {
+  if (!API_KEY) return null;
+  try {
+    const res = await client.get('/fixtures/headtohead', {
+      params: { h2h: `${homeId}-${awayId}`, last, timezone: 'Europe/Paris' },
+    });
+    const fixtures = (res.data?.response ?? []).filter(f => f.fixture.status.short === 'FT');
+    if (!fixtures.length) return null;
+
+    let homeWins = 0, awayWins = 0, draws = 0, totalGoals = 0;
+    const recent = [];
+
+    for (const f of fixtures.slice(0, 6)) {
+      const gh = f.goals.home ?? 0;
+      const ga = f.goals.away ?? 0;
+      const hId = f.teams.home.id;
+      const winner = gh > ga ? hId : ga > gh ? f.teams.away.id : null;
+      if (winner === homeId) homeWins++;
+      else if (winner === awayId) awayWins++;
+      else draws++;
+      totalGoals += gh + ga;
+      recent.push({
+        date:  f.fixture.date.split('T')[0],
+        home:  f.teams.home.name,
+        away:  f.teams.away.name,
+        score: `${gh}-${ga}`,
+        // qui était la team "home" dans notre contexte
+        winner: winner === homeId ? 'home' : winner === awayId ? 'away' : 'draw',
+      });
+    }
+
+    const n = Math.min(fixtures.length, 6);
+    return {
+      homeWins,
+      awayWins,
+      draws,
+      total: n,
+      avgGoals: +(totalGoals / n).toFixed(1),
+      recent,                    // derniers matchs (max 6)
+    };
+  } catch (err) {
+    console.warn('[footballApi] H2H error:', err.message);
+    return null;
+  }
+}
+
 // ── Mock de secours ──────────────────────────────────────────────────────────
 function getMockFixtures() {
   const d = offsetHours => {

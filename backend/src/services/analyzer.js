@@ -247,7 +247,7 @@ function computeScorerBet(player, teamXG) {
 
 // ── Génération des 3 niveaux de paris ────────────────────────────────────────
 
-export function generateTieredBets(homeName, awayName, homeStats, awayStats, aiProbs, bmProbs, odds, players) {
+export function generateTieredBets(homeName, awayName, homeStats, awayStats, aiProbs, bmProbs, odds, players, h2h = null) {
   const homeExpG   = estimateExpectedGoals(homeStats, awayStats, true);
   const awayExpG   = estimateExpectedGoals(awayStats, homeStats, false);
   const totalExpG  = homeExpG + awayExpG;
@@ -332,6 +332,15 @@ export function generateTieredBets(homeName, awayName, homeStats, awayStats, aiP
   const medPickScore   = computePickScore(mediumBet, homeStats, awayStats, homeExpG, awayExpG);
   const conv           = convergenceBonus(homeStats, awayStats, homeExpG, awayExpG);
 
+  // H2H : signal supplémentaire sur le pick score
+  let h2hSignal = null;
+  if (h2h && h2h.total >= 3) {
+    const dominance = h2h.homeWins / h2h.total;
+    if (dominance >= 0.60)      h2hSignal = { favours: 'home', dominance };
+    else if (dominance <= 0.40) h2hSignal = { favours: 'away', dominance: 1 - dominance };
+    else                         h2hSignal = { favours: 'even', dominance: 0.5 };
+  }
+
   return {
     safe:   { ...safeBet,   level: 'SAFE',  confidence: probToConfidence(safeBet.prob),  pickScore: safePickScore },
     medium: { ...mediumBet, level: 'MOYEN', confidence: probToConfidence(mediumBet.prob), pickScore: medPickScore },
@@ -349,6 +358,7 @@ export function generateTieredBets(homeName, awayName, homeStats, awayStats, aiP
       convergence: conv,
       homePlayers: players?.home ?? null,
       awayPlayers: players?.away ?? null,
+      h2hSignal,
     },
   };
 }
@@ -447,7 +457,7 @@ export function detectValueBets(aiProbs, bookmakerProbs, homeOdd, drawOdd, awayO
 
 // ── Analyse textuelle enrichie (avec joueurs, forme, force, value) ──────────
 
-export function generateAnalysis(homeTeam, awayTeam, homeStats, awayStats, bets, tiered, players) {
+export function generateAnalysis(homeTeam, awayTeam, homeStats, awayStats, bets, tiered, players, h2h = null) {
   const lines   = [];
   const hStr    = computeTeamStrength(homeStats);
   const aStr    = computeTeamStrength(awayStats);
@@ -525,6 +535,23 @@ export function generateAnalysis(homeTeam, awayTeam, homeStats, awayStats, bets,
   // ── Style de jeu ──────────────────────────────────────────────────────────
   if (hP?.style && aP?.style)
     lines.push(`📋 Tactique : ${homeTeam} (${hP.style}) vs ${awayTeam} (${aP.style}).`);
+
+  // ── Face-à-face ───────────────────────────────────────────────────────────
+  if (h2h && h2h.total >= 3) {
+    const { homeWins, awayWins, draws, total, avgGoals } = h2h;
+    let h2hLine = `🔁 Face-à-face (${total} derniers matchs) : ${homeTeam} ${homeWins}V · Nul ${draws} · ${awayWins}V ${awayTeam} — ${avgGoals} buts/match en moyenne.`;
+    if (homeWins >= Math.ceil(total * 0.6))
+      h2hLine += ` ${homeTeam} domine l'historique.`;
+    else if (awayWins >= Math.ceil(total * 0.6))
+      h2hLine += ` ${awayTeam} domine l'historique.`;
+    lines.push(h2hLine);
+
+    // Tendance buts H2H
+    if (avgGoals >= 2.8)
+      lines.push(`⚽ Confrontations historiquement prolifiques (${avgGoals} buts/match) — Over 2.5 soutenu par l'historique.`);
+    else if (avgGoals <= 1.8)
+      lines.push(`🔒 Confrontations historiquement serrées (${avgGoals} buts/match) — Under 2.5 soutenu par l'historique.`);
+  }
 
   // ── xG & probabilités marchés ─────────────────────────────────────────────
   if (tiered) {

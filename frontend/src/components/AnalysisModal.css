@@ -517,6 +517,28 @@
   font-weight: 600;
 }
 
+/* ── H2H ──────────────────────────────────────────────────────────── */
+.modal-h2h { background: rgba(255,255,255,0.03); border-radius: 12px; padding: 16px; }
+.modal-h2h-title { font-size: 12px; font-weight: 700; color: #a0aec0; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 14px; }
+
+.modal-h2h-bar { display: flex; height: 28px; border-radius: 6px; overflow: hidden; gap: 2px; }
+.modal-h2h-bar-home { background: #3b82f6; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #fff; transition: width 0.4s ease; }
+.modal-h2h-bar-draw { background: #4b5563; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #9ca3af; transition: width 0.4s ease; }
+.modal-h2h-bar-away { background: #ef4444; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #fff; transition: width 0.4s ease; }
+
+.modal-h2h-labels { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; font-size: 11px; color: #6b7280; }
+.modal-h2h-avg { color: #f59e0b; font-weight: 600; font-size: 11px; }
+
+.modal-h2h-recent { margin-top: 12px; display: flex; flex-direction: column; gap: 4px; }
+.modal-h2h-row { display: grid; grid-template-columns: 56px 1fr 48px 1fr; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 7px; background: rgba(255,255,255,0.03); border-left: 3px solid transparent; font-size: 12px; }
+.modal-h2h-row--home { border-left-color: #3b82f6; }
+.modal-h2h-row--away { border-left-color: #ef4444; }
+.modal-h2h-row--draw { border-left-color: #6b7280; }
+.modal-h2h-date { color: #6b7280; font-size: 10px; }
+.modal-h2h-teams { color: #e2e8f0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.modal-h2h-teams--away { text-align: right; }
+.modal-h2h-score { font-weight: 800; color: #f59e0b; text-align: center; font-size: 13px; }
+
 @media (max-width: 600px) {
   .modal-players { grid-template-columns: 1fr; }
   .modal-player-note { padding-left: 0; }

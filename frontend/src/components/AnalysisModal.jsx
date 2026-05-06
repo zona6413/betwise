@@ -231,6 +231,45 @@ function ScorerBetsSection({ scorerBets }) {
   );
 }
 
+// ── Face-à-face ───────────────────────────────────────────────────────────────
+function H2HSection({ h2h, homeName, awayName }) {
+  if (!h2h || h2h.total < 2) return null;
+  const { homeWins, awayWins, draws, total, avgGoals, recent } = h2h;
+  const homeW = Math.round((homeWins / total) * 100);
+  const awayW = Math.round((awayWins / total) * 100);
+  const drawW = 100 - homeW - awayW;
+
+  return (
+    <div className="modal-h2h">
+      <div className="modal-h2h-title">🔁 Face-à-face — {total} dernières rencontres</div>
+      {/* Barre de répartition */}
+      <div className="modal-h2h-bar">
+        <div className="modal-h2h-bar-home" style={{ width: `${homeW}%` }}>{homeW > 10 ? `${homeWins}V` : ''}</div>
+        <div className="modal-h2h-bar-draw" style={{ width: `${drawW}%` }}>{drawW > 8 ? `${draws}N` : ''}</div>
+        <div className="modal-h2h-bar-away" style={{ width: `${awayW}%` }}>{awayW > 10 ? `${awayWins}V` : ''}</div>
+      </div>
+      <div className="modal-h2h-labels">
+        <span>{homeName}</span>
+        <span className="modal-h2h-avg">{avgGoals} buts/match en moy.</span>
+        <span>{awayName}</span>
+      </div>
+      {/* Derniers matchs */}
+      {recent?.length > 0 && (
+        <div className="modal-h2h-recent">
+          {recent.slice(0, 5).map((m, i) => (
+            <div key={i} className={`modal-h2h-row modal-h2h-row--${m.winner}`}>
+              <span className="modal-h2h-date">{m.date.slice(0, 7)}</span>
+              <span className="modal-h2h-teams">{m.home}</span>
+              <span className="modal-h2h-score">{m.score}</span>
+              <span className="modal-h2h-teams modal-h2h-teams--away">{m.away}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Composant BetCard ─────────────────────────────────────────────────────────
 function BetCard({ bet, which, highlighted = false }) {
   if (!bet) return null;
@@ -281,7 +320,7 @@ export default function AnalysisModal({ match, onClose, riskProfile = 'medium' }
 
   if (!match) return null;
 
-  const { homeTeam, awayTeam, tieredBets, league, leagueCountry, date, status, score, aiProbs } = match;
+  const { homeTeam, awayTeam, tieredBets, league, leagueCountry, date, status, score, aiProbs, h2h } = match;
   const isLive  = ['1H','HT','2H','ET','P'].includes(status);
   const isEnded = status === 'FT';
   const predicted = tieredBets?.stats
@@ -361,7 +400,15 @@ export default function AnalysisModal({ match, onClose, riskProfile = 'medium' }
             </section>
           )}
 
-          {/* 3. Synthèse rapide */}
+          {/* 3. Face-à-face */}
+          {h2h && h2h.total >= 2 && (
+            <section className="modal-section">
+              <h2 className="modal-section-title">🔁 Historique face-à-face</h2>
+              <H2HSection h2h={h2h} homeName={homeTeam.name} awayName={awayTeam.name} />
+            </section>
+          )}
+
+          {/* 4. Synthèse rapide */}
           {summary.length > 0 && (
             <section className="modal-section">
               <h2 className="modal-section-title">📌 À retenir</h2>

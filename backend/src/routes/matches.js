@@ -1,7 +1,7 @@
 import { Router }    from 'express';
 import NodeCache      from 'node-cache';
 
-import { getTodayFixtures }        from '../services/footballApi.js';
+import { getTodayFixtures, getHeadToHead } from '../services/footballApi.js';
 import { getOdds }                 from '../services/oddsApi.js';
 import { mergeData }               from '../services/merger.js';
 import { getTeamStatsMap, randomBookmaker } from '../services/standingsApi.js';
@@ -20,7 +20,8 @@ import {
 const router = Router();
 // 10 min avec vraie API, 90s avec mock
 const CACHE_TTL = process.env.API_FOOTBALL_KEY ? 600 : 90;
-const cache = new NodeCache({ stdTTL: CACHE_TTL });
+const cache    = new NodeCache({ stdTTL: CACHE_TTL });
+const h2hCache = new NodeCache({ stdTTL: 86400 }); // H2H : 24h
 
 const DEFAULT_STATS = { form: 'WDWLW', position: 12, wins: 10, draws: 8, losses: 10 };
 
@@ -66,7 +67,7 @@ function generateSyntheticOdds(homeStats, awayStats) {
 }
 
 // ── Enrichit un fixture avec stats + cotes + analyse IA ─────────────────────────
-function buildMatch(fixture, teamStats, realOddsMap) {
+function buildMatch(fixture, teamStats, realOddsMap, h2h = null) {
   const homeId    = String(fixture.teams.home.id);
   const awayId    = String(fixture.teams.away.id);
   const homeStats = teamStats[homeId] ?? DEFAULT_STATS;
@@ -99,7 +100,7 @@ function buildMatch(fixture, teamStats, realOddsMap) {
     fixture.teams.home.name, fixture.teams.away.name,
     homeStats, awayStats, aiProbs, bookmakerProbs,
     { home: homeOdd, draw: drawOdd, away: awayOdd },
-    players
+    players, h2h
   );
   const bets           = detectValueBets(aiProbs, bookmakerProbs, homeOdd, drawOdd, awayOdd, tieredBets.stats);
   const analysis       = generateAnalysis(
@@ -109,7 +110,8 @@ function buildMatch(fixture, teamStats, realOddsMap) {
     awayStats,
     bets,
     tieredBets,
-    players
+    players,
+    h2h
   );
 
   return {
@@ -141,6 +143,7 @@ function buildMatch(fixture, teamStats, realOddsMap) {
     bets,
     tieredBets,
     analysis,
+    h2h,
     rawPredictions,
     hasValueBet: bets.some(b => b.isValue),
   };
@@ -179,7 +182,19 @@ router.get('/', async (req, res) => {
       }
     }
 
-    const matches = fixtures.map(f => buildMatch(f, teamStats, realOddsMap));
+    // H2H : un appel par match, cache 24h
+    const h2hResults = await Promise.all(
+      fixtures.map(async f => {
+        const key = `h2h_${f.teams.home.id}_${f.teams.away.id}`;
+        const hit = h2hCache.get(key);
+        if (hit !== undefined) return hit;
+        const data = await getHeadToHead(f.teams.home.id, f.teams.away.id);
+        h2hCache.set(key, data);
+        return data;
+      })
+    );
+
+    const matches = fixtures.map((f, i) => buildMatch(f, teamStats, realOddsMap, h2hResults[i]));
     cache.set('matches', matches);
 
     return res.json({ data: matches, cached: false, count: matches.length });
