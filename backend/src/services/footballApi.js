@@ -138,13 +138,20 @@ export async function getInjuries(fixtureId) {
   if (!API_KEY) return [];
   try {
     const res = await client.get('/injuries', { params: { fixture: fixtureId } });
-    return (res.data?.response ?? []).map(item => ({
-      name:   item.player.name,
-      teamId: item.team.id,
-      team:   item.team.name,
-      type:   item.type === 'Yellow Cards' ? 'suspended' : 'injury',
-      reason: item.reason ?? item.type ?? 'Blessure',
-    }));
+    const seen = new Set();
+    return (res.data?.response ?? []).reduce((acc, item) => {
+      const key = `${item.player.id}_${item.team.id}`;
+      if (seen.has(key)) return acc;
+      seen.add(key);
+      acc.push({
+        name:   item.player.name,
+        teamId: item.team.id,
+        team:   item.team.name,
+        type:   item.type === 'Yellow Cards' ? 'suspended' : 'injury',
+        reason: item.reason ?? item.type ?? 'Blessure',
+      });
+      return acc;
+    }, []);
   } catch {
     return [];
   }
