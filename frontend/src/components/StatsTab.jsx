@@ -1,17 +1,14 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import './StatsTab.css';
 
-// ── Constants ─────────────────────────────────────────────────────────────────
 const HISTORY_KEY = 'betwise_history_v3';
-const MISE_BASE   = 10; // unités de base pour le calcul des gains
+const MISE_BASE   = 10;
 
-// ── Date helpers ──────────────────────────────────────────────────────────────
 function todayParis() {
   return new Date().toLocaleDateString('fr-CA', { timeZone: 'Europe/Paris' });
 }
 function picksKey(date) { return `betwise_picks_${date}`; }
 
-// ── localStorage ──────────────────────────────────────────────────────────────
 function loadDayPicks(date) {
   try { return JSON.parse(localStorage.getItem(picksKey(date)) || 'null'); }
   catch { return null; }
@@ -27,13 +24,11 @@ function saveHistory(h) {
   localStorage.setItem(HISTORY_KEY, JSON.stringify(h.slice(-90)));
 }
 
-// ── Evaluation du résultat d'un pari selon le score final ────────────────────
 function evaluateBet(betType, score, teamSide) {
   if (!score || score.home === null || score.away === null) return null;
   const { home, away } = score;
   const total = home + away;
 
-  // Ordre important : BTTS + Over 2.5 avant BTTS seul
   if (betType.startsWith('BTTS + Over 2.5'))  return home > 0 && away > 0 && total > 2;
   if (betType.startsWith('Over 1.5'))          return total > 1;
   if (betType.startsWith('Over 2.5'))          return total > 2;
@@ -55,7 +50,6 @@ function evaluateBet(betType, score, teamSide) {
   return null;
 }
 
-// ── Calcul du meilleur pick par niveau depuis les matchs du jour ──────────────
 function computeBestPicks(matches) {
   const today = todayParis();
   const todayMatches = matches.filter(m => m.date?.split('T')[0] === today);
@@ -68,7 +62,6 @@ function computeBestPicks(matches) {
         (b.tieredBets[key].pickScore ?? b.tieredBets[key].prob ?? 0) -
         (a.tieredBets[key].pickScore ?? a.tieredBets[key].prob ?? 0)
       );
-    // Fallback: aussi sur matchs FT si aucun NS/live
     const pool = candidates.length ? candidates
       : todayMatches.filter(m => m.tieredBets?.[key]);
     if (!pool.length) return null;
@@ -89,7 +82,7 @@ function computeBestPicks(matches) {
       odd:      +(bet.odd ?? 2).toFixed(2),
       prob:     +(bet.prob ?? 0).toFixed(3),
       teamSide,
-      result:   null, // will be evaluated later when FT
+      result:   null,
     };
   };
 
@@ -100,22 +93,19 @@ function computeBestPicks(matches) {
   };
 }
 
-// ── Met à jour le résultat d'un pick depuis l'état actuel du match ────────────
 function refreshPickResult(pick, matches) {
-  if (!pick || pick.result !== null) return pick; // déjà évalué
+  if (!pick || pick.result !== null) return pick;
   const match = matches.find(m => m.id === pick.matchId);
   if (!match || match.status !== 'FT') return pick;
   const result = evaluateBet(pick.betType, match.score, pick.teamSide);
   return result !== null ? { ...pick, result, score: match.score } : pick;
 }
 
-// ── Enregistre un jour dans l'historique ──────────────────────────────────────
 function persistDayToHistory(date, picks) {
   const safe     = picks.safe;
   const moderate = picks.moderate;
   const risky    = picks.risky;
 
-  // On n'enregistre que si au moins un résultat est connu
   const hasResult = [safe, moderate, risky].some(p => p?.result !== null);
   if (!hasResult) return;
 
@@ -137,18 +127,15 @@ function persistDayToHistory(date, picks) {
   return h;
 }
 
-// ── Calcul du gain en unités ───────────────────────────────────────────────────
 function gain(odd, result) {
   if (result === null) return null;
   return result ? +(MISE_BASE * (odd - 1)).toFixed(1) : -MISE_BASE;
 }
 
-// ── Composants UI ─────────────────────────────────────────────────────────────
-
 function ResultBadge({ result }) {
-  if (result === true)  return <span className="st-result st-result--win">✓ Gagné</span>;
-  if (result === false) return <span className="st-result st-result--loss">✗ Perdu</span>;
-  return <span className="st-result st-result--pending">⏳ En cours</span>;
+  if (result === true)  return <span className="st-result st-result--win">Gagné</span>;
+  if (result === false) return <span className="st-result st-result--loss">Perdu</span>;
+  return <span className="st-result st-result--pending">En cours</span>;
 }
 
 function GainChip({ odd, result }) {
@@ -159,9 +146,9 @@ function GainChip({ odd, result }) {
 }
 
 const LEVEL_META = {
-  safe:     { label: 'SAFE',   icon: '🛡️', cls: 'safe' },
-  moderate: { label: 'MODÉRÉ', icon: '⚖️', cls: 'moderate' },
-  risky:    { label: 'RISQUÉ', icon: '🔥', cls: 'risky' },
+  safe:     { label: 'SAFE',   cls: 'safe' },
+  moderate: { label: 'MODÉRÉ', cls: 'moderate' },
+  risky:    { label: 'RISQUÉ', cls: 'risky' },
 };
 
 function PickCard({ pick, onAnalyse, match }) {
@@ -176,7 +163,7 @@ function PickCard({ pick, onAnalyse, match }) {
   return (
     <div className={`st-pick-card st-pick-card--${meta.cls}`}>
       <div className="st-pick-header">
-        <span className={`st-pick-badge st-pick-badge--${meta.cls}`}>{meta.icon} {meta.label}</span>
+        <span className={`st-pick-badge st-pick-badge--${meta.cls}`}>{meta.label}</span>
         <ResultBadge result={pick.result} />
       </div>
       <div className="st-pick-match">{pick.home} <span className="st-pick-vs">vs</span> {pick.away}</div>
@@ -207,7 +194,6 @@ function RateBar({ won, total, cls }) {
   );
 }
 
-// ── Main ──────────────────────────────────────────────────────────────────────
 const MARKET_LABELS = {
   homeWin: 'Victoire domicile', draw: 'Match nul', awayWin: 'Victoire extérieur',
   over15: 'Over 1.5', over25: 'Over 2.5', over35: 'Over 3.5',
@@ -220,7 +206,7 @@ function CalibrationSection({ stats }) {
 
   return (
     <section className="st-section">
-      <h2 className="st-section-title">🧠 Apprentissage du modèle IA</h2>
+      <h2 className="st-section-title">Apprentissage du modèle IA</h2>
       <div className="st-cal-summary">
         <div className="st-cal-stat">
           <span className="st-cal-num">{totalOutcomes}</span>
@@ -252,12 +238,12 @@ function CalibrationSection({ stats }) {
         <>
           {bestMarket && (
             <div className="st-cal-highlight st-cal-highlight--best">
-              ✅ Meilleur marché : <strong>{MARKET_LABELS[bestMarket.market]}</strong> — {Math.round(bestMarket.accuracy * 100)}% de précision ({bestMarket.n} paris)
+              Meilleur marché : <strong>{MARKET_LABELS[bestMarket.market]}</strong> — {Math.round(bestMarket.accuracy * 100)}% de précision ({bestMarket.n} paris)
             </div>
           )}
           {worstMarket && worstMarket.market !== bestMarket?.market && (
             <div className="st-cal-highlight st-cal-highlight--worst">
-              ⚠️ À améliorer : <strong>{MARKET_LABELS[worstMarket.market]}</strong> — {Math.round(worstMarket.accuracy * 100)}% de précision
+              À améliorer : <strong>{MARKET_LABELS[worstMarket.market]}</strong> — {Math.round(worstMarket.accuracy * 100)}% de précision
             </div>
           )}
           <div className="st-cal-grid">
@@ -280,11 +266,9 @@ function CalibrationSection({ stats }) {
 export default function StatsTab({ matches, onAnalyse, learningStats }) {
   const date = todayParis();
 
-  // État des picks du jour (persisté dans localStorage)
   const [picks, setPicks] = useState(() => loadDayPicks(date));
   const [history, setHistory] = useState(loadHistory);
 
-  // 1. Initialise les picks du jour si pas encore faits
   useEffect(() => {
     if (!matches.length) return;
     const saved = loadDayPicks(date);
@@ -295,9 +279,8 @@ export default function StatsTab({ matches, onAnalyse, learningStats }) {
     } else {
       setPicks(saved);
     }
-  }, [matches.length]);  // seulement quand les matchs arrivent
+  }, [matches.length]);
 
-  // 2. Met à jour les résultats quand des matchs passent en FT
   useEffect(() => {
     if (!picks || !matches.length) return;
     let changed = false;
@@ -317,7 +300,6 @@ export default function StatsTab({ matches, onAnalyse, learningStats }) {
     }
   }, [matches, picks]);
 
-  // Stats globales depuis l'historique
   const stats = useMemo(() => {
     const acc = {
       safe:     { won: 0, total: 0, gainTotal: 0 },
@@ -360,7 +342,6 @@ export default function StatsTab({ matches, onAnalyse, learningStats }) {
   return (
     <div className="stats-tab">
 
-      {/* ── TOP 3 DU JOUR ──────────────────────────────────── */}
       <section className="st-section">
         <div className="st-section-header">
           <h2 className="st-section-title">Top 3 picks du jour</h2>
@@ -377,7 +358,7 @@ export default function StatsTab({ matches, onAnalyse, learningStats }) {
         {comboOdd && (
           <div className="st-combo-banner">
             <div className="st-combo-left">
-              <span className="st-combo-label">🎯 Combiné du jour</span>
+              <span className="st-combo-label">Combiné du jour</span>
               <span className="st-combo-note">{validPicks.length} sélections · mise recommandée 5% de bankroll</span>
             </div>
             <div className="st-combo-right">
@@ -388,11 +369,9 @@ export default function StatsTab({ matches, onAnalyse, learningStats }) {
         )}
       </section>
 
-      {/* ── BILAN DU JOUR ──────────────────────────────────── */}
       <section className="st-section">
         <h2 className="st-section-title">Bilan d'aujourd'hui</h2>
 
-        {/* Simples */}
         <div className="st-bilan-subtitle">En simples (mise {MISE_BASE}u chacun)</div>
         <div className="st-bilan-table">
           <div className="st-bilan-thead">
@@ -403,7 +382,7 @@ export default function StatsTab({ matches, onAnalyse, learningStats }) {
             const meta = LEVEL_META[lv];
             return (
               <div key={lv} className={`st-bilan-row st-bilan-row--${meta.cls}`}>
-                <span className="st-bilan-level">{meta.icon} {meta.label}</span>
+                <span className="st-bilan-level">{meta.label}</span>
                 <span className="st-bilan-bet">{p ? p.betType : '—'}</span>
                 <span className="st-bilan-odd">{p ? `@ ${p.odd?.toFixed(2)}` : '—'}</span>
                 <span><ResultBadge result={p?.result ?? null} /></span>
@@ -413,7 +392,6 @@ export default function StatsTab({ matches, onAnalyse, learningStats }) {
           })}
         </div>
 
-        {/* Combiné */}
         {comboOdd && (
           <>
             <div className="st-bilan-subtitle" style={{marginTop: 14}}>En combiné (mise {MISE_BASE}u)</div>
@@ -427,15 +405,14 @@ export default function StatsTab({ matches, onAnalyse, learningStats }) {
         )}
       </section>
 
-      {/* ── TAUX DE RÉUSSITE GLOBAL ─────────────────────────── */}
       <section className="st-section">
         <h2 className="st-section-title">Taux de réussite global</h2>
         <div className="st-rates">
           {[
-            { key: 'safe',     label: '🛡️ Paris SAFE',         cls: 'safe' },
-            { key: 'moderate', label: '⚖️ Paris MODÉRÉS',       cls: 'moderate' },
-            { key: 'risky',    label: '🔥 Paris RISQUÉS',       cls: 'risky' },
-            { key: 'combo',    label: '🎯 Combinés 3-picks',    cls: 'combo' },
+            { key: 'safe',     label: 'Paris SAFE',         cls: 'safe' },
+            { key: 'moderate', label: 'Paris MODÉRÉS',       cls: 'moderate' },
+            { key: 'risky',    label: 'Paris RISQUÉS',       cls: 'risky' },
+            { key: 'combo',    label: 'Combinés 3-picks',    cls: 'combo' },
           ].map(({ key, label, cls }) => {
             const s = stats[key];
             return (
@@ -453,25 +430,23 @@ export default function StatsTab({ matches, onAnalyse, learningStats }) {
         </div>
       </section>
 
-      {/* ── APPRENTISSAGE IA ───────────────────────────────── */}
       <CalibrationSection stats={learningStats} />
 
-      {/* ── HISTORIQUE ─────────────────────────────────────── */}
       <section className="st-section">
         <h2 className="st-section-title">Historique des 10 derniers jours</h2>
         {recent.length === 0 ? (
           <div className="st-empty-history">
-            <p>📊 L'historique se remplit automatiquement chaque jour.</p>
+            <p>L'historique se remplit automatiquement chaque jour.</p>
             <p>Les résultats sont enregistrés dès qu'un match se termine (statut FT).</p>
           </div>
         ) : (
           <div className="st-history">
             <div className="st-history-head">
               <span>Date</span>
-              <span>🛡️ Safe</span>
-              <span>⚖️ Modéré</span>
-              <span>🔥 Risqué</span>
-              <span>🎯 Combo</span>
+              <span>Safe</span>
+              <span>Modéré</span>
+              <span>Risqué</span>
+              <span>Combo</span>
             </div>
             {recent.map(d => {
               const comboOddH = [d.safe, d.moderate, d.risky]

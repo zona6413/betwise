@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import './Header.css';
 
-/** Barre de navigation supérieure avec logo, filtres de ligue et bouton refresh. */
 export default function Header({ lastUpdated, fromCache, onRefresh, loading, activeLeague, onLeagueChange, leagues }) {
   const [spinning, setSpinning] = useState(false);
 
@@ -19,7 +18,6 @@ export default function Header({ lastUpdated, fromCache, onRefresh, loading, act
   return (
     <header className="header">
       <div className="header-inner">
-        {/* Logo */}
         <div className="header-logo">
           <div className="logo-icon-wrap">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -37,7 +35,6 @@ export default function Header({ lastUpdated, fromCache, onRefresh, loading, act
           <span className="logo-tag">BETA</span>
         </div>
 
-        {/* Filtres de ligue */}
         <nav className="header-nav" role="navigation" aria-label="Filtres ligue">
           <button
             className={`nav-pill ${activeLeague === 'all' ? 'active' : ''}`}
@@ -56,11 +53,11 @@ export default function Header({ lastUpdated, fromCache, onRefresh, loading, act
           ))}
         </nav>
 
-        {/* Status + refresh */}
         <div className="header-actions">
           {timeStr && (
             <span className="header-time" title={fromCache ? 'Données en cache' : 'Données fraîches'}>
-              {fromCache ? '🗄️' : '🔴'} {timeStr}
+              <span className={`header-status-dot ${fromCache ? 'header-status-dot--cache' : 'header-status-dot--live'}`} />
+              {timeStr}
             </span>
           )}
           <button

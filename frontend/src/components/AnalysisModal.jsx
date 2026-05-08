@@ -30,19 +30,17 @@ function TeamBlock({ team, side }) {
   );
 }
 
-// ── Couleur tendance ──────────────────────────────────────────────────────────
 function trendColor(prob) {
   if (prob >= 0.65) return 'green';
   if (prob >= 0.48) return 'yellow';
   return 'red';
 }
 function trendLabel(prob) {
-  if (prob >= 0.65) return '🟢 Forte tendance';
-  if (prob >= 0.48) return '🟡 Modérée';
-  return '🔴 Risquée';
+  if (prob >= 0.65) return 'Forte tendance';
+  if (prob >= 0.48) return 'Modérée';
+  return 'Risquée';
 }
 
-// ── Lecture du match ──────────────────────────────────────────────────────────
 function buildLecture(match) {
   const { homeTeam, awayTeam, tieredBets, aiProbs, h2h } = match;
   const stats = tieredBets?.stats;
@@ -51,7 +49,6 @@ function buildLecture(match) {
   const totalExpG = stats.homeExpG + stats.awayExpG;
   const h2hAvg    = h2h?.avgGoals ?? 0;
 
-  // Match ouvert si xG élevé OU H2H prolifique OU btts probable
   const isOpen = totalExpG > 2.2 || h2hAvg >= 2.5 || stats.bttsProb > 0.48 || stats.over25 > 0.42;
   const dynamic = isOpen ? 'Match ouvert' : 'Match fermé';
 
@@ -63,7 +60,6 @@ function buildLecture(match) {
   else if (homeAdv < -0.08) dominant = `Léger avantage pour ${awayTeam.name}`;
   else                      dominant = 'Match très équilibré';
 
-  // Contexte : H2H en priorité, puis forme
   let context;
   const hWins = (homeTeam.form ?? '').toUpperCase().split('').slice(-5).filter(c => c === 'W').length;
   const aWins = (awayTeam.form ?? '').toUpperCase().split('').slice(-5).filter(c => c === 'W').length;
@@ -95,7 +91,6 @@ function buildLecture(match) {
   return { dynamic, isOpen, dominant, context, totalExpG };
 }
 
-// ── Synthèse rapide ───────────────────────────────────────────────────────────
 function buildSummary(match) {
   const { homeTeam, awayTeam, tieredBets, aiProbs, h2h } = match;
   const stats = tieredBets?.stats;
@@ -105,7 +100,6 @@ function buildSummary(match) {
   const totalExpG = stats.homeExpG + stats.awayExpG;
   const h2hAvg    = h2h?.avgGoals ?? 0;
 
-  // 1. Caractère du match — H2H en priorité
   if (h2hAvg >= 3.0)
     bullets.push(`Choc historiquement explosif — ${h2hAvg} buts/match en H2H (${h2h.total} matchs)`);
   else if (h2hAvg >= 2.5)
@@ -117,7 +111,6 @@ function buildSummary(match) {
   else
     bullets.push('Match équilibré — résultat difficile à anticiper');
 
-  // 2. Favori
   if (aiProbs.home > 0.52)
     bullets.push(`${homeTeam.name} favoris à domicile (${Math.round(aiProbs.home * 100)}% IA)`);
   else if (aiProbs.away > 0.44)
@@ -125,7 +118,6 @@ function buildSummary(match) {
   else
     bullets.push(`Nul envisageable — ${Math.round(aiProbs.draw * 100)}% de probabilité selon l'IA`);
 
-  // 3. Marché buts
   if (stats.bttsProb > 0.55 || h2hAvg >= 2.8)
     bullets.push('BTTS (les deux équipes marquent) très probable');
   else if (stats.over25 > 0.55)
@@ -135,7 +127,6 @@ function buildSummary(match) {
   else if (stats.bttsProb < 0.32 && h2hAvg < 2.0)
     bullets.push('Clean sheet possible — défenses dominantes');
 
-  // 4. H2H dominance
   if (h2h && h2h.total >= 3) {
     if (h2h.homeWins >= h2h.total * 0.65)
       bullets.push(`${homeTeam.name} domine le H2H (${h2h.homeWins}/${h2h.total} victoires)`);
@@ -146,7 +137,6 @@ function buildSummary(match) {
   return bullets.slice(0, 4);
 }
 
-// ── Tendances marchés ─────────────────────────────────────────────────────────
 function buildTendances(match) {
   const { homeTeam, awayTeam, tieredBets, aiProbs, h2h } = match;
   const stats = tieredBets?.stats;
@@ -189,7 +179,6 @@ function buildTendances(match) {
   ].filter(t => t.prob > 0.15);
 }
 
-// ── Joueurs clés ──────────────────────────────────────────────────────────────
 function PlayerBlock({ team, players, side }) {
   if (!players) return (
     <div className={`modal-player-block modal-player-block--${side}`}>
@@ -202,44 +191,42 @@ function PlayerBlock({ team, players, side }) {
       <div className="modal-player-team">{team.name}</div>
       {players.topScorer && (
         <div className="modal-player-row modal-player-row--scorer">
-          <span className="modal-player-role">⚽ Buteur</span>
+          <span className="modal-player-role">Buteur</span>
           <span className="modal-player-name">{players.topScorer.name}</span>
           <span className="modal-player-stat">{players.topScorer.goals} buts</span>
         </div>
       )}
       {players.keyPlayer && (
         <div className="modal-player-row">
-          <span className="modal-player-role">🎯 Clé</span>
+          <span className="modal-player-role">Clé</span>
           <span className="modal-player-name">{players.keyPlayer.name}</span>
           <span className="modal-player-note">{players.keyPlayer.role}</span>
         </div>
       )}
       {players.dangerMan && (
         <div className="modal-player-row modal-player-row--danger">
-          <span className="modal-player-role">⚡ Danger</span>
+          <span className="modal-player-role">Danger</span>
           <span className="modal-player-name">{players.dangerMan.name}</span>
           <span className="modal-player-note">{players.dangerMan.note}</span>
         </div>
       )}
       {players.style && (
-        <div className="modal-player-style">📋 {players.style}</div>
+        <div className="modal-player-style">{players.style}</div>
       )}
     </div>
   );
 }
 
-// ── Buteurs probables ─────────────────────────────────────────────────────────
 const POS_LABELS = { BU: 'Avant-centre', AT: 'Attaquant', AG: 'Ailier G', AD: 'Ailier D', MO: 'Milieu off.' };
 const POS_COLORS = { BU: 'striker', AT: 'attacker', AG: 'winger', AD: 'winger', MO: 'midfield' };
 
 function ScorerBetsSection({ scorerBets }) {
-  // Séparer domicile / extérieur et trier par probabilité décroissante
   const home = scorerBets.filter((_, i) => i < scorerBets.length / 2).sort((a, b) => b.prob - a.prob);
   const away = scorerBets.filter((_, i) => i >= scorerBets.length / 2).sort((a, b) => b.prob - a.prob);
 
   return (
     <div className="modal-scorers">
-      <div className="modal-scorers-title">⚽ Buteurs probables</div>
+      <div className="modal-scorers-title">Buteurs probables</div>
       <div className="modal-scorers-grid">
         {[home, away].map((group, gi) => (
           <div key={gi} className="modal-scorers-col">
@@ -276,7 +263,6 @@ function ScorerBetsSection({ scorerBets }) {
   );
 }
 
-// ── Face-à-face ───────────────────────────────────────────────────────────────
 function H2HSection({ h2h, homeName, awayName }) {
   if (!h2h || h2h.total < 2) return null;
   const { homeWins, awayWins, draws, total, avgGoals, recent } = h2h;
@@ -286,8 +272,7 @@ function H2HSection({ h2h, homeName, awayName }) {
 
   return (
     <div className="modal-h2h">
-      <div className="modal-h2h-title">🔁 Face-à-face — {total} dernières rencontres</div>
-      {/* Barre de répartition */}
+      <div className="modal-h2h-title">Face-à-face — {total} dernières rencontres</div>
       <div className="modal-h2h-bar">
         <div className="modal-h2h-bar-home" style={{ width: `${homeW}%` }}>{homeW > 10 ? `${homeWins}V` : ''}</div>
         <div className="modal-h2h-bar-draw" style={{ width: `${drawW}%` }}>{drawW > 8 ? `${draws}N` : ''}</div>
@@ -298,7 +283,6 @@ function H2HSection({ h2h, homeName, awayName }) {
         <span className="modal-h2h-avg">{avgGoals} buts/match en moy.</span>
         <span>{awayName}</span>
       </div>
-      {/* Derniers matchs */}
       {recent?.length > 0 && (
         <div className="modal-h2h-recent">
           {recent.slice(0, 5).map((m, i) => (
@@ -315,13 +299,12 @@ function H2HSection({ h2h, homeName, awayName }) {
   );
 }
 
-// ── Composant BetCard ─────────────────────────────────────────────────────────
 function BetCard({ bet, which, highlighted = false }) {
   if (!bet) return null;
   const configs = {
-    SAFE:  { color: 'safe',   icon: '🛡️', label: 'Prudent',   desc: 'Probabilité élevée, risque faible' },
-    MOYEN: { color: 'medium', icon: '⚖️', label: 'Équilibré', desc: 'Bon rapport risque / rendement' },
-    VALUE: { color: 'value',  icon: '💎', label: 'Audacieux', desc: 'Cote attractive, prise de risque' },
+    SAFE:  { color: 'safe',   label: 'Prudent',   desc: 'Probabilité élevée, risque faible' },
+    MOYEN: { color: 'medium', label: 'Équilibré', desc: 'Bon rapport risque / rendement' },
+    VALUE: { color: 'value',  label: 'Audacieux', desc: 'Cote attractive, prise de risque' },
   };
   const c    = configs[which];
   const prob = Math.round((bet.prob ?? 0) * 100);
@@ -330,7 +313,6 @@ function BetCard({ bet, which, highlighted = false }) {
     <div className={`modal-bet modal-bet--${c.color}${highlighted ? ' modal-bet--highlighted' : ''}`}>
       <div className="modal-bet-top">
         <div className="modal-bet-meta">
-          <span className="modal-bet-icon">{c.icon}</span>
           <div>
             <div className="modal-bet-level">{c.label}</div>
             <div className="modal-bet-desc">{c.desc}</div>
@@ -354,7 +336,6 @@ function BetCard({ bet, which, highlighted = false }) {
   );
 }
 
-// ── Modal principal ───────────────────────────────────────────────────────────
 export default function AnalysisModal({ match, onClose, riskProfile = 'medium' }) {
   useEffect(() => {
     const fn = e => { if (e.key === 'Escape') onClose(); };
@@ -382,10 +363,9 @@ export default function AnalysisModal({ match, onClose, riskProfile = 'medium' }
       <div className="modal-window" onClick={e => e.stopPropagation()}>
         <button className="modal-close" onClick={onClose}>✕</button>
 
-        {/* ── Header ── */}
         <div className="modal-header">
           <div className="modal-header-league">
-            {flagFor(leagueCountry)} {normalizeLeague(league)}
+            {normalizeLeague(league)}
           </div>
           <div className="modal-header-teams">
             <TeamBlock team={homeTeam} side="home" />
@@ -413,13 +393,11 @@ export default function AnalysisModal({ match, onClose, riskProfile = 'medium' }
           </div>
         </div>
 
-        {/* ── Body ── */}
         <div className="modal-body">
 
-          {/* 1. Lecture du match */}
           {lecture && (
             <section className="modal-section">
-              <h2 className="modal-section-title">🔍 Lecture du match</h2>
+              <h2 className="modal-section-title">Lecture du match</h2>
               <div className="modal-lecture">
                 <div className="modal-lecture-pills">
                   <span className={`lecture-pill lecture-pill--${lecture.isOpen ? 'open' : 'closed'}`}>
@@ -432,10 +410,9 @@ export default function AnalysisModal({ match, onClose, riskProfile = 'medium' }
             </section>
           )}
 
-          {/* 2. Joueurs clés */}
           {(tieredBets?.stats?.homePlayers || tieredBets?.stats?.awayPlayers) && (
             <section className="modal-section">
-              <h2 className="modal-section-title">👤 Joueurs clés</h2>
+              <h2 className="modal-section-title">Joueurs clés</h2>
               <div className="modal-players">
                 <PlayerBlock team={homeTeam} players={tieredBets.stats.homePlayers} side="home" />
                 <PlayerBlock team={awayTeam} players={tieredBets.stats.awayPlayers} side="away" />
@@ -446,10 +423,9 @@ export default function AnalysisModal({ match, onClose, riskProfile = 'medium' }
             </section>
           )}
 
-          {/* 3. Blessures & suspensions */}
           {injuries?.length > 0 && (
             <section className="modal-section">
-              <h2 className="modal-section-title">🏥 Absents du match</h2>
+              <h2 className="modal-section-title">Absents du match</h2>
               <div className="modal-injuries">
                 {[homeTeam, awayTeam].map(team => {
                   const teamInj = injuries.filter(i =>
@@ -461,7 +437,7 @@ export default function AnalysisModal({ match, onClose, riskProfile = 'medium' }
                       <div className="modal-injury-team">{team.name}</div>
                       {teamInj.map((inj, i) => (
                         <div key={i} className={`modal-injury-row modal-injury-row--${inj.type}`}>
-                          <span className="modal-injury-badge">{inj.type === 'suspended' ? '🟥 Suspendu' : '🤕 Blessé'}</span>
+                          <span className="modal-injury-badge">{inj.type === 'suspended' ? 'Suspendu' : 'Blessé'}</span>
                           <span className="modal-injury-name">{inj.name}</span>
                           <span className="modal-injury-reason">{inj.reason}</span>
                         </div>
@@ -473,18 +449,16 @@ export default function AnalysisModal({ match, onClose, riskProfile = 'medium' }
             </section>
           )}
 
-          {/* 4. Face-à-face */}
           {h2h && h2h.total >= 2 && (
             <section className="modal-section">
-              <h2 className="modal-section-title">🔁 Historique face-à-face</h2>
+              <h2 className="modal-section-title">Historique face-à-face</h2>
               <H2HSection h2h={h2h} homeName={homeTeam.name} awayName={awayTeam.name} />
             </section>
           )}
 
-          {/* 5. Synthèse rapide */}
           {summary.length > 0 && (
             <section className="modal-section">
-              <h2 className="modal-section-title">📌 À retenir</h2>
+              <h2 className="modal-section-title">À retenir</h2>
               <div className="modal-summary">
                 {summary.map((b, i) => (
                   <div key={i} className="modal-summary-item">
@@ -496,10 +470,9 @@ export default function AnalysisModal({ match, onClose, riskProfile = 'medium' }
             </section>
           )}
 
-          {/* 3. Tendances marchés */}
           {tendances.length > 0 && (
             <section className="modal-section">
-              <h2 className="modal-section-title">🎯 Tendances</h2>
+              <h2 className="modal-section-title">Tendances</h2>
               <div className="modal-tendances">
                 {tendances.map((t, i) => (
                   <div key={i} className={`modal-tendance modal-tendance--${trendColor(t.prob)}`}>
@@ -510,7 +483,7 @@ export default function AnalysisModal({ match, onClose, riskProfile = 'medium' }
                         <span className="modal-tendance-pct">{Math.round(t.prob * 100)}%</span>
                       </div>
                     </div>
-                    <p className="modal-tendance-why">💡 {t.why}</p>
+                    <p className="modal-tendance-why">{t.why}</p>
                     <div className="modal-tendance-bar-track">
                       <div className="modal-tendance-bar-fill" style={{ width: `${Math.round(t.prob * 100)}%` }} />
                     </div>
@@ -520,10 +493,9 @@ export default function AnalysisModal({ match, onClose, riskProfile = 'medium' }
             </section>
           )}
 
-          {/* 4. Marchés chiffrés */}
           {tieredBets?.stats && (
             <section className="modal-section">
-              <h2 className="modal-section-title">📊 Interprétation des marchés</h2>
+              <h2 className="modal-section-title">Interprétation des marchés</h2>
               <div className="modal-markets">
                 <MarketRow label="Victoire domicile" value={aiProbs?.home} color="blue" />
                 <MarketRow label="Match nul"          value={aiProbs?.draw} color="grey" />
@@ -554,10 +526,9 @@ export default function AnalysisModal({ match, onClose, riskProfile = 'medium' }
             </section>
           )}
 
-          {/* 5. Recommandations */}
           {tieredBets && (
             <section className="modal-section">
-              <h2 className="modal-section-title">✅ Recommandations</h2>
+              <h2 className="modal-section-title">Recommandations</h2>
               <div className="modal-bets">
                 <BetCard bet={tieredBets.safe}   which="SAFE"  highlighted={riskProfile === 'safe'} />
                 <BetCard bet={tieredBets.medium} which="MOYEN" highlighted={riskProfile === 'medium'} />
@@ -575,7 +546,6 @@ export default function AnalysisModal({ match, onClose, riskProfile = 'medium' }
   );
 }
 
-// ── MarketRow ─────────────────────────────────────────────────────────────────
 function MarketRow({ label, value, color }) {
   if (value == null) return null;
   const pct = Math.round(value * 100);
@@ -590,12 +560,7 @@ function MarketRow({ label, value, color }) {
   );
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
 function normalizeLeague(name) {
   const map = { 'English Premier League':'Premier League','French Ligue 1':'Ligue 1','Spanish La Liga':'La Liga','Italian Serie A':'Serie A','German Bundesliga':'Bundesliga' };
   return map[name] ?? name;
-}
-function flagFor(country) {
-  const f = { France:'🇫🇷', England:'🏴󠁧󠁢󠁥󠁮󠁧󠁿', Spain:'🇪🇸', Germany:'🇩🇪', Italy:'🇮🇹' };
-  return f[country] ?? '🌍';
 }

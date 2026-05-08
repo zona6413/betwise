@@ -13,12 +13,12 @@ import './App.css';
 
 const TABS = [
   { id: 'all',      label: 'Tous' },
-  { id: 'live',     label: '🔴 En direct' },
-  { id: 'value',    label: '💰 Value bets' },
+  { id: 'live',     label: 'En direct' },
+  { id: 'value',    label: 'Value bets' },
   { id: 'today',    label: "Aujourd'hui" },
   { id: 'tomorrow', label: 'Demain' },
-  { id: 'ucl',      label: '⭐ Champions League' },
-  { id: 'taux',     label: '📊 Taux' },
+  { id: 'ucl',      label: 'Champions League' },
+  { id: 'taux',     label: 'Taux' },
 ];
 
 const LIVE_STATUSES = ['1H','HT','2H','ET','P'];
@@ -45,9 +45,9 @@ function normalizeLeague(name) {
 }
 
 const RISK_PROFILES = [
-  { id: 'safe',    label: '🛡️ Prudent',   desc: 'Paris sûrs uniquement' },
-  { id: 'medium',  label: '⚖️ Standard',  desc: 'Équilibre risque / gain' },
-  { id: 'value',   label: '💎 Audacieux', desc: 'Maximiser les gains' },
+  { id: 'safe',    label: 'Prudent',   desc: 'Paris sûrs uniquement' },
+  { id: 'medium',  label: 'Standard',  desc: 'Équilibre risque / gain' },
+  { id: 'value',   label: 'Audacieux', desc: 'Maximiser les gains' },
 ];
 
 export default function App() {
@@ -144,7 +144,6 @@ export default function App() {
 
       <main className="main">
         <div className="site-tagline">
-          <span className="site-tagline-icon">⚡</span>
           Comprends les matchs en 10 secondes
         </div>
         <div className="container">
@@ -167,14 +166,14 @@ export default function App() {
             </div>
             <div className="stats-bar-sep" />
             <div className="stats-bar-item stats-bar-item--perf">
-              <span className="stats-perf-badge">📈 68%</span>
+              <span className="stats-perf-badge">68%</span>
               <span className="stats-lbl">Réussite 30j</span>
             </div>
             {topValue && (
               <>
                 <div className="stats-bar-sep" />
                 <div className="stats-bar-item stats-bar-item--hot">
-                  <span className="stats-hot-label">⚡ Top signal</span>
+                  <span className="stats-hot-label">Top signal</span>
                   <span className="stats-hot-match">{topValue.homeTeam.name} vs {topValue.awayTeam.name}</span>
                 </div>
               </>
@@ -209,7 +208,7 @@ export default function App() {
             ))}
             <div style={{ marginLeft: 'auto' }}>
               <button className="combo-trigger-btn" onClick={() => setShowCombo(true)}>
-                🎯 Générer un combo
+                Générer un combo
               </button>
             </div>
           </div>
@@ -307,7 +306,7 @@ export default function App() {
 function ErrorBanner({ message, onRetry }) {
   return (
     <div className="error-banner">
-      <span>⚠️ {message}</span>
+      <span>{message}</span>
       <button onClick={onRetry}>Réessayer</button>
     </div>
   );
@@ -322,7 +321,6 @@ function Empty({ tab, onReset }) {
   };
   return (
     <div className="empty-state">
-      <div className="empty-icon">📭</div>
       <p>{msgs[tab] ?? 'Aucun match disponible.'}</p>
       <button className="btn-reset" onClick={onReset}>Voir tous les matchs</button>
     </div>

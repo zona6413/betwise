@@ -10,7 +10,6 @@ export default function ComboModal({ matches, onClose }) {
         <button className="combo-close" onClick={onClose}>✕</button>
 
         <div className="combo-header">
-          <div className="combo-header-icon">🎯</div>
           <div>
             <h2 className="combo-title">Générateur de combos</h2>
             <p className="combo-subtitle">Paris combinés sur les paris les plus sûrs du moment</p>

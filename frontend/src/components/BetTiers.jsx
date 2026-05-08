@@ -1,9 +1,9 @@
 import './BetTiers.css';
 
 const LEVELS = {
-  SAFE:   { icon: '🛡️', color: 'safe',   label: 'SAFE' },
-  MOYEN:  { icon: '⚖️', color: 'medium', label: 'MODÉRÉ' },
-  RISQUE: { icon: '🔥', color: 'risky',  label: 'RISQUÉ' },
+  SAFE:   { color: 'safe',   label: 'SAFE' },
+  MOYEN:  { color: 'medium', label: 'MODÉRÉ' },
+  RISQUE: { color: 'risky',  label: 'RISQUÉ' },
 };
 
 function ConfidenceBar({ confidence }) {
@@ -25,7 +25,6 @@ function BetRow({ bet, which }) {
     <div className={`bet-row bet-row--${lvl.color}`}>
       <div className="bet-row-left">
         <div className="bet-row-header">
-          <span className="bet-level-icon">{lvl.icon}</span>
           <span className={`bet-level-tag bet-level-tag--${lvl.color}`}>{lvl.label}</span>
           <span className="bet-conf-label">{bet.confidence}</span>
         </div>

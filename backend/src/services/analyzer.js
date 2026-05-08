@@ -492,9 +492,9 @@ export function generateAnalysis(homeTeam, awayTeam, homeStats, awayStats, bets,
   // ── Momentum / séries ─────────────────────────────────────────────────────
   const streakLine = (team, s) => {
     if (!s.type || s.count < 2) return null;
-    if (s.type === 'win')  return `🔥 ${team} en série de ${s.count} victoires consécutives — momentum excellent.`;
-    if (s.type === 'loss') return `⚠️ ${team} en méforme : ${s.count} défaites de suite — danger potentiel.`;
-    if (s.type === 'draw') return `〰️ ${team} sur ${s.count} matchs nuls d'affilée — manque de tranchant.`;
+    if (s.type === 'win')  return `${team} en série de ${s.count} victoires consécutives — momentum excellent.`;
+    if (s.type === 'loss') return `${team} en méforme : ${s.count} défaites de suite — danger potentiel.`;
+    if (s.type === 'draw') return `${team} sur ${s.count} matchs nuls d'affilée — manque de tranchant.`;
     return null;
   };
   const hSL = streakLine(homeTeam, hStreak);
@@ -505,21 +505,21 @@ export function generateAnalysis(homeTeam, awayTeam, homeStats, awayStats, bets,
   // ── Forme générale si pas de série notable ────────────────────────────────
   if (!hSL && !aSL) {
     if (hForm > aForm + 0.18)
-      lines.push(`🟢 ${homeTeam} nettement plus en forme (${homeStats?.form ?? 'N/A'} vs ${awayStats?.form ?? 'N/A'}).`);
+      lines.push(`${homeTeam} nettement plus en forme (${homeStats?.form ?? 'N/A'} vs ${awayStats?.form ?? 'N/A'}).`);
     else if (aForm > hForm + 0.18)
-      lines.push(`🟢 ${awayTeam} en meilleure forme récente (${awayStats?.form ?? 'N/A'} vs ${homeStats?.form ?? 'N/A'}).`);
+      lines.push(`${awayTeam} en meilleure forme récente (${awayStats?.form ?? 'N/A'} vs ${homeStats?.form ?? 'N/A'}).`);
     else
-      lines.push(`⚖️ Forme équilibrée : ${homeTeam} ${homeStats?.form ?? 'N/A'} / ${awayTeam} ${awayStats?.form ?? 'N/A'}.`);
+      lines.push(`Forme équilibrée : ${homeTeam} ${homeStats?.form ?? 'N/A'} / ${awayTeam} ${awayStats?.form ?? 'N/A'}.`);
   } else if (hSL && !aSL) {
-    lines.push(`📋 ${awayTeam} : forme récente ${awayStats?.form ?? 'N/A'}.`);
+    lines.push(`${awayTeam} : forme récente ${awayStats?.form ?? 'N/A'}.`);
   } else if (aSL && !hSL) {
-    lines.push(`📋 ${homeTeam} : forme récente ${homeStats?.form ?? 'N/A'}.`);
+    lines.push(`${homeTeam} : forme récente ${homeStats?.form ?? 'N/A'}.`);
   }
 
   // ── Analyse attaque / défense ─────────────────────────────────────────────
   const lbl = r => r >= 0.76 ? 'excellente' : r >= 0.62 ? 'solide' : r >= 0.48 ? 'correcte' : r >= 0.34 ? 'fragile' : 'très fragile';
   lines.push(
-    `⚔️ ${homeTeam} : attaque ${lbl(hStr.attack)}, défense ${lbl(hStr.defence)}` +
+    `${homeTeam} : attaque ${lbl(hStr.attack)}, défense ${lbl(hStr.defence)}` +
     ` | ${awayTeam} : attaque ${lbl(aStr.attack)}, défense ${lbl(aStr.defence)}.`
   );
 
@@ -527,33 +527,33 @@ export function generateAnalysis(homeTeam, awayTeam, homeStats, awayStats, bets,
   if (hPos && aPos) {
     const gap = Math.abs(hPos - aPos);
     if (hPos < aPos && gap >= 3)
-      lines.push(`📊 ${homeTeam} nettement mieux classé (${hPos}e vs ${aPos}e, ${gap} places d'écart) — supériorité structurelle.`);
+      lines.push(`${homeTeam} nettement mieux classé (${hPos}e vs ${aPos}e, ${gap} places d'écart) — supériorité structurelle.`);
     else if (aPos < hPos && gap >= 3)
-      lines.push(`📊 ${awayTeam} supérieur au classement (${aPos}e vs ${hPos}e, ${gap} places) — déplacement difficile en vue.`);
+      lines.push(`${awayTeam} supérieur au classement (${aPos}e vs ${hPos}e, ${gap} places) — déplacement difficile en vue.`);
     else
-      lines.push(`📊 Classements très proches (${hPos}e vs ${aPos}e) — affrontement équilibré attendu.`);
+      lines.push(`Classements très proches (${hPos}e vs ${aPos}e) — affrontement équilibré attendu.`);
   }
 
   // ── Avantage terrain ──────────────────────────────────────────────────────
-  lines.push(`🏠 ${homeTeam} joue à domicile — avantage terrain +10% sur la victoire selon notre modèle Poisson.`);
+  lines.push(`${homeTeam} joue à domicile — avantage terrain +10% sur la victoire selon notre modèle Poisson.`);
 
   // ── Joueurs clés ──────────────────────────────────────────────────────────
   if (hP?.topScorer)
-    lines.push(`⚽ Buteur clé ${homeTeam} : ${hP.topScorer.name} (${hP.topScorer.goals} buts cette saison) — menace principale à neutraliser.`);
+    lines.push(`Buteur clé ${homeTeam} : ${hP.topScorer.name} (${hP.topScorer.goals} buts cette saison) — menace principale à neutraliser.`);
   if (aP?.topScorer)
-    lines.push(`⚽ Buteur clé ${awayTeam} : ${aP.topScorer.name} (${aP.topScorer.goals} buts) — danger à surveiller.`);
+    lines.push(`Buteur clé ${awayTeam} : ${aP.topScorer.name} (${aP.topScorer.goals} buts) — danger à surveiller.`);
   if (hP?.keyPlayer)
-    lines.push(`🎯 Cerveau de jeu ${homeTeam} : ${hP.keyPlayer.name} (${hP.keyPlayer.role}) — créateur principal.`);
+    lines.push(`Cerveau de jeu ${homeTeam} : ${hP.keyPlayer.name} (${hP.keyPlayer.role}) — créateur principal.`);
   if (aP?.keyPlayer)
-    lines.push(`🎯 Meneur ${awayTeam} : ${aP.keyPlayer.name} (${aP.keyPlayer.role}).`);
+    lines.push(`Meneur ${awayTeam} : ${aP.keyPlayer.name} (${aP.keyPlayer.role}).`);
   if (hP?.dangerMan)
-    lines.push(`⚡ Danger man ${homeTeam} : ${hP.dangerMan.name} — ${hP.dangerMan.note}.`);
+    lines.push(`Danger man ${homeTeam} : ${hP.dangerMan.name} — ${hP.dangerMan.note}.`);
   if (aP?.dangerMan)
-    lines.push(`⚡ Danger man ${awayTeam} : ${aP.dangerMan.name} — ${aP.dangerMan.note}.`);
+    lines.push(`Danger man ${awayTeam} : ${aP.dangerMan.name} — ${aP.dangerMan.note}.`);
 
   // ── Style de jeu ──────────────────────────────────────────────────────────
   if (hP?.style && aP?.style)
-    lines.push(`📋 Tactique : ${homeTeam} (${hP.style}) vs ${awayTeam} (${aP.style}).`);
+    lines.push(`Tactique : ${homeTeam} (${hP.style}) vs ${awayTeam} (${aP.style}).`);
 
   // ── Blessures & suspensions ───────────────────────────────────────────────
   if (injuries?.length > 0) {
@@ -568,9 +568,9 @@ export function generateAnalysis(homeTeam, awayTeam, homeStats, awayStats, bets,
       const suspended = list.filter(i => i.type === 'suspended');
       const injured   = list.filter(i => i.type === 'injury');
       const parts = [];
-      if (injured.length)   parts.push(`🤕 Blessés : ${injured.map(i => i.name).join(', ')}`);
-      if (suspended.length) parts.push(`🟥 Suspendus : ${suspended.map(i => i.name).join(', ')}`);
-      if (parts.length) lines.push(`⚠️ ${team} — ${parts.join(' · ')}`);
+      if (injured.length)   parts.push(`Blessés : ${injured.map(i => i.name).join(', ')}`);
+      if (suspended.length) parts.push(`Suspendus : ${suspended.map(i => i.name).join(', ')}`);
+      if (parts.length) lines.push(`${team} — ${parts.join(' · ')}`);
     };
     if (hInj.length || aInj.length) {
       showInj(homeTeam, hInj);
@@ -579,15 +579,15 @@ export function generateAnalysis(homeTeam, awayTeam, homeStats, awayStats, bets,
       // Fallback: show all injuries without filtering
       const suspended = allInj.filter(i => i.type === 'suspended');
       const injured   = allInj.filter(i => i.type === 'injury');
-      if (injured.length)   lines.push(`🤕 Blessés : ${injured.map(i => `${i.name} (${i.team})`).join(', ')}`);
-      if (suspended.length) lines.push(`🟥 Suspendus : ${suspended.map(i => `${i.name} (${i.team})`).join(', ')}`);
+      if (injured.length)   lines.push(`Blessés : ${injured.map(i => `${i.name} (${i.team})`).join(', ')}`);
+      if (suspended.length) lines.push(`Suspendus : ${suspended.map(i => `${i.name} (${i.team})`).join(', ')}`);
     }
   }
 
   // ── Face-à-face ───────────────────────────────────────────────────────────
   if (h2h && h2h.total >= 3) {
     const { homeWins, awayWins, draws, total, avgGoals } = h2h;
-    let h2hLine = `🔁 Face-à-face (${total} derniers matchs) : ${homeTeam} ${homeWins}V · Nul ${draws} · ${awayWins}V ${awayTeam} — ${avgGoals} buts/match en moyenne.`;
+    let h2hLine = `Face-à-face (${total} derniers matchs) : ${homeTeam} ${homeWins}V · Nul ${draws} · ${awayWins}V ${awayTeam} — ${avgGoals} buts/match en moyenne.`;
     if (homeWins >= Math.ceil(total * 0.6))
       h2hLine += ` ${homeTeam} domine l'historique.`;
     else if (awayWins >= Math.ceil(total * 0.6))
@@ -596,28 +596,28 @@ export function generateAnalysis(homeTeam, awayTeam, homeStats, awayStats, bets,
 
     // Tendance buts H2H
     if (avgGoals >= 2.8)
-      lines.push(`⚽ Confrontations historiquement prolifiques (${avgGoals} buts/match) — Over 2.5 soutenu par l'historique.`);
+      lines.push(`Confrontations historiquement prolifiques (${avgGoals} buts/match) — Over 2.5 soutenu par l'historique.`);
     else if (avgGoals <= 1.8)
-      lines.push(`🔒 Confrontations historiquement serrées (${avgGoals} buts/match) — Under 2.5 soutenu par l'historique.`);
+      lines.push(`Confrontations historiquement serrées (${avgGoals} buts/match) — Under 2.5 soutenu par l'historique.`);
   }
 
   // ── xG & probabilités marchés ─────────────────────────────────────────────
   if (tiered) {
     const { homeExpG, awayExpG, over25, bttsProb, over15, under25 } = tiered.stats;
     const total = (homeExpG + awayExpG).toFixed(1);
-    lines.push(`📈 xG modèle : ${homeTeam} ${homeExpG} — ${awayTeam} ${awayExpG} (${total} buts attendus au total)`);
-    lines.push(`📊 Marchés clés : Over 1.5 → ${(over15*100).toFixed(0)}% · Over 2.5 → ${(over25*100).toFixed(0)}% · BTTS → ${(bttsProb*100).toFixed(0)}% · Under 2.5 → ${(under25*100).toFixed(0)}%`);
+    lines.push(`xG modèle : ${homeTeam} ${homeExpG} — ${awayTeam} ${awayExpG} (${total} buts attendus au total)`);
+    lines.push(`Marchés clés : Over 1.5 → ${(over15*100).toFixed(0)}% · Over 2.5 → ${(over25*100).toFixed(0)}% · BTTS → ${(bttsProb*100).toFixed(0)}% · Under 2.5 → ${(under25*100).toFixed(0)}%`);
   }
 
   // ── Value bets détectés ───────────────────────────────────────────────────
   const valueBets = bets.filter(b => b.isValue);
   if (valueBets.length > 0)
-    lines.push(`💰 Value bets détectés : ${valueBets.map(b => `${b.outcome} @ ${b.odd?.toFixed(2)} (edge ${(b.edge*100).toFixed(0)}%, EV +${(b.ev*100).toFixed(0)}%)`).join(' · ')}`);
+    lines.push(`Value bets détectés : ${valueBets.map(b => `${b.outcome} @ ${b.odd?.toFixed(2)} (edge ${(b.edge*100).toFixed(0)}%, EV +${(b.ev*100).toFixed(0)}%)`).join(' · ')}`);
 
   if (tiered?.safe)
-    lines.push(`✅ Recommandation SAFE : ${tiered.safe.type} @ ${tiered.safe.odd?.toFixed(2)} — ${(tiered.safe.prob*100).toFixed(0)}% de probabilité · ${tiered.safe.why}`);
+    lines.push(`Recommandation SAFE : ${tiered.safe.type} @ ${tiered.safe.odd?.toFixed(2)} — ${(tiered.safe.prob*100).toFixed(0)}% de probabilité · ${tiered.safe.why}`);
   if (tiered?.medium)
-    lines.push(`🎯 Pari principal : ${tiered.medium.type} — ${tiered.medium.why}`);
+    lines.push(`Pari principal : ${tiered.medium.type} — ${tiered.medium.why}`);
 
   return lines.join('\n');
 }

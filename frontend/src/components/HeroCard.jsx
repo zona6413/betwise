@@ -32,11 +32,10 @@ export default function HeroCard({ match, onAnalyse }) {
 
       <div className="hero-top">
         <div className="hero-league">
-          <span>{flagFor(leagueCountry)}</span>
           <span>{normalizeLeague(league)}</span>
         </div>
         <div className="hero-badges">
-          <span className="hero-badge hero-badge--pick">⚡ MATCH DU MOMENT</span>
+          <span className="hero-badge hero-badge--pick">MATCH DU MOMENT</span>
           {isLive && <span className="hero-badge hero-badge--live">● LIVE</span>}
         </div>
       </div>
@@ -88,7 +87,7 @@ export default function HeroCard({ match, onAnalyse }) {
       )}
 
       <div className="hero-footer">
-        <span className="hero-viewers">🔥 {viewers} personnes suivent ce match</span>
+        <span className="hero-viewers">{viewers} personnes suivent ce match</span>
         <span className="hero-hint">Cliquer pour l'analyse complète</span>
       </div>
     </div>
@@ -102,8 +101,4 @@ function formatTime(dateStr) {
 function normalizeLeague(name) {
   const map = { 'English Premier League':'Premier League','French Ligue 1':'Ligue 1','Spanish La Liga':'La Liga','Italian Serie A':'Serie A','German Bundesliga':'Bundesliga' };
   return map[name] ?? name;
-}
-function flagFor(country) {
-  const f = { France:'🇫🇷', England:'🏴󠁧󠁢󠁥󠁮󠁧󠁿', Spain:'🇪🇸', Germany:'🇩🇪', Italy:'🇮🇹' };
-  return f[country] ?? '🌍';
 }

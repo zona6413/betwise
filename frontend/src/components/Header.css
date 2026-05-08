@@ -111,6 +111,23 @@
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.header-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.header-status-dot--live {
+  background: #ef4444;
+  box-shadow: 0 0 6px #ef444480;
+}
+.header-status-dot--cache {
+  background: var(--text-dim);
 }
 
 .btn-refresh {

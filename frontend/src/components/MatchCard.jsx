@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import BetTiers from './BetTiers.jsx';
 import './MatchCard.css';
 
-// ── Status badge ──────────────────────────────────────────────────────────────
 function StatusBadge({ status }) {
   const map = {
     NS:   { label: 'À venir',       cls: 'upcoming' },
@@ -19,7 +18,6 @@ function StatusBadge({ status }) {
   return <span className={`status-badge status-badge--${cls}`}>{label}</span>;
 }
 
-// ── Form dots ─────────────────────────────────────────────────────────────────
 function FormDots({ form }) {
   if (!form) return null;
   return (
@@ -31,7 +29,6 @@ function FormDots({ form }) {
   );
 }
 
-// ── Countdown ─────────────────────────────────────────────────────────────────
 function Countdown({ date }) {
   const [label, setLabel] = useState('');
   const [urgent, setUrgent] = useState(false);
@@ -55,16 +52,10 @@ function Countdown({ date }) {
   return <span className={`countdown ${urgent ? 'countdown--urgent' : ''}`}>{label}</span>;
 }
 
-// ── Quick insights (synthèse, conclusion, tendances) ──────────────────────────
 function trendColor(prob) {
   if (prob >= 0.65) return 'green';
   if (prob >= 0.48) return 'yellow';
   return 'red';
-}
-function trendEmoji(prob) {
-  if (prob >= 0.65) return '🟢';
-  if (prob >= 0.48) return '🟡';
-  return '🔴';
 }
 
 function buildInsights(match) {
@@ -78,7 +69,6 @@ function buildInsights(match) {
   const hPlayers  = stats.homePlayers;
   const aPlayers  = stats.awayPlayers;
 
-  // 📌 Synthèse (3 points)
   const bullets = [];
   if (isOpen) bullets.push('Match ouvert — plusieurs buts attendus');
   else        bullets.push('Match serré — peu de buts probables');
@@ -87,7 +77,6 @@ function buildInsights(match) {
   else if (aiProbs.away > 0.44) bullets.push(`${awayTeam.name} en position de surprendre`);
   else                          bullets.push('Match équilibré entre les deux équipes');
 
-  // Mention joueur si dispo, sinon stat xG
   const hScorer = hPlayers?.topScorer;
   const aScorer = aPlayers?.topScorer;
   if (hScorer && aiProbs.home > 0.45) {
@@ -100,23 +89,20 @@ function buildInsights(match) {
     bullets.push('Score serré attendu — défenses solides');
   }
 
-  // 🎯 Conclusion
   const topBet = tieredBets?.safe;
   const scorerBet = tieredBets?.scorerBets?.[0];
   const conclusion = topBet
     ? `Mise recommandée : ${topBet.type}`
     : 'Match difficile à cerner — prudence recommandée';
 
-  // 📊 Tendances (3 marchés)
   const tendances = [
     { label: 'Over 2.5', prob: stats.over25 },
     { label: 'BTTS',     prob: stats.bttsProb },
     { label: favName,    prob: favProb },
   ];
 
-  // 🔍 Analyse : première phrase de l'analyse enrichie
   const analyse = analysis
-    ? analysis.split('\n')[0].replace(/^[🟢⚖️📊🏠⚽🎯📋📈💰✅⚠️]\s?/u, '').trim()
+    ? analysis.split('\n')[0].replace(/^[\u{1F300}-\u{1FFFF}☀-➿]\s?/u, '').trim()
     : `${favName} part favori avec ${Math.round(favProb * 100)}% de chances selon notre modèle.`;
 
   return { bullets: bullets.slice(0, 3), conclusion, tendances, analyse, scorerBet };
@@ -129,27 +115,23 @@ function QuickInsights({ match }) {
 
   return (
     <div className="quick-insights">
-      {/* 📌 Synthèse */}
       <div className="qi-section qi-synthesis">
-        <div className="qi-section-title">📌 Synthèse</div>
+        <div className="qi-section-title">Synthèse</div>
         <ul className="qi-bullets">
           {bullets.map((b, i) => <li key={i}>{b}</li>)}
         </ul>
       </div>
 
-      {/* 🎯 Conclusion */}
       <div className="qi-section qi-conclusion">
-        <div className="qi-section-title">🎯 Conclusion</div>
+        <div className="qi-section-title">Conclusion</div>
         <span className="qi-conclusion-text">{conclusion}</span>
       </div>
 
-      {/* 📊 Tendances */}
       <div className="qi-section qi-tendances-wrap">
-        <div className="qi-section-title">📊 Tendances</div>
+        <div className="qi-section-title">Tendances</div>
         <div className="qi-tendances">
           {tendances.map((t, i) => (
             <div key={i} className={`qi-tend qi-tend--${trendColor(t.prob)}`}>
-              <span className="qi-tend-emoji">{trendEmoji(t.prob)}</span>
               <span className="qi-tend-label">{t.label}</span>
               <span className="qi-tend-pct">{Math.round(t.prob * 100)}%</span>
             </div>
@@ -157,13 +139,11 @@ function QuickInsights({ match }) {
         </div>
       </div>
 
-      {/* 🔍 Analyse */}
       <div className="qi-section qi-analyse">
-        <div className="qi-section-title">🔍 Analyse</div>
+        <div className="qi-section-title">Analyse</div>
         <p className="qi-analyse-text">{analyse}</p>
         {scorerBet && (
           <div className="qi-scorer-badge">
-            <span className="qi-scorer-icon">⚽</span>
             <span className="qi-scorer-text">
               <strong>{scorerBet.player}</strong> buteur probable
               <span className="qi-scorer-pct"> {Math.round(scorerBet.prob * 100)}%</span>
@@ -175,7 +155,6 @@ function QuickInsights({ match }) {
   );
 }
 
-// ── Main card ─────────────────────────────────────────────────────────────────
 export default function MatchCard({ match, onAnalyse, riskProfile = 'medium' }) {
   const { homeTeam, awayTeam, score, odds, aiProbs, bets, tieredBets, hasValueBet } = match;
   const isLive     = ['1H','HT','2H','ET','P'].includes(match.status);
@@ -201,20 +180,17 @@ export default function MatchCard({ match, onAnalyse, riskProfile = 'medium' }) 
       hasValueBet ? `match-card--${edgeClass}` : '',
     ].join(' ').trim()}>
 
-      {/* Header */}
       <div className="card-header">
         <div className="card-league">
-          <span className="league-flag">{flagFor(match.leagueCountry)}</span>
           <span className="league-name">{normalizeLeague(match.league)}</span>
         </div>
         <div className="card-badges">
-          {hasValueBet && edgeClass === 'fire' && <span className="badge badge--fire">🔥 Top pick</span>}
-          {hasValueBet && edgeClass !== 'fire' && <span className="badge badge--value">💰 Value</span>}
+          {hasValueBet && edgeClass === 'fire' && <span className="badge badge--fire">Top pick</span>}
+          {hasValueBet && edgeClass !== 'fire' && <span className="badge badge--value">Value</span>}
           <StatusBadge status={match.status} />
         </div>
       </div>
 
-      {/* Teams + score */}
       <div className="card-body">
         <div className="team team--home">
           <div className="team-logo-wrap">
@@ -251,7 +227,7 @@ export default function MatchCard({ match, onAnalyse, riskProfile = 'medium' }) 
                   <span className="predicted-badge-score">{predictedScore}</span>
                 </div>
               )}
-              {isUrgent && <div className="urgent-tag">⏰ Commence bientôt</div>}
+              {isUrgent && <div className="urgent-tag">Commence bientôt</div>}
             </>
           )}
         </div>
@@ -271,7 +247,6 @@ export default function MatchCard({ match, onAnalyse, riskProfile = 'medium' }) 
         </div>
       </div>
 
-      {/* Cotes simplifiées */}
       {odds && (
         <div className="card-odds-simple">
           <OddPill label="Domicile" odd={odds.home} isValue={bets?.find(b => b.outcome.startsWith('1'))?.isValue} />
@@ -280,12 +255,10 @@ export default function MatchCard({ match, onAnalyse, riskProfile = 'medium' }) 
         </div>
       )}
 
-      {/* Synthèse rapide + tendances */}
       <QuickInsights match={match} />
 
-      {/* Footer */}
       <div className="card-footer">
-        <span className="card-viewers">👁 {viewers} personnes regardent</span>
+        <span className="card-viewers">{viewers} personnes regardent</span>
         <button
           className="btn-analyse"
           onClick={() => onAnalyse(match)}
@@ -297,7 +270,6 @@ export default function MatchCard({ match, onAnalyse, riskProfile = 'medium' }) 
   );
 }
 
-// ── OddPill ───────────────────────────────────────────────────────────────────
 function OddPill({ label, odd, isValue }) {
   return (
     <div className={`odd-pill ${isValue ? 'odd-pill--value' : ''}`}>
@@ -308,7 +280,6 @@ function OddPill({ label, odd, isValue }) {
   );
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
 function formatTime(dateStr) {
   if (!dateStr) return '—';
   return new Date(dateStr).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
@@ -323,9 +294,4 @@ function normalizeLeague(name) {
     'German Bundesliga': 'Bundesliga',
   };
   return map[name] ?? name;
-}
-
-function flagFor(country) {
-  const f = { France:'🇫🇷', England:'🏴󠁧󠁢󠁥󠁮󠁧󠁿', Spain:'🇪🇸', Germany:'🇩🇪', Italy:'🇮🇹' };
-  return f[country] ?? '🌍';
 }

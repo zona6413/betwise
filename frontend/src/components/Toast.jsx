@@ -16,7 +16,6 @@ export default function Toast({ message, visible, type = 'value' }) {
 
   return (
     <div className={`toast toast--${type} animate-toast`}>
-      <span className="toast-icon">{type === 'value' ? '💰' : '🔄'}</span>
       <span className="toast-msg">{message}</span>
     </div>
   );
