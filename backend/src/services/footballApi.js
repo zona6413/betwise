@@ -12,16 +12,42 @@ const API_KEY  = process.env.API_FOOTBALL_KEY;
 const SEASON = 2025;
 
 const LEAGUES = [
-  { id: 39,  name: 'English Premier League',   country: 'England'     },
-  { id: 61,  name: 'French Ligue 1',           country: 'France'      },
-  { id: 140, name: 'Spanish La Liga',          country: 'Spain'       },
-  { id: 135, name: 'Italian Serie A',          country: 'Italy'       },
-  { id: 78,  name: 'German Bundesliga',        country: 'Germany'     },
-  { id: 2,   name: 'UEFA Champions League',    country: 'Europe'      },
-  { id: 3,   name: 'UEFA Europa League',       country: 'Europe'      },
-  { id: 88,  name: 'Dutch Eredivisie',         country: 'Netherlands' },
-  { id: 94,  name: 'Portuguese Primeira Liga', country: 'Portugal'    },
+  // Top 5 européens
+  { id: 39,  displayName: 'Premier League',       country: 'England'      },
+  { id: 61,  displayName: 'Ligue 1',              country: 'France'       },
+  { id: 140, displayName: 'La Liga',              country: 'Spain'        },
+  { id: 135, displayName: 'Serie A',              country: 'Italy'        },
+  { id: 78,  displayName: 'Bundesliga',           country: 'Germany'      },
+  // Coupes européennes
+  { id: 2,   displayName: 'Champions League',     country: 'Europe'       },
+  { id: 3,   displayName: 'Europa League',        country: 'Europe'       },
+  { id: 848, displayName: 'Conference League',    country: 'Europe'       },
+  // Divisions 2
+  { id: 40,  displayName: 'Championship',         country: 'England'      },
+  { id: 62,  displayName: 'Ligue 2',              country: 'France'       },
+  { id: 79,  displayName: '2. Bundesliga',        country: 'Germany'      },
+  { id: 136, displayName: 'Serie B',              country: 'Italy'        },
+  { id: 141, displayName: 'La Liga 2',            country: 'Spain'        },
+  // Autres ligues européennes
+  { id: 88,  displayName: 'Eredivisie',           country: 'Netherlands'  },
+  { id: 94,  displayName: 'Primeira Liga',        country: 'Portugal'     },
+  { id: 144, displayName: 'Belgian Pro League',   country: 'Belgium'      },
+  { id: 179, displayName: 'Scottish Premiership', country: 'Scotland'     },
+  { id: 203, displayName: 'Süper Lig',            country: 'Turkey'       },
+  { id: 197, displayName: 'Super League 1',       country: 'Greece'       },
+  { id: 207, displayName: 'Swiss Super League',   country: 'Switzerland'  },
+  { id: 218, displayName: 'Bundesliga Austria',   country: 'Austria'      },
+  { id: 119, displayName: 'Superliga',            country: 'Denmark'      },
+  { id: 103, displayName: 'Eliteserien',          country: 'Norway'       },
+  { id: 113, displayName: 'Allsvenskan',          country: 'Sweden'       },
+  // Ligues internationales
+  { id: 71,  displayName: 'Série A Brésil',       country: 'Brazil'       },
+  { id: 128, displayName: 'Liga Argentina',       country: 'Argentina'    },
+  { id: 253, displayName: 'MLS',                  country: 'USA'          },
+  { id: 307, displayName: 'Saudi Pro League',     country: 'Saudi Arabia' },
 ];
+
+const LEAGUE_MAP = new Map(LEAGUES.map(l => [l.id, l]));
 
 const LIVE_STATUSES = new Set(['1H', '2H', 'HT', 'ET', 'P', 'BT']);
 
@@ -52,7 +78,7 @@ function mapFixture(item) {
     },
     league: {
       id:      l.id,
-      name:    l.name,
+      name:    LEAGUE_MAP.get(l.id)?.displayName ?? l.name,
       country: l.country,
       logo:    l.logo ?? '',
     },
@@ -213,32 +239,32 @@ function getMockFixtures() {
   };
   return [
     { fixture: { id: 2267413, date: d(2),  status: { short: 'NS' }, venue: { name: 'Emirates Stadium' } },
-      league:  { id: 2, name: 'UEFA Champions League', country: 'Europe', logo: '' },
+      league:  { id: 2, name: 'Champions League', country: 'Europe', logo: '' },
       teams:   { home: { id: 42,  name: 'Arsenal',          logo: '' },
                  away: { id: 530, name: 'Atlético Madrid',  logo: '' } },
       goals: { home: null, away: null } },
     { fixture: { id: 2267414, date: d(3),  status: { short: 'NS' }, venue: { name: 'Old Trafford' } },
-      league:  { id: 39, name: 'English Premier League', country: 'England', logo: '' },
+      league:  { id: 39, name: 'Premier League', country: 'England', logo: '' },
       teams:   { home: { id: 33, name: 'Manchester United', logo: '' },
                  away: { id: 40, name: 'Liverpool',         logo: '' } },
       goals: { home: null, away: null } },
     { fixture: { id: 2267415, date: d(26), status: { short: 'NS' }, venue: { name: 'Parc des Princes' } },
-      league:  { id: 61, name: 'French Ligue 1', country: 'France', logo: '' },
+      league:  { id: 61, name: 'Ligue 1', country: 'France', logo: '' },
       teams:   { home: { id: 85, name: 'Paris Saint-Germain', logo: '' },
                  away: { id: 81, name: 'Marseille',           logo: '' } },
       goals: { home: null, away: null } },
     { fixture: { id: 2267416, date: d(27), status: { short: 'NS' }, venue: { name: 'Santiago Bernabéu' } },
-      league:  { id: 140, name: 'Spanish La Liga', country: 'Spain', logo: '' },
+      league:  { id: 140, name: 'La Liga', country: 'Spain', logo: '' },
       teams:   { home: { id: 541, name: 'Real Madrid',  logo: '' },
                  away: { id: 529, name: 'FC Barcelona', logo: '' } },
       goals: { home: null, away: null } },
     { fixture: { id: 2267417, date: d(28), status: { short: 'NS' }, venue: { name: 'Allianz Arena' } },
-      league:  { id: 78, name: 'German Bundesliga', country: 'Germany', logo: '' },
+      league:  { id: 78, name: 'Bundesliga', country: 'Germany', logo: '' },
       teams:   { home: { id: 157, name: 'Bayern Munich',     logo: '' },
                  away: { id: 165, name: 'Borussia Dortmund', logo: '' } },
       goals: { home: null, away: null } },
     { fixture: { id: 2267418, date: d(29), status: { short: 'NS' }, venue: { name: 'San Siro' } },
-      league:  { id: 135, name: 'Italian Serie A', country: 'Italy', logo: '' },
+      league:  { id: 135, name: 'Serie A', country: 'Italy', logo: '' },
       teams:   { home: { id: 505, name: 'Inter Milan', logo: '' },
                  away: { id: 496, name: 'Juventus',    logo: '' } },
       goals: { home: null, away: null } },

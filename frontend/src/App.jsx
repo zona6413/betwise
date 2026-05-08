@@ -34,14 +34,7 @@ function dateLabel(dateStr) {
 }
 
 function normalizeLeague(name) {
-  const map = {
-    'English Premier League': 'Premier League',
-    'French Ligue 1': 'Ligue 1',
-    'Spanish La Liga': 'La Liga',
-    'Italian Serie A': 'Serie A',
-    'German Bundesliga': 'Bundesliga',
-  };
-  return map[name] ?? name;
+  return name ?? '';
 }
 
 const RISK_PROFILES = [
