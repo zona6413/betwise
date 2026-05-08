@@ -18,6 +18,8 @@ const LEAGUES = [
   { id: 140, displayName: 'La Liga',              country: 'Spain'        },
   { id: 135, displayName: 'Serie A',              country: 'Italy'        },
   { id: 78,  displayName: 'Bundesliga',           country: 'Germany'      },
+  // Compétitions mondiales
+  { id: 1,   displayName: 'Coupe du Monde',       country: 'World'        },
   // Coupes européennes
   { id: 2,   displayName: 'Champions League',     country: 'Europe'       },
   { id: 3,   displayName: 'Europa League',        country: 'Europe'       },
