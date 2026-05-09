@@ -5,7 +5,7 @@ import { getTodayFixtures, getHeadToHead, getInjuries } from '../services/footba
 import { getOdds }                 from '../services/oddsApi.js';
 import { mergeData }               from '../services/merger.js';
 import { getTeamStatsMap, randomBookmaker } from '../services/standingsApi.js';
-import { getMatchPlayers } from '../services/playerStats.js';
+import { getMatchPlayers, preloadTopScorers } from '../services/playerStats.js';
 import {
   impliedProbabilities,
   computeAIProbability,
@@ -169,6 +169,7 @@ router.get('/', async (req, res) => {
       getTodayFixtures(),
       getTeamStatsMap(),
       getOdds(),
+      preloadTopScorers(), // charge buteurs réels depuis API, cache 12h
     ]);
 
     // Construire un map fixtureId → vraies cotes via fuzzy matching

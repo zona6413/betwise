@@ -1,482 +1,234 @@
 /**
- * Base de données des joueurs clés par équipe (saison 2025-2026)
- * teamId → { topScorer, scorer2, scorer3, keyPlayer, dangerMan, style }
- * matchesPlayed utilisé pour calculer un taux buts/match précis
+ * Données joueurs : buteurs récupérés en live via API-Football,
+ * style/rôles en statique (changent rarement).
  */
+import axios from 'axios';
 
-const PLAYERS = {
-  // ── Premier League ───────────────────────────────────────────────────────
-  133604: { // Arsenal
-    topScorer: { name: 'Bukayo Saka',         goals: 14, pos: 'AD', matchesPlayed: 30 },
-    scorer2:   { name: 'Kai Havertz',         goals: 11, pos: 'BU', matchesPlayed: 32 },
-    scorer3:   { name: 'Leandro Trossard',    goals:  8, pos: 'AG', matchesPlayed: 28 },
-    keyPlayer: { name: 'Martin Ødegaard',     role: 'Meneur de jeu' },
-    dangerMan: { name: 'Kai Havertz',         note: 'Efficace en zone' },
-    style: 'Possession haute, pressing intensif',
-  },
-  133605: { // Manchester City
-    topScorer: { name: 'Erling Haaland',      goals: 22, pos: 'BU', matchesPlayed: 29 },
-    scorer2:   { name: 'Phil Foden',          goals: 11, pos: 'MO', matchesPlayed: 31 },
-    scorer3:   { name: 'Bernardo Silva',      goals:  7, pos: 'MO', matchesPlayed: 33 },
-    keyPlayer: { name: 'Kevin De Bruyne',     role: 'Créateur' },
-    dangerMan: { name: 'Phil Foden',          note: 'Percussif entre les lignes' },
-    style: 'Monopole du ballon, transitions rapides',
-  },
-  133602: { // Liverpool
-    topScorer: { name: 'Mohamed Salah',       goals: 19, pos: 'AD', matchesPlayed: 32 },
-    scorer2:   { name: 'Diogo Jota',          goals: 12, pos: 'AT', matchesPlayed: 26 },
-    scorer3:   { name: 'Luis Díaz',           goals:  9, pos: 'AG', matchesPlayed: 30 },
-    keyPlayer: { name: 'Alexis Mac Allister', role: 'Milieu box-to-box' },
-    dangerMan: { name: 'Darwin Núñez',        note: 'Dangereux à contre-courant' },
-    style: 'Pressing haut, transitions verticales',
-  },
-  133612: { // Manchester United
-    topScorer: { name: 'Rasmus Højlund',      goals:  9, pos: 'BU', matchesPlayed: 28 },
-    scorer2:   { name: 'Bruno Fernandes',     goals:  8, pos: 'MO', matchesPlayed: 33 },
-    scorer3:   { name: 'Marcus Rashford',     goals:  7, pos: 'AG', matchesPlayed: 27 },
-    keyPlayer: { name: 'Bruno Fernandes',     role: 'Capitaine créateur' },
-    dangerMan: { name: 'Marcus Rashford',     note: 'Explosif en duel' },
-    style: 'Contre-attaque, duels directs',
-  },
-  133601: { // Aston Villa
-    topScorer: { name: 'Ollie Watkins',       goals: 14, pos: 'BU', matchesPlayed: 31 },
-    scorer2:   { name: 'Leon Bailey',         goals:  9, pos: 'AD', matchesPlayed: 28 },
-    scorer3:   { name: 'John McGinn',         goals:  6, pos: 'MO', matchesPlayed: 32 },
-    keyPlayer: { name: 'John McGinn',         role: 'Box-to-box' },
-    dangerMan: { name: 'Leon Bailey',         note: 'Ailier imprévisible' },
-    style: 'Pressing agressif, jeu aérien',
-  },
-  133610: { // Chelsea
-    topScorer: { name: 'Cole Palmer',         goals: 18, pos: 'MO', matchesPlayed: 33 },
-    scorer2:   { name: 'Nicolas Jackson',     goals: 12, pos: 'BU', matchesPlayed: 30 },
-    scorer3:   { name: 'Christopher Nkunku',  goals:  9, pos: 'AT', matchesPlayed: 25 },
-    keyPlayer: { name: 'Enzo Fernández',      role: 'Milieu créateur' },
-    dangerMan: { name: 'Nicolas Jackson',     note: 'Mobile, termine bien' },
-    style: 'Technique, possession en demi-terrain',
-  },
-  133619: { // Brighton
-    topScorer: { name: 'Georginio Rutter',    goals: 10, pos: 'AT', matchesPlayed: 30 },
-    scorer2:   { name: 'Kaoru Mitoma',        goals:  8, pos: 'AG', matchesPlayed: 29 },
-    scorer3:   { name: 'João Pedro',          goals:  7, pos: 'BU', matchesPlayed: 24 },
-    keyPlayer: { name: 'Carlos Baleba',       role: 'Récupérateur' },
-    dangerMan: { name: 'Kaoru Mitoma',        note: 'Dribbleur côté gauche' },
-    style: 'Jeu positionnel, nombreuses solutions',
-  },
-  133616: { // Tottenham
-    topScorer: { name: 'Heung-min Son',       goals: 12, pos: 'AG', matchesPlayed: 31 },
-    scorer2:   { name: 'Dominic Solanke',     goals: 10, pos: 'BU', matchesPlayed: 30 },
-    scorer3:   { name: 'James Maddison',      goals:  6, pos: 'MO', matchesPlayed: 28 },
-    keyPlayer: { name: 'James Maddison',      role: 'Meneur' },
-    dangerMan: { name: 'Dominic Solanke',     note: 'Pivot technique' },
-    style: 'Contre-attaque rapide, largeur du terrain',
-  },
-  134301: { // Bournemouth
-    topScorer: { name: 'Antoine Semenyo',     goals:  9, pos: 'AD', matchesPlayed: 30 },
-    scorer2:   { name: 'Evanilson',           goals:  8, pos: 'BU', matchesPlayed: 26 },
-    scorer3:   { name: 'Dango Ouattara',      goals:  6, pos: 'AD', matchesPlayed: 28 },
-    keyPlayer: { name: 'Ryan Christie',       role: 'Moteur du milieu' },
-    dangerMan: { name: 'Dango Ouattara',      note: 'Vitesse en transition' },
-    style: 'Intensité physique, jeu direct',
-  },
-  133632: { // Crystal Palace
-    topScorer: { name: 'Jean-Phil. Mateta',   goals: 11, pos: 'BU', matchesPlayed: 30 },
-    scorer2:   { name: 'Eberechi Eze',        goals:  9, pos: 'MO', matchesPlayed: 29 },
-    scorer3:   { name: 'Ismaïla Sarr',        goals:  7, pos: 'AD', matchesPlayed: 27 },
-    keyPlayer: { name: 'Eberechi Eze',        role: 'Dribbleur créateur' },
-    dangerMan: { name: 'Ismaïla Sarr',        note: 'Explosif sur les côtés' },
-    style: 'Direct, appui sur les ailiers',
-  },
-  133600: { // Fulham
-    topScorer: { name: 'Raúl Jiménez',        goals: 10, pos: 'BU', matchesPlayed: 29 },
-    scorer2:   { name: 'Rodrigo Muniz',       goals:  8, pos: 'BU', matchesPlayed: 26 },
-    scorer3:   { name: 'Alex Iwobi',          goals:  5, pos: 'MO', matchesPlayed: 32 },
-    keyPlayer: { name: 'Alex Iwobi',          role: 'Polyvalent milieu-attaque' },
-    dangerMan: { name: 'Rodrigo Muniz',       note: 'Finisseur en pivot' },
-    style: 'Solide défensivement, efficace en transition',
-  },
-  133620: { // Newcastle
-    topScorer: { name: 'Alexander Isak',      goals: 16, pos: 'BU', matchesPlayed: 28 },
-    scorer2:   { name: 'Anthony Gordon',      goals:  9, pos: 'AG', matchesPlayed: 31 },
-    scorer3:   { name: 'Harvey Barnes',       goals:  7, pos: 'AG', matchesPlayed: 27 },
-    keyPlayer: { name: 'Bruno Guimarães',     role: 'Milieu dominant' },
-    dangerMan: { name: 'Anthony Gordon',      note: 'Très actif côté gauche' },
-    style: 'Pressing haut, jeu direct vers Isak',
-  },
-  134777: { // Newcastle (doublon)
-    topScorer: { name: 'Alexander Isak',      goals: 16, pos: 'BU', matchesPlayed: 28 },
-    scorer2:   { name: 'Anthony Gordon',      goals:  9, pos: 'AG', matchesPlayed: 31 },
-    scorer3:   { name: 'Harvey Barnes',       goals:  7, pos: 'AG', matchesPlayed: 27 },
-    keyPlayer: { name: 'Bruno Guimarães',     role: 'Milieu dominant' },
-    dangerMan: { name: 'Anthony Gordon',      note: 'Très actif côté gauche' },
-    style: 'Pressing haut, jeu direct vers Isak',
-  },
-  133636: { // West Ham
-    topScorer: { name: 'Jarrod Bowen',        goals: 10, pos: 'AD', matchesPlayed: 30 },
-    scorer2:   { name: 'Mohammed Kudus',      goals:  9, pos: 'AT', matchesPlayed: 28 },
-    scorer3:   { name: 'Lucas Paquetá',       goals:  6, pos: 'MO', matchesPlayed: 29 },
-    keyPlayer: { name: 'Lucas Paquetá',       role: 'Milieu technique' },
-    dangerMan: { name: 'Michail Antonio',     note: 'Physique, aérien' },
-    style: 'Jeu aérien, duels physiques',
-  },
+const BASE_URL = 'https://v3.football.api-sports.io';
+const API_KEY  = process.env.API_FOOTBALL_KEY;
+const SEASON   = 2025;
 
-  // ── Ligue 1 ──────────────────────────────────────────────────────────────
-  133714: { // PSG
-    topScorer: { name: 'Gonçalo Ramos',       goals: 14, pos: 'BU', matchesPlayed: 28 },
-    scorer2:   { name: 'Bradley Barcola',     goals: 11, pos: 'AG', matchesPlayed: 31 },
-    scorer3:   { name: 'Ousmane Dembélé',     goals:  9, pos: 'AD', matchesPlayed: 29 },
-    keyPlayer: { name: 'Fabian Ruiz',         role: 'Relanceur créateur' },
-    dangerMan: { name: 'Bradley Barcola',     note: 'Accélérateur côté gauche' },
-    style: 'Pressing haut, domination technique',
-  },
-  133707: { // Marseille
-    topScorer: { name: 'Mason Greenwood',     goals: 13, pos: 'AD', matchesPlayed: 30 },
-    scorer2:   { name: 'Elye Wahi',           goals:  9, pos: 'BU', matchesPlayed: 28 },
-    scorer3:   { name: 'Luis Henrique',       goals:  6, pos: 'AG', matchesPlayed: 29 },
-    keyPlayer: { name: 'Valentin Rongier',    role: 'Milieu récupérateur' },
-    dangerMan: { name: 'Elye Wahi',           note: 'Avant-centre mobile' },
-    style: 'Bloc médian, transitions rapides',
-  },
-  133711: { // Lille
-    topScorer: { name: 'Jonathan David',      goals: 20, pos: 'BU', matchesPlayed: 32 },
-    scorer2:   { name: 'Edon Zhegrova',       goals:  8, pos: 'AD', matchesPlayed: 30 },
-    scorer3:   { name: 'Angel Gomes',         goals:  6, pos: 'MO', matchesPlayed: 31 },
-    keyPlayer: { name: 'Angel Gomes',         role: 'Meneur box-to-box' },
-    dangerMan: { name: 'Edon Zhegrova',       note: 'Dribbleur côté droit' },
-    style: 'Pressing haut, jeu direct vers David',
-  },
-  133713: { // Lyon
-    topScorer: { name: 'Alexandre Lacazette', goals: 12, pos: 'BU', matchesPlayed: 30 },
-    scorer2:   { name: 'Rayan Cherki',        goals:  9, pos: 'AT', matchesPlayed: 28 },
-    scorer3:   { name: 'Ernest Nuamah',       goals:  7, pos: 'AD', matchesPlayed: 26 },
-    keyPlayer: { name: 'Rayan Cherki',        role: 'Talent offensif' },
-    dangerMan: { name: 'Rayan Cherki',        note: 'Imprévisible entre les lignes' },
-    style: 'Combinaisons courtes, créativité offensive',
-  },
-  133822: { // Lens
-    topScorer: { name: 'Florian Sotoca',      goals:  8, pos: 'AG', matchesPlayed: 29 },
-    scorer2:   { name: 'Przemysław Frankowski', goals: 6, pos: 'AD', matchesPlayed: 31 },
-    scorer3:   { name: 'Neil El Aynaoui',     goals:  5, pos: 'MO', matchesPlayed: 30 },
-    keyPlayer: { name: 'Neil El Aynaoui',     role: 'Milieu moderne' },
-    dangerMan: { name: 'M\'Baye Niang',       note: 'Puissant en pivot' },
-    style: 'Pressing intense, bloc collectif',
-  },
-  133719: { // Rennes
-    topScorer: { name: 'Arnaud Kalimuendo',   goals:  9, pos: 'BU', matchesPlayed: 28 },
-    scorer2:   { name: 'Désiré Doué',         goals:  7, pos: 'AT', matchesPlayed: 26 },
-    scorer3:   { name: 'Amine Gouiri',        goals:  6, pos: 'AG', matchesPlayed: 27 },
-    keyPlayer: { name: 'Baptiste Santamaria', role: 'Chef d\'orchestre' },
-    dangerMan: { name: 'Désiré Doué',         note: 'Jeune talent explosif' },
-    style: 'Jeu collectif structuré, transitions',
-  },
-  133712: { // Nice
-    topScorer: { name: 'Terem Moffi',         goals: 10, pos: 'BU', matchesPlayed: 29 },
-    scorer2:   { name: 'Evann Guessand',      goals:  7, pos: 'AT', matchesPlayed: 28 },
-    scorer3:   { name: 'Gaëtan Laborde',      goals:  6, pos: 'BU', matchesPlayed: 24 },
-    keyPlayer: { name: 'Khéphren Thuram',     role: 'Milieu dominant' },
-    dangerMan: { name: 'Evann Guessand',      note: 'Appels en profondeur' },
-    style: 'Défense solide, efficacité sur coups de pied arrêtés',
-  },
+const client = API_KEY
+  ? axios.create({ baseURL: BASE_URL, timeout: 10_000, headers: { 'x-apisports-key': API_KEY } })
+  : null;
 
-  // ── La Liga ──────────────────────────────────────────────────────────────
-  133739: { // Real Madrid
-    topScorer: { name: 'Kylian Mbappé',       goals: 21, pos: 'BU', matchesPlayed: 31 },
-    scorer2:   { name: 'Vinicius Jr.',        goals: 16, pos: 'AG', matchesPlayed: 30 },
-    scorer3:   { name: 'Jude Bellingham',     goals: 12, pos: 'MO', matchesPlayed: 29 },
-    keyPlayer: { name: 'Jude Bellingham',     role: 'Box-to-box offensif' },
-    dangerMan: { name: 'Vinicius Jr.',        note: 'Dribbleur explosif côté gauche' },
-    style: 'Contre-attaque fulminante, possession équilibrée',
-  },
-  133738: { // Barcelona
-    topScorer: { name: 'Robert Lewandowski',  goals: 18, pos: 'BU', matchesPlayed: 30 },
-    scorer2:   { name: 'Lamine Yamal',        goals: 12, pos: 'AD', matchesPlayed: 31 },
-    scorer3:   { name: 'Raphinha',            goals: 10, pos: 'AD', matchesPlayed: 29 },
-    keyPlayer: { name: 'Lamine Yamal',        role: 'Ailier prodige' },
-    dangerMan: { name: 'Pedri',               note: 'Créateur entre les lignes' },
-    style: 'Tiki-taka modernisé, haut pressing',
-  },
-  133740: { // Atlético Madrid
-    topScorer: { name: 'Antoine Griezmann',   goals: 12, pos: 'AT', matchesPlayed: 30 },
-    scorer2:   { name: 'Álvaro Morata',       goals:  9, pos: 'BU', matchesPlayed: 27 },
-    scorer3:   { name: 'Samuel Lino',         goals:  6, pos: 'AG', matchesPlayed: 28 },
-    keyPlayer: { name: 'Rodrigo De Paul',     role: 'Milieu combatif' },
-    dangerMan: { name: 'Álvaro Morata',       note: 'Finisseur de surface' },
-    style: 'Bloc bas, contre-attaques précises',
-  },
-  133735: { // Sevilla
-    topScorer: { name: 'Youssef En-Nesyri',   goals: 10, pos: 'BU', matchesPlayed: 29 },
-    scorer2:   { name: 'Dodi Lukébakio',      goals:  7, pos: 'AG', matchesPlayed: 28 },
-    scorer3:   { name: 'Jesús Corona',        goals:  4, pos: 'AD', matchesPlayed: 25 },
-    keyPlayer: { name: 'Joan Jordán',         role: 'Box-to-box technique' },
-    dangerMan: { name: 'Jesús Navas',         note: 'Expérience côté droit' },
-    style: 'Pressing organisé, jeu de transition',
-  },
-  133722: { // Real Betis
-    topScorer: { name: 'Borja Iglesias',      goals:  7, pos: 'BU', matchesPlayed: 27 },
-    scorer2:   { name: 'Ayoze Pérez',         goals:  6, pos: 'AT', matchesPlayed: 29 },
-    scorer3:   { name: 'Lo Celso',            goals:  5, pos: 'MO', matchesPlayed: 28 },
-    keyPlayer: { name: 'Isco',                role: 'Meneur élégant' },
-    dangerMan: { name: 'Ayoze Pérez',         note: 'Attaquant mobile' },
-    style: 'Possession technique, coups de pied arrêtés',
-  },
-  133724: { // Real Sociedad
-    topScorer: { name: 'Mikel Oyarzabal',     goals: 11, pos: 'AT', matchesPlayed: 29 },
-    scorer2:   { name: 'Brais Méndez',        goals:  8, pos: 'MO', matchesPlayed: 30 },
-    scorer3:   { name: 'Take Kubo',           goals:  6, pos: 'AD', matchesPlayed: 31 },
-    keyPlayer: { name: 'Martin Zubimendi',    role: 'Sentinelle' },
-    dangerMan: { name: 'Take Kubo',           note: 'Dribbleur japonais' },
-    style: 'Jeu positionnel, pressing coordonné',
-  },
-  133727: { // Athletic Bilbao
-    topScorer: { name: 'Iñaki Williams',      goals: 13, pos: 'BU', matchesPlayed: 31 },
-    scorer2:   { name: 'Nico Williams',       goals: 10, pos: 'AG', matchesPlayed: 30 },
-    scorer3:   { name: 'Oihan Sancet',        goals:  7, pos: 'MO', matchesPlayed: 29 },
-    keyPlayer: { name: 'Nico Williams',       role: 'Ailier gauche explosif' },
-    dangerMan: { name: 'Oihan Sancet',        note: 'Milieu offensif' },
-    style: 'Jeu basque, intensité physique',
-  },
+// Cache mémoire : teamId (API-Football) → { topScorer, scorer2, scorer3 }
+// TTL 12h — rechargé au démarrage et à chaque nouvelle journée
+const scorersCache = new Map();   // teamId → scorers
+let   cacheLoadedAt = 0;
+const CACHE_TTL_MS  = 12 * 60 * 60 * 1000;
 
-  // ── Bundesliga ───────────────────────────────────────────────────────────
-  133641: { // Bayern Munich
-    topScorer: { name: 'Harry Kane',          goals: 22, pos: 'BU', matchesPlayed: 31 },
-    scorer2:   { name: 'Jamal Musiala',       goals: 13, pos: 'MO', matchesPlayed: 30 },
-    scorer3:   { name: 'Leroy Sané',          goals:  9, pos: 'AD', matchesPlayed: 27 },
-    keyPlayer: { name: 'Jamal Musiala',       role: 'Milieu offensif génie' },
-    dangerMan: { name: 'Leroy Sané',          note: 'Vitesse et dribble' },
-    style: 'Pressing haut, domination totale',
-  },
-  133650: { // Dortmund
-    topScorer: { name: 'Serhou Guirassy',     goals: 14, pos: 'BU', matchesPlayed: 28 },
-    scorer2:   { name: 'Jamie Gittens',       goals: 11, pos: 'AG', matchesPlayed: 30 },
-    scorer3:   { name: 'Julian Brandt',       goals:  8, pos: 'MO', matchesPlayed: 32 },
-    keyPlayer: { name: 'Julian Brandt',       role: 'Meneur technique' },
-    dangerMan: { name: 'Serhou Guirassy',     note: 'Finisseur puissant' },
-    style: 'Contre-attaque rapide, largeur du jeu',
-  },
-  133666: { // Leverkusen
-    topScorer: { name: 'Florian Wirtz',       goals: 15, pos: 'MO', matchesPlayed: 31 },
-    scorer2:   { name: 'Victor Boniface',     goals: 11, pos: 'BU', matchesPlayed: 27 },
-    scorer3:   { name: 'Granit Xhaka',        goals:  5, pos: 'MO', matchesPlayed: 32 },
-    keyPlayer: { name: 'Granit Xhaka',        role: 'Sentinelle dominante' },
-    dangerMan: { name: 'Victor Boniface',     note: 'Avant-centre physique' },
-    style: 'Gegenpressing, jeu positionnel',
-  },
-  134695: { // RB Leipzig
-    topScorer: { name: 'Benjamin Sesko',      goals: 14, pos: 'BU', matchesPlayed: 29 },
-    scorer2:   { name: 'Lois Openda',         goals: 10, pos: 'AT', matchesPlayed: 27 },
-    scorer3:   { name: 'Xavi Simons',         goals:  9, pos: 'MO', matchesPlayed: 31 },
-    keyPlayer: { name: 'Xavi Simons',         role: 'Milieu offensif' },
-    dangerMan: { name: 'Lois Openda',         note: 'Mobile, contre-attaque' },
-    style: 'Pressing haut, transitions verticales',
-  },
+function posCode(pos) {
+  if (!pos) return 'BU';
+  const p = pos.toLowerCase();
+  if (p.includes('forward')  || p.includes('attacker')) return 'BU';
+  if (p.includes('midfielder'))                          return 'MO';
+  if (p.includes('defender'))                            return 'DF';
+  return 'BU';
+}
 
-  // ── Serie A ──────────────────────────────────────────────────────────────
-  133673: { // Inter Milan
-    topScorer: { name: 'Lautaro Martínez',    goals: 18, pos: 'BU', matchesPlayed: 32 },
-    scorer2:   { name: 'Marcus Thuram',       goals: 13, pos: 'AT', matchesPlayed: 31 },
-    scorer3:   { name: 'Hakan Çalhanoğlu',    goals:  7, pos: 'MO', matchesPlayed: 29 },
-    keyPlayer: { name: 'Marcus Thuram',       role: 'Avant-centre complet' },
-    dangerMan: { name: 'Hakan Çalhanoğlu',    note: 'Milieu décisif sur coup franc' },
-    style: 'Bloc médian solide, transitions rapides',
-  },
-  133672: { // Juventus
-    topScorer: { name: 'Dušan Vlahović',      goals: 14, pos: 'BU', matchesPlayed: 29 },
-    scorer2:   { name: 'Kenan Yıldız',        goals:  9, pos: 'AT', matchesPlayed: 30 },
-    scorer3:   { name: 'Teun Koopmeiners',    goals:  7, pos: 'MO', matchesPlayed: 28 },
-    keyPlayer: { name: 'Kenan Yıldız',        role: 'Talent offensif' },
-    dangerMan: { name: 'Teun Koopmeiners',    note: 'Milieu technique décisif' },
-    style: 'Solidité défensive, efficacité balistique',
-  },
-  133667: { // AC Milan
-    topScorer: { name: 'Rafael Leão',         goals: 12, pos: 'AG', matchesPlayed: 30 },
-    scorer2:   { name: 'Christian Pulisic',   goals: 10, pos: 'MO', matchesPlayed: 31 },
-    scorer3:   { name: 'Álvaro Morata',       goals:  8, pos: 'BU', matchesPlayed: 26 },
-    keyPlayer: { name: 'Christian Pulisic',   role: 'Milieu offensif' },
-    dangerMan: { name: 'Rafael Leão',         note: 'Explosif en sprint' },
-    style: 'Bloc médian, exploite la vitesse de Leão',
-  },
-  133680: { // Napoli
-    topScorer: { name: 'Romelu Lukaku',       goals: 12, pos: 'BU', matchesPlayed: 29 },
-    scorer2:   { name: 'Khvicha Kvaratskhelia', goals: 10, pos: 'AG', matchesPlayed: 28 },
-    scorer3:   { name: 'Giacomo Raspadori',   goals:  7, pos: 'AT', matchesPlayed: 26 },
-    keyPlayer: { name: 'Khvicha Kvaratskhelia', role: 'Ailier technique gauche' },
-    dangerMan: { name: 'Giacomo Raspadori',   note: 'Mobile entre les lignes' },
-    style: 'Pressing haut à la Conte, jeu direct',
-  },
-  133668: { // Lazio
-    topScorer: { name: 'Mattia Zaccagni',     goals: 11, pos: 'AG', matchesPlayed: 29 },
-    scorer2:   { name: 'Pedro',               goals:  7, pos: 'AT', matchesPlayed: 27 },
-    scorer3:   { name: 'Ciro Immobile',       goals:  6, pos: 'BU', matchesPlayed: 22 },
-    keyPlayer: { name: 'Nicolò Rovella',      role: 'Milieu box-to-box' },
-    dangerMan: { name: 'Pedro',               note: 'Expérience et finesse' },
-    style: 'Possession, attaque positionnelle',
-  },
-  133682: { // Roma
-    topScorer: { name: 'Paulo Dybala',        goals: 11, pos: 'AT', matchesPlayed: 27 },
-    scorer2:   { name: 'Tammy Abraham',       goals:  8, pos: 'BU', matchesPlayed: 25 },
-    scorer3:   { name: 'Lorenzo Pellegrini',  goals:  6, pos: 'MO', matchesPlayed: 30 },
-    keyPlayer: { name: 'Lorenzo Pellegrini',  role: 'Capitaine créateur' },
-    dangerMan: { name: 'Tammy Abraham',       note: 'Puissant pivot' },
-    style: 'Créativité offensive, pressing médian',
-  },
-  133674: { // Fiorentina
-    topScorer: { name: 'Moise Kean',          goals: 14, pos: 'BU', matchesPlayed: 30 },
-    scorer2:   { name: 'Albert Gudmundsson',  goals: 10, pos: 'AT', matchesPlayed: 27 },
-    scorer3:   { name: 'Riccardo Sottil',     goals:  6, pos: 'AD', matchesPlayed: 26 },
-    keyPlayer: { name: 'Albert Gudmundsson',  role: 'Meneur offensif' },
-    dangerMan: { name: 'Riccardo Sottil',     note: 'Ailier droit explosif' },
-    style: 'Jeu offensif, possession en demi-terrain',
-  },
-  134782: { // Atalanta
-    topScorer: { name: 'Ademola Lookman',     goals: 16, pos: 'AT', matchesPlayed: 30 },
-    scorer2:   { name: 'Gianluca Scamacca',   goals: 11, pos: 'BU', matchesPlayed: 26 },
-    scorer3:   { name: 'Charles De Ketelaere', goals: 9, pos: 'MO', matchesPlayed: 31 },
-    keyPlayer: { name: 'Gianluca Scamacca',   role: 'Avant-centre athlétique' },
-    dangerMan: { name: 'Charles De Ketelaere', note: 'Milieu offensif décisif' },
-    style: 'Gegenpressing à l\'italienne, attaque massive',
-  },
-};
+// Ligues principales dont on charge les buteurs
+const SCORER_LEAGUES = [39, 61, 140, 135, 78, 2, 3, 848, 88, 94, 144, 179, 203, 197, 207, 218];
 
-// ── IDs API-Football → données joueurs ──────────────────────────────────────
-// API-Football utilise des IDs différents de TheSportsDB
-const API_FOOTBALL_IDS = {
+async function fetchLeagueScorers(leagueId) {
+  if (!client) return;
+  try {
+    const res = await client.get('/players/topscorers', {
+      params: { league: leagueId, season: SEASON },
+    });
+    for (const entry of (res.data?.response ?? [])) {
+      const stat   = entry.statistics?.[0];
+      if (!stat) continue;
+      const teamId = stat.team.id;
+      if (!scorersCache.has(teamId)) scorersCache.set(teamId, []);
+      scorersCache.get(teamId).push({
+        name:          entry.player.name,
+        goals:         stat.goals.total ?? 0,
+        pos:           posCode(stat.games.position),
+        matchesPlayed: stat.games.appearences ?? 1,
+      });
+    }
+  } catch (err) {
+    console.warn(`[playerStats] topscorers ligue ${leagueId}:`, err.message);
+  }
+}
+
+/** Charge les buteurs pour toutes les ligues principales (appelé une fois par démarrage). */
+export async function preloadTopScorers() {
+  if (!client) return;
+  if (Date.now() - cacheLoadedAt < CACHE_TTL_MS) return; // déjà chargé
+
+  scorersCache.clear();
+  await Promise.all(SCORER_LEAGUES.map(id => fetchLeagueScorers(id)));
+  cacheLoadedAt = Date.now();
+  console.log(`[playerStats] ${scorersCache.size} équipes chargées depuis API`);
+}
+
+/** Retourne top 3 buteurs depuis la cache API, triés par buts. */
+function getApiScorers(teamId) {
+  const list = scorersCache.get(Number(teamId));
+  if (!list?.length) return null;
+  const sorted = [...list].sort((a, b) => b.goals - a.goals);
+  return {
+    topScorer: sorted[0] ?? null,
+    scorer2:   sorted[1] ?? null,
+    scorer3:   sorted[2] ?? null,
+  };
+}
+
+// ── Données statiques : style de jeu et rôles ────────────────────────────────
+// teamId = ID API-Football (colonne de gauche dans API_FOOTBALL_IDS)
+const TEAM_META = {
   // Premier League
-  42:  133604, // Arsenal
-  50:  133605, // Manchester City
-  40:  133602, // Liverpool
-  33:  133612, // Manchester United
-  66:  133601, // Aston Villa
-  49:  133610, // Chelsea
-  51:  133619, // Brighton
-  47:  133616, // Tottenham
-  35:  134301, // Bournemouth
-  52:  133632, // Crystal Palace
-  36:  133600, // Fulham
-  34:  133620, // Newcastle
-  37:  133636, // West Ham
+  42:  { keyPlayer: { name: 'Martin Ødegaard',     role: 'Meneur de jeu' },     dangerMan: { name: 'Bukayo Saka',          note: 'Dribbleur droit décisif' },    style: 'Possession haute, pressing intensif' },
+  50:  { keyPlayer: { name: 'Bernardo Silva',      role: 'Meneur technique' },   dangerMan: { name: 'Erling Haaland',       note: 'Finisseur implacable' },       style: 'Monopole du ballon, transitions rapides' },
+  40:  { keyPlayer: { name: 'Alexis Mac Allister', role: 'Box-to-box' },         dangerMan: { name: 'Mohamed Salah',        note: 'Ailier prolifique côté droit' },style: 'Pressing haut, transitions verticales' },
+  33:  { keyPlayer: { name: 'Bruno Fernandes',     role: 'Capitaine créateur' }, dangerMan: { name: 'Bruno Fernandes',      note: 'Décisif sur coup franc' },     style: 'Contre-attaque, duels directs' },
+  66:  { keyPlayer: { name: 'John McGinn',         role: 'Box-to-box' },         dangerMan: { name: 'Ollie Watkins',        note: 'Avant-centre mobile' },        style: 'Pressing agressif, jeu aérien' },
+  49:  { keyPlayer: { name: 'Enzo Fernández',      role: 'Milieu créateur' },    dangerMan: { name: 'Cole Palmer',          note: 'Milieu offensif décisif' },    style: 'Technique, possession en demi-terrain' },
+  51:  { keyPlayer: { name: 'Carlos Baleba',       role: 'Récupérateur' },       dangerMan: { name: 'Kaoru Mitoma',         note: 'Dribbleur côté gauche' },      style: 'Jeu positionnel, nombreuses solutions' },
+  47:  { keyPlayer: { name: 'James Maddison',      role: 'Meneur' },             dangerMan: { name: 'Heung-min Son',        note: 'Ailier gauche prolifique' },   style: 'Contre-attaque rapide, largeur du terrain' },
+  35:  { keyPlayer: { name: 'Ryan Christie',       role: 'Moteur du milieu' },   dangerMan: { name: 'Antoine Semenyo',      note: 'Vitesse en transition' },      style: 'Intensité physique, jeu direct' },
+  52:  { keyPlayer: { name: 'Eberechi Eze',        role: 'Dribbleur créateur' }, dangerMan: { name: 'Eberechi Eze',         note: 'Explosif balle au pied' },     style: 'Direct, appui sur les ailiers' },
+  36:  { keyPlayer: { name: 'Alex Iwobi',          role: 'Polyvalent' },         dangerMan: { name: 'Rodrigo Muniz',        note: 'Finisseur en pivot' },         style: 'Solide défensivement, efficace en transition' },
+  34:  { keyPlayer: { name: 'Bruno Guimarães',     role: 'Milieu dominant' },    dangerMan: { name: 'Alexander Isak',       note: 'Avant-centre technique' },     style: 'Pressing haut, jeu direct vers Isak' },
+  37:  { keyPlayer: { name: 'Lucas Paquetá',       role: 'Milieu technique' },   dangerMan: { name: 'Jarrod Bowen',         note: 'Ailier droit actif' },         style: 'Jeu aérien, duels physiques' },
   // Ligue 1
-  85:  133714, // PSG
-  81:  133707, // Marseille
-  79:  133711, // Lille
-  80:  133713, // Lyon
-  116: 133822, // Lens
-  111: 133719, // Rennes
-  84:  133712, // Nice
+  85:  { keyPlayer: { name: 'Fabian Ruiz',         role: 'Relanceur créateur' }, dangerMan: { name: 'Bradley Barcola',      note: 'Accélérateur côté gauche' },   style: 'Pressing haut, domination technique' },
+  81:  { keyPlayer: { name: 'Valentin Rongier',    role: 'Récupérateur' },       dangerMan: { name: 'Mason Greenwood',      note: 'Ailier droit technique' },     style: 'Bloc médian, transitions rapides' },
+  79:  { keyPlayer: { name: 'Angel Gomes',         role: 'Meneur box-to-box' },  dangerMan: { name: 'Jonathan David',       note: 'Finisseur prolifique' },       style: 'Pressing haut, jeu direct vers David' },
+  80:  { keyPlayer: { name: 'Rayan Cherki',        role: 'Talent offensif' },    dangerMan: { name: 'Rayan Cherki',         note: 'Imprévisible entre les lignes' },style: 'Combinaisons courtes, créativité offensive' },
+  116: { keyPlayer: { name: 'Neil El Aynaoui',     role: 'Milieu moderne' },     dangerMan: { name: 'Florian Sotoca',       note: 'Explosif côté gauche' },       style: 'Pressing intense, bloc collectif' },
+  111: { keyPlayer: { name: 'Baptiste Santamaria', role: "Chef d'orchestre" },   dangerMan: { name: 'Arnaud Kalimuendo',    note: 'Avant-centre mobile' },        style: 'Jeu collectif structuré, transitions' },
+  84:  { keyPlayer: { name: 'Haris Belkebla',      role: 'Milieu récupérateur' },dangerMan: { name: 'Terem Moffi',          note: 'Finisseur athlétique' },       style: 'Défense solide, coups de pied arrêtés' },
   // La Liga
-  541: 133739, // Real Madrid
-  529: 133738, // Barcelona
-  530: 133740, // Atlético Madrid
-  536: 133735, // Sevilla
-  543: 133722, // Real Betis
-  548: 133724, // Real Sociedad
-  531: 133727, // Athletic Bilbao
+  541: { keyPlayer: { name: 'Jude Bellingham',     role: 'Box-to-box offensif' },dangerMan: { name: 'Vinicius Jr.',         note: 'Dribbleur explosif côté gauche' },style: 'Contre-attaque fulminante, possession équilibrée' },
+  529: { keyPlayer: { name: 'Lamine Yamal',        role: 'Ailier prodige' },     dangerMan: { name: 'Pedri',                note: 'Créateur entre les lignes' },  style: 'Tiki-taka modernisé, haut pressing' },
+  530: { keyPlayer: { name: 'Rodrigo De Paul',     role: 'Milieu combatif' },    dangerMan: { name: 'Antoine Griezmann',    note: 'Mobile entre les lignes' },    style: 'Bloc bas, contre-attaques précises' },
+  536: { keyPlayer: { name: 'Joan Jordán',         role: 'Box-to-box technique' },dangerMan: { name: 'Dodi Lukébakio',       note: 'Ailier gauche rapide' },       style: 'Pressing organisé, jeu de transition' },
+  543: { keyPlayer: { name: 'Isco',                role: 'Meneur élégant' },     dangerMan: { name: 'Ayoze Pérez',          note: 'Attaquant mobile' },           style: 'Possession technique, coups de pied arrêtés' },
+  548: { keyPlayer: { name: 'Martin Zubimendi',    role: 'Sentinelle' },         dangerMan: { name: 'Mikel Oyarzabal',      note: 'Finisseur technique' },        style: 'Jeu positionnel, pressing coordonné' },
+  531: { keyPlayer: { name: 'Nico Williams',       role: 'Ailier gauche explosif' },dangerMan: { name: 'Iñaki Williams',    note: 'Avant-centre physique' },      style: 'Jeu basque, intensité physique' },
   // Bundesliga
-  157: 133641, // Bayern Munich
-  165: 133650, // Dortmund
-  168: 133666, // Leverkusen
-  173: 134695, // RB Leipzig
+  157: { keyPlayer: { name: 'Jamal Musiala',       role: 'Milieu offensif génie' },dangerMan: { name: 'Harry Kane',         note: 'Finisseur de surface' },       style: 'Pressing haut, domination totale' },
+  165: { keyPlayer: { name: 'Julian Brandt',       role: 'Meneur technique' },   dangerMan: { name: 'Serhou Guirassy',      note: 'Finisseur puissant' },         style: 'Contre-attaque rapide, largeur du jeu' },
+  168: { keyPlayer: { name: 'Granit Xhaka',        role: 'Sentinelle dominante' },dangerMan: { name: 'Florian Wirtz',       note: 'Milieu offensif décisif' },    style: 'Gegenpressing, jeu positionnel' },
+  173: { keyPlayer: { name: 'Xavi Simons',         role: 'Milieu offensif' },    dangerMan: { name: 'Benjamin Sesko',       note: 'Avant-centre athlétique' },    style: 'Pressing haut, transitions verticales' },
   // Serie A
-  505: 133673, // Inter Milan
-  496: 133672, // Juventus
-  489: 133667, // AC Milan
-  492: 133680, // Napoli
-  487: 133668, // Lazio
-  497: 133682, // Roma
-  502: 133674, // Fiorentina
-  499: 134782, // Atalanta
+  505: { keyPlayer: { name: 'Marcus Thuram',       role: 'Avant-centre complet' },dangerMan: { name: 'Lautaro Martínez',   note: 'Finisseur de surface' },       style: 'Bloc médian solide, transitions rapides' },
+  496: { keyPlayer: { name: 'Kenan Yıldız',        role: 'Talent offensif' },    dangerMan: { name: 'Dušan Vlahović',       note: 'Finisseur puissant' },         style: 'Solidité défensive, efficacité balistique' },
+  489: { keyPlayer: { name: 'Christian Pulisic',   role: 'Milieu offensif' },    dangerMan: { name: 'Rafael Leão',          note: 'Explosif en sprint' },         style: 'Bloc médian, exploite la vitesse de Leão' },
+  492: { keyPlayer: { name: 'Scott McTominay',     role: 'Box-to-box' },         dangerMan: { name: 'Romelu Lukaku',        note: 'Pivot physique dominant' },    style: 'Pressing haut à la Conte, jeu direct' },
+  487: { keyPlayer: { name: 'Nicolò Rovella',      role: 'Milieu box-to-box' },  dangerMan: { name: 'Mattia Zaccagni',      note: 'Ailier gauche décisif' },      style: 'Possession, attaque positionnelle' },
+  497: { keyPlayer: { name: 'Lorenzo Pellegrini',  role: 'Capitaine créateur' }, dangerMan: { name: 'Paulo Dybala',         note: 'Technique et finesse' },       style: 'Créativité offensive, pressing médian' },
+  502: { keyPlayer: { name: 'Albert Gudmundsson',  role: 'Meneur offensif' },    dangerMan: { name: 'Moise Kean',           note: 'Avant-centre puissant' },      style: 'Jeu offensif, possession en demi-terrain' },
+  499: { keyPlayer: { name: 'Gianluca Scamacca',   role: 'Avant-centre athlétique' },dangerMan: { name: 'Ademola Lookman', note: 'Ailier technique décisif' },   style: "Gegenpressing à l'italienne, attaque massive" },
 };
 
-// Mapping par nom (insensible à la casse, correspondance partielle)
-const NAME_KEYWORDS = [
-  ['arsenal',           133604],
-  ['manchester city',   133605],
-  ['man city',          133605],
-  ['liverpool',         133602],
-  ['manchester united', 133612],
-  ['man united',        133612],
-  ['aston villa',       133601],
-  ['chelsea',           133610],
-  ['brighton',          133619],
-  ['tottenham',         133616],
-  ['spurs',             133616],
-  ['bournemouth',       134301],
-  ['crystal palace',    133632],
-  ['fulham',            133600],
-  ['newcastle',         133620],
-  ['west ham',          133636],
-  ['paris saint-germain', 133714],
-  ['paris sg',          133714],
-  ['psg',               133714],
-  ['marseille',         133707],
-  ['lille',             133711],
-  ['lyon',              133713],
-  ['lens',              133822],
-  ['rennes',            133719],
-  ['nice',              133712],
-  ['real madrid',       133739],
-  ['barcelona',         133738],
-  ['fc barcelona',      133738],
-  ['atlético madrid',   133740],
-  ['atletico madrid',   133740],
-  ['sevilla',           133735],
-  ['real betis',        133722],
-  ['real sociedad',     133724],
-  ['athletic bilbao',   133727],
-  ['athletic club',     133727],
-  ['bayern',            133641],
-  ['dortmund',          133650],
-  ['borussia dortmund', 133650],
-  ['leverkusen',        133666],
-  ['bayer leverkusen',  133666],
-  ['rb leipzig',        134695],
-  ['leipzig',           134695],
-  ['inter milan',       133673],
-  ['inter',             133673],
-  ['juventus',          133672],
-  ['ac milan',          133667],
-  ['milan',             133667],
-  ['napoli',            133680],
-  ['lazio',             133668],
-  ['roma',              133682],
-  ['fiorentina',        133674],
-  ['atalanta',          134782],
+// Mapping ID API-Football → meta statique (via lookup direct dans TEAM_META)
+// Les IDs dans TEAM_META correspondent déjà aux IDs API-Football
+
+/** Retourne style + rôles depuis les données statiques */
+function getTeamMeta(apiId) {
+  return TEAM_META[Number(apiId)] ?? null;
+}
+
+/** Lookup par nom d'équipe (partiel, insensible à la casse) */
+const NAME_TO_ID = [
+  ['arsenal', 42], ['manchester city', 50], ['man city', 50],
+  ['liverpool', 40], ['manchester united', 33], ['man united', 33],
+  ['aston villa', 66], ['chelsea', 49], ['brighton', 51],
+  ['tottenham', 47], ['spurs', 47], ['bournemouth', 35],
+  ['crystal palace', 52], ['fulham', 36], ['newcastle', 34],
+  ['west ham', 37],
+  ['paris saint-germain', 85], ['psg', 85], ['marseille', 81],
+  ['lille', 79], ['lyon', 80], ['lens', 116], ['rennes', 111], ['nice', 84],
+  ['real madrid', 541], ['barcelona', 529], ['fc barcelona', 529],
+  ['atlético madrid', 530], ['atletico madrid', 530],
+  ['sevilla', 536], ['real betis', 543], ['real sociedad', 548],
+  ['athletic bilbao', 531], ['athletic club', 531],
+  ['bayern', 157], ['dortmund', 165], ['borussia dortmund', 165],
+  ['leverkusen', 168], ['bayer leverkusen', 168],
+  ['rb leipzig', 173], ['leipzig', 173],
+  ['inter milan', 505], ['inter', 505], ['juventus', 496],
+  ['ac milan', 489], ['milan', 489], ['napoli', 492],
+  ['lazio', 487], ['roma', 497], ['fiorentina', 502], ['atalanta', 499],
 ];
 
-/** Retourne les stats joueurs par ID TheSportsDB */
-export function getPlayerStats(teamId) {
-  return PLAYERS[String(teamId)] ?? null;
-}
-
-/** Retourne les stats joueurs par ID API-Football */
-export function getPlayerStatsByApiId(apiFootballId) {
-  const tsdbId = API_FOOTBALL_IDS[Number(apiFootballId)];
-  return tsdbId ? (PLAYERS[tsdbId] ?? null) : null;
-}
-
-/** Retourne les stats joueurs par nom d'équipe (correspondance partielle) */
-export function getPlayerStatsByName(teamName) {
-  if (!teamName) return null;
-  const key = teamName.toLowerCase().trim();
-  for (const [keyword, tsdbId] of NAME_KEYWORDS) {
-    if (key.includes(keyword) || keyword.includes(key)) {
-      return PLAYERS[tsdbId] ?? null;
-    }
+function resolveIdByName(name) {
+  if (!name) return null;
+  const key = name.toLowerCase().trim();
+  for (const [kw, id] of NAME_TO_ID) {
+    if (key.includes(kw) || kw.includes(key)) return id;
   }
   return null;
 }
 
-/** Retourne le nom du buteur principal */
-export function getTopScorer(teamId) {
-  return PLAYERS[String(teamId)]?.topScorer ?? null;
+/** Point d'entrée principal — retourne données des deux équipes */
+export function getMatchPlayers(homeId, awayId, homeName, awayName) {
+  const hId = Number(homeId) || resolveIdByName(homeName);
+  const aId = Number(awayId) || resolveIdByName(awayName);
+
+  const hApiId = hId || resolveIdByName(homeName);
+  const aApiId = aId || resolveIdByName(awayName);
+
+  return {
+    home: buildTeamPlayers(hApiId, homeName),
+    away: buildTeamPlayers(aApiId, awayName),
+  };
 }
 
-/** Retourne tous les joueurs pour les deux équipes (essaie ID API-Football, puis nom) */
-export function getMatchPlayers(homeId, awayId, homeName, awayName) {
-  return {
-    home: getPlayerStats(homeId)
-       ?? getPlayerStatsByApiId(homeId)
-       ?? getPlayerStatsByName(homeName),
-    away: getPlayerStats(awayId)
-       ?? getPlayerStatsByApiId(awayId)
-       ?? getPlayerStatsByName(awayName),
-  };
+function buildTeamPlayers(apiId, name) {
+  const resolvedId = apiId ?? resolveIdByName(name);
+  const scorers    = getApiScorers(resolvedId) ?? getStaticScorers(resolvedId);
+  const meta       = getTeamMeta(resolvedId);
+  if (!scorers && !meta) return null;
+  return { ...scorers, ...meta };
+}
+
+// Fallback statique pour les buteurs (si API pas encore chargée ou quota atteint)
+const STATIC_SCORERS = {
+  42:  { topScorer: { name: 'Bukayo Saka',         goals: 14, pos: 'AD', matchesPlayed: 30 }, scorer2: { name: 'Kai Havertz',      goals: 11, pos: 'BU', matchesPlayed: 32 }, scorer3: { name: 'Leandro Trossard',  goals:  8, pos: 'AG', matchesPlayed: 28 } },
+  50:  { topScorer: { name: 'Erling Haaland',      goals: 22, pos: 'BU', matchesPlayed: 29 }, scorer2: { name: 'Phil Foden',        goals: 11, pos: 'MO', matchesPlayed: 31 }, scorer3: { name: 'Bernardo Silva',     goals:  7, pos: 'MO', matchesPlayed: 33 } },
+  40:  { topScorer: { name: 'Mohamed Salah',        goals: 19, pos: 'AD', matchesPlayed: 32 }, scorer2: { name: 'Diogo Jota',       goals: 12, pos: 'AT', matchesPlayed: 26 }, scorer3: { name: 'Luis Díaz',          goals:  9, pos: 'AG', matchesPlayed: 30 } },
+  33:  { topScorer: { name: 'Bruno Fernandes',      goals:  8, pos: 'MO', matchesPlayed: 33 }, scorer2: { name: 'Alejandro Garnacho',goals: 7, pos: 'AG', matchesPlayed: 30 }, scorer3: { name: 'Marcus Rashford',    goals:  5, pos: 'AG', matchesPlayed: 20 } },
+  66:  { topScorer: { name: 'Ollie Watkins',        goals: 14, pos: 'BU', matchesPlayed: 31 }, scorer2: { name: 'Leon Bailey',      goals:  9, pos: 'AD', matchesPlayed: 28 }, scorer3: { name: 'John McGinn',        goals:  6, pos: 'MO', matchesPlayed: 32 } },
+  49:  { topScorer: { name: 'Cole Palmer',          goals: 18, pos: 'MO', matchesPlayed: 33 }, scorer2: { name: 'Nicolas Jackson',  goals: 12, pos: 'BU', matchesPlayed: 30 }, scorer3: { name: 'Christopher Nkunku', goals:  9, pos: 'AT', matchesPlayed: 25 } },
+  51:  { topScorer: { name: 'Georginio Rutter',     goals: 10, pos: 'AT', matchesPlayed: 30 }, scorer2: { name: 'Kaoru Mitoma',     goals:  8, pos: 'AG', matchesPlayed: 29 }, scorer3: { name: 'João Pedro',         goals:  7, pos: 'BU', matchesPlayed: 24 } },
+  47:  { topScorer: { name: 'Heung-min Son',        goals: 12, pos: 'AG', matchesPlayed: 31 }, scorer2: { name: 'Dominic Solanke', goals: 10, pos: 'BU', matchesPlayed: 30 }, scorer3: { name: 'James Maddison',     goals:  6, pos: 'MO', matchesPlayed: 28 } },
+  35:  { topScorer: { name: 'Antoine Semenyo',      goals:  9, pos: 'AD', matchesPlayed: 30 }, scorer2: { name: 'Evanilson',       goals:  8, pos: 'BU', matchesPlayed: 26 }, scorer3: { name: 'Dango Ouattara',     goals:  6, pos: 'AD', matchesPlayed: 28 } },
+  52:  { topScorer: { name: 'Jean-Phil. Mateta',    goals: 11, pos: 'BU', matchesPlayed: 30 }, scorer2: { name: 'Eberechi Eze',    goals:  9, pos: 'MO', matchesPlayed: 29 }, scorer3: { name: 'Ismaïla Sarr',       goals:  7, pos: 'AD', matchesPlayed: 27 } },
+  36:  { topScorer: { name: 'Raúl Jiménez',         goals: 10, pos: 'BU', matchesPlayed: 29 }, scorer2: { name: 'Rodrigo Muniz',   goals:  8, pos: 'BU', matchesPlayed: 26 }, scorer3: { name: 'Alex Iwobi',         goals:  5, pos: 'MO', matchesPlayed: 32 } },
+  34:  { topScorer: { name: 'Alexander Isak',       goals: 16, pos: 'BU', matchesPlayed: 28 }, scorer2: { name: 'Anthony Gordon',  goals:  9, pos: 'AG', matchesPlayed: 31 }, scorer3: { name: 'Harvey Barnes',      goals:  7, pos: 'AG', matchesPlayed: 27 } },
+  37:  { topScorer: { name: 'Jarrod Bowen',         goals: 10, pos: 'AD', matchesPlayed: 30 }, scorer2: { name: 'Mohammed Kudus',  goals:  9, pos: 'AT', matchesPlayed: 28 }, scorer3: { name: 'Lucas Paquetá',      goals:  6, pos: 'MO', matchesPlayed: 29 } },
+  85:  { topScorer: { name: 'Gonçalo Ramos',        goals: 14, pos: 'BU', matchesPlayed: 28 }, scorer2: { name: 'Bradley Barcola', goals: 11, pos: 'AG', matchesPlayed: 31 }, scorer3: { name: 'Ousmane Dembélé',    goals:  9, pos: 'AD', matchesPlayed: 29 } },
+  81:  { topScorer: { name: 'Mason Greenwood',      goals: 13, pos: 'AD', matchesPlayed: 30 }, scorer2: { name: 'Elye Wahi',       goals:  9, pos: 'BU', matchesPlayed: 28 }, scorer3: { name: 'Luis Henrique',      goals:  6, pos: 'AG', matchesPlayed: 29 } },
+  79:  { topScorer: { name: 'Jonathan David',       goals: 20, pos: 'BU', matchesPlayed: 32 }, scorer2: { name: 'Edon Zhegrova',   goals:  8, pos: 'AD', matchesPlayed: 30 }, scorer3: { name: 'Angel Gomes',        goals:  6, pos: 'MO', matchesPlayed: 31 } },
+  80:  { topScorer: { name: 'Alexandre Lacazette',  goals: 12, pos: 'BU', matchesPlayed: 30 }, scorer2: { name: 'Rayan Cherki',    goals:  9, pos: 'AT', matchesPlayed: 28 }, scorer3: { name: 'Ernest Nuamah',      goals:  7, pos: 'AD', matchesPlayed: 26 } },
+  116: { topScorer: { name: 'Florian Sotoca',       goals:  8, pos: 'AG', matchesPlayed: 29 }, scorer2: { name: 'Przemysław Frankowski', goals: 6, pos: 'AD', matchesPlayed: 31 }, scorer3: { name: 'Neil El Aynaoui', goals: 5, pos: 'MO', matchesPlayed: 30 } },
+  111: { topScorer: { name: 'Arnaud Kalimuendo',    goals:  9, pos: 'BU', matchesPlayed: 28 }, scorer2: { name: 'Amine Gouiri',    goals:  6, pos: 'AG', matchesPlayed: 27 }, scorer3: { name: 'Enzo Le Fée',        goals:  4, pos: 'MO', matchesPlayed: 25 } },
+  84:  { topScorer: { name: 'Terem Moffi',          goals: 10, pos: 'BU', matchesPlayed: 29 }, scorer2: { name: 'Evann Guessand',  goals:  7, pos: 'AT', matchesPlayed: 28 }, scorer3: { name: 'Gaëtan Laborde',     goals:  6, pos: 'BU', matchesPlayed: 24 } },
+  541: { topScorer: { name: 'Kylian Mbappé',        goals: 21, pos: 'BU', matchesPlayed: 31 }, scorer2: { name: 'Vinicius Jr.',    goals: 16, pos: 'AG', matchesPlayed: 30 }, scorer3: { name: 'Jude Bellingham',    goals: 12, pos: 'MO', matchesPlayed: 29 } },
+  529: { topScorer: { name: 'Robert Lewandowski',   goals: 18, pos: 'BU', matchesPlayed: 30 }, scorer2: { name: 'Lamine Yamal',    goals: 12, pos: 'AD', matchesPlayed: 31 }, scorer3: { name: 'Raphinha',            goals: 10, pos: 'AD', matchesPlayed: 29 } },
+  530: { topScorer: { name: 'Antoine Griezmann',    goals: 12, pos: 'AT', matchesPlayed: 30 }, scorer2: { name: 'Julián Álvarez',  goals: 11, pos: 'BU', matchesPlayed: 29 }, scorer3: { name: 'Samuel Lino',        goals:  6, pos: 'AG', matchesPlayed: 28 } },
+  536: { topScorer: { name: 'Youssef En-Nesyri',    goals: 10, pos: 'BU', matchesPlayed: 29 }, scorer2: { name: 'Dodi Lukébakio',  goals:  7, pos: 'AG', matchesPlayed: 28 }, scorer3: { name: 'Chidera Ejuke',      goals:  5, pos: 'AD', matchesPlayed: 25 } },
+  543: { topScorer: { name: 'Juanmi',                goals:  8, pos: 'AT', matchesPlayed: 28 }, scorer2: { name: 'Ayoze Pérez',    goals:  6, pos: 'AT', matchesPlayed: 29 }, scorer3: { name: 'Lo Celso',            goals:  5, pos: 'MO', matchesPlayed: 28 } },
+  548: { topScorer: { name: 'Mikel Oyarzabal',       goals: 11, pos: 'AT', matchesPlayed: 29 }, scorer2: { name: 'Brais Méndez',   goals:  8, pos: 'MO', matchesPlayed: 30 }, scorer3: { name: 'Take Kubo',           goals:  6, pos: 'AD', matchesPlayed: 31 } },
+  531: { topScorer: { name: 'Iñaki Williams',        goals: 13, pos: 'BU', matchesPlayed: 31 }, scorer2: { name: 'Nico Williams',  goals: 10, pos: 'AG', matchesPlayed: 30 }, scorer3: { name: 'Oihan Sancet',        goals:  7, pos: 'MO', matchesPlayed: 29 } },
+  157: { topScorer: { name: 'Harry Kane',            goals: 22, pos: 'BU', matchesPlayed: 31 }, scorer2: { name: 'Jamal Musiala',  goals: 13, pos: 'MO', matchesPlayed: 30 }, scorer3: { name: 'Michael Olise',       goals: 10, pos: 'AD', matchesPlayed: 28 } },
+  165: { topScorer: { name: 'Serhou Guirassy',       goals: 14, pos: 'BU', matchesPlayed: 28 }, scorer2: { name: 'Jamie Gittens',  goals: 11, pos: 'AG', matchesPlayed: 30 }, scorer3: { name: 'Julian Brandt',       goals:  8, pos: 'MO', matchesPlayed: 32 } },
+  168: { topScorer: { name: 'Florian Wirtz',         goals: 15, pos: 'MO', matchesPlayed: 31 }, scorer2: { name: 'Victor Boniface',goals: 11, pos: 'BU', matchesPlayed: 27 }, scorer3: { name: 'Granit Xhaka',        goals:  5, pos: 'MO', matchesPlayed: 32 } },
+  173: { topScorer: { name: 'Benjamin Sesko',        goals: 14, pos: 'BU', matchesPlayed: 29 }, scorer2: { name: 'Lois Openda',   goals: 10, pos: 'AT', matchesPlayed: 27 }, scorer3: { name: 'Xavi Simons',         goals:  9, pos: 'MO', matchesPlayed: 31 } },
+  505: { topScorer: { name: 'Lautaro Martínez',      goals: 18, pos: 'BU', matchesPlayed: 32 }, scorer2: { name: 'Marcus Thuram', goals: 13, pos: 'AT', matchesPlayed: 31 }, scorer3: { name: 'Hakan Çalhanoğlu',    goals:  7, pos: 'MO', matchesPlayed: 29 } },
+  496: { topScorer: { name: 'Dušan Vlahović',        goals: 14, pos: 'BU', matchesPlayed: 29 }, scorer2: { name: 'Kenan Yıldız',  goals:  9, pos: 'AT', matchesPlayed: 30 }, scorer3: { name: 'Teun Koopmeiners',    goals:  7, pos: 'MO', matchesPlayed: 28 } },
+  489: { topScorer: { name: 'Rafael Leão',           goals: 12, pos: 'AG', matchesPlayed: 30 }, scorer2: { name: 'Christian Pulisic', goals: 10, pos: 'MO', matchesPlayed: 31 }, scorer3: { name: 'Tammy Abraham',    goals:  8, pos: 'BU', matchesPlayed: 25 } },
+  492: { topScorer: { name: 'Romelu Lukaku',         goals: 12, pos: 'BU', matchesPlayed: 29 }, scorer2: { name: 'Scott McTominay',goals: 8, pos: 'MO', matchesPlayed: 30 }, scorer3: { name: 'Giacomo Raspadori',   goals:  6, pos: 'AT', matchesPlayed: 26 } },
+  487: { topScorer: { name: 'Mattia Zaccagni',       goals: 11, pos: 'AG', matchesPlayed: 29 }, scorer2: { name: 'Pedro',          goals:  7, pos: 'AT', matchesPlayed: 27 }, scorer3: { name: 'Valentin Castellanos',goals: 6, pos: 'BU', matchesPlayed: 25 } },
+  497: { topScorer: { name: 'Paulo Dybala',          goals: 11, pos: 'AT', matchesPlayed: 27 }, scorer2: { name: 'Artem Dovbyk',   goals:  9, pos: 'BU', matchesPlayed: 28 }, scorer3: { name: 'Lorenzo Pellegrini', goals:  6, pos: 'MO', matchesPlayed: 30 } },
+  502: { topScorer: { name: 'Moise Kean',            goals: 14, pos: 'BU', matchesPlayed: 30 }, scorer2: { name: 'Albert Gudmundsson', goals: 10, pos: 'AT', matchesPlayed: 27 }, scorer3: { name: 'Riccardo Sottil',  goals:  6, pos: 'AD', matchesPlayed: 26 } },
+  499: { topScorer: { name: 'Ademola Lookman',       goals: 16, pos: 'AT', matchesPlayed: 30 }, scorer2: { name: 'Gianluca Scamacca', goals: 11, pos: 'BU', matchesPlayed: 26 }, scorer3: { name: 'Charles De Ketelaere', goals: 9, pos: 'MO', matchesPlayed: 31 } },
+};
+
+function getStaticScorers(apiId) {
+  return STATIC_SCORERS[Number(apiId)] ?? null;
 }
