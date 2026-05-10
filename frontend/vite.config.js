@@ -8,8 +8,9 @@ export default defineConfig({
     // Proxy API vers le backend Express pour éviter les problèmes CORS en dev
     proxy: {
       '/api': {
-        target: 'http://localhost:3001',
+        target: 'https://betwise-suh4.onrender.com',
         changeOrigin: true,
+        secure: true,
       },
     },
   },

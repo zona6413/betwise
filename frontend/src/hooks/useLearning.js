@@ -29,6 +29,12 @@ export function useLearning(matches) {
 
     if (!ftMatches.length) return;
 
+    // Marquer immédiatement (optimistic) pour éviter les doublons sur re-render
+    ftMatches.forEach(m => {
+      reportedRef.current.add(m.id);
+    });
+    saveReported(reportedRef.current);
+
     ftMatches.forEach(async (m) => {
       try {
         const res = await fetch(`${API_BASE}/learning/outcome`, {
@@ -45,13 +51,11 @@ export function useLearning(matches) {
           }),
         });
         const data = await res.json();
-        if (data.recorded || data.already) {
-          reportedRef.current.add(m.id);
-          saveReported(reportedRef.current);
-          if (data.recorded) console.log(`[learning] Résultat envoyé : ${m.homeTeam.name} ${m.score.home}-${m.score.away} ${m.awayTeam.name}`);
-        }
-      } catch (e) {
-        // Silencieux — pas bloquant
+        if (data.recorded) console.log(`[learning] Résultat envoyé : ${m.homeTeam.name} ${m.score.home}-${m.score.away} ${m.awayTeam.name}`);
+      } catch {
+        // En cas d'erreur réseau, retirer du cache pour réessayer au prochain cycle
+        reportedRef.current.delete(m.id);
+        saveReported(reportedRef.current);
       }
     });
   }, [matches]);
