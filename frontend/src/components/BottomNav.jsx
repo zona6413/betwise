@@ -34,9 +34,17 @@ const ITEMS = [
       <line x1="6" y1="20" x2="6" y2="14"/>
     </svg>
   )},
+  { id: 'paris',    label: 'Mes paris', icon: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+      <path d="M16 7V5a2 2 0 0 0-4 0v2"/>
+      <line x1="12" y1="12" x2="12" y2="16"/>
+      <line x1="10" y1="14" x2="14" y2="14"/>
+    </svg>
+  )},
 ];
 
-export default function BottomNav({ activeTab, onTabChange, liveCount, valueCount }) {
+export default function BottomNav({ activeTab, onTabChange, liveCount, valueCount, pendingBets = 0 }) {
   return (
     <nav className="bottom-nav">
       {ITEMS.map(item => (
@@ -48,7 +56,8 @@ export default function BottomNav({ activeTab, onTabChange, liveCount, valueCoun
           <span className="bnav-icon">
             {item.icon}
             {item.id === 'live'  && liveCount  > 0 && <span className="bnav-badge bnav-badge--red">{liveCount}</span>}
-            {item.id === 'value' && valueCount > 0 && <span className="bnav-badge bnav-badge--green">{valueCount}</span>}
+            {item.id === 'value' && valueCount  > 0 && <span className="bnav-badge bnav-badge--green">{valueCount}</span>}
+            {item.id === 'paris' && pendingBets > 0 && <span className="bnav-badge bnav-badge--purple">{pendingBets}</span>}
           </span>
           <span className="bnav-label">{item.label}</span>
         </button>

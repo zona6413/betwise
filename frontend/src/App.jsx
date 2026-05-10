@@ -1,9 +1,12 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { useMatches }    from './hooks/useMatches.js';
+import { useBetTracker } from './hooks/useBetTracker.js';
 import Header            from './components/Header.jsx';
 import MatchCard         from './components/MatchCard.jsx';
 import AnalysisModal     from './components/AnalysisModal.jsx';
 import ComboModal        from './components/ComboModal.jsx';
+import BetModal          from './components/BetModal.jsx';
+import BetTrackerPanel   from './components/BetTrackerPanel.jsx';
 import Toast             from './components/Toast.jsx';
 import StatsTab          from './components/StatsTab.jsx';
 import BottomNav         from './components/BottomNav.jsx';
@@ -19,6 +22,7 @@ const TABS = [
   { id: 'tomorrow', label: 'Demain' },
   { id: 'ucl',      label: 'Champions League' },
   { id: 'taux',     label: 'Taux' },
+  { id: 'paris',    label: 'Mes paris' },
 ];
 
 const LIVE_STATUSES = ['1H','HT','2H','ET','P'];
@@ -46,7 +50,9 @@ function normalizeLeague(name) { return name ?? ''; }
 export default function App() {
   const { matches, loading, error, lastUpdated, refresh } = useMatches();
   const learningStats = useLearning(matches);
+  const { bets, stats: betStats, addBet, resolveBet, voidBet, deleteBet } = useBetTracker();
   const [selectedMatch, setSelectedMatch] = useState(null);
+  const [betMatch,      setBetMatch]      = useState(null);
   const [activeTab,     setActiveTab]     = useState('all');
   const [activeLeague,  setActiveLeague]  = useState('all');
   const [riskProfile,   setRiskProfile]   = useState('medium');
@@ -203,7 +209,7 @@ export default function App() {
               <div className="picks-grid">
                 {aiPicks.map((match, i) => (
                   <div key={match.id} className="animate-fade" style={{ animationDelay: `${i*60}ms` }}>
-                    <MatchCard match={match} onAnalyse={setSelectedMatch} riskProfile={riskProfile} />
+                    <MatchCard match={match} onAnalyse={setSelectedMatch} onBet={setBetMatch} riskProfile={riskProfile} />
                   </div>
                 ))}
               </div>
@@ -236,7 +242,7 @@ export default function App() {
               <div className="matches-grid">
                 {importantMatches.map((match, i) => (
                   <div key={match.id} className="animate-fade" style={{ animationDelay: `${i*40}ms` }}>
-                    <MatchCard match={match} onAnalyse={setSelectedMatch} riskProfile={riskProfile} />
+                    <MatchCard match={match} onAnalyse={setSelectedMatch} onBet={setBetMatch} riskProfile={riskProfile} />
                   </div>
                 ))}
               </div>
@@ -263,8 +269,19 @@ export default function App() {
             <StatsTab matches={bettableMatches} onAnalyse={setSelectedMatch} learningStats={learningStats} />
           )}
 
+          {/* ── Onglet Mes paris ─────────────────────────────────── */}
+          {activeTab === 'paris' && (
+            <BetTrackerPanel
+              bets={bets}
+              stats={betStats}
+              onResolve={resolveBet}
+              onVoid={voidBet}
+              onDelete={deleteBet}
+            />
+          )}
+
           {/* ── Grille principale ────────────────────────────────── */}
-          {activeTab !== 'taux' && (
+          {activeTab !== 'taux' && activeTab !== 'paris' && (
             <>
               {showHomeSections && filtered.length > 0 && (
                 <div className="home-section-header" style={{ marginTop: 8, marginBottom: 4 }}>
@@ -288,7 +305,7 @@ export default function App() {
                   <div className="matches-grid">
                     {group.matches.map((match, i) => (
                       <div key={match.id} className="animate-fade" style={{ animationDelay: `${(gi*5+i)*30}ms` }}>
-                        <MatchCard match={match} onAnalyse={setSelectedMatch} riskProfile={riskProfile} />
+                        <MatchCard match={match} onAnalyse={setSelectedMatch} onBet={setBetMatch} riskProfile={riskProfile} />
                       </div>
                     ))}
                   </div>
@@ -306,8 +323,11 @@ export default function App() {
       {showCombo && (
         <ComboModal matches={bettableMatches} onClose={() => setShowCombo(false)} />
       )}
+      {betMatch && (
+        <BetModal match={betMatch} onAdd={addBet} onClose={() => setBetMatch(null)} />
+      )}
       <Toast message={toast.message} visible={toast.visible} type={toast.type} />
-      <BottomNav activeTab={activeTab} onTabChange={setActiveTab} liveCount={liveMatches.length} valueCount={valueCount} />
+      <BottomNav activeTab={activeTab} onTabChange={setActiveTab} liveCount={liveMatches.length} valueCount={valueCount} pendingBets={betStats.pending} />
     </div>
   );
 }

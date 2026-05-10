@@ -490,7 +490,30 @@
   border-top: 1px solid var(--border-lite);
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 10px;
+}
+
+.card-footer-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.btn-bet {
+  padding: 9px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 700;
+  background: rgba(0,214,143,0.1);
+  border: 1px solid rgba(0,214,143,0.25);
+  color: #00d68f;
+  transition: all 0.15s;
+  letter-spacing: 0.1px;
+}
+.btn-bet:hover {
+  background: rgba(0,214,143,0.18);
+  border-color: rgba(0,214,143,0.45);
 }
 
 .card-footer-meta {
@@ -505,7 +528,6 @@
 }
 
 .btn-analyse {
-  flex: 1;
   padding: 9px 12px;
   border-radius: var(--radius-sm);
   font-size: 13px;

@@ -73,6 +73,7 @@
     border: 1.5px solid rgba(6, 9, 15, 0.9);
   }
 
-  .bnav-badge--red   { background: #ef4444; color: #fff; }
-  .bnav-badge--green { background: #22c55e; color: #fff; }
+  .bnav-badge--red    { background: #ef4444; color: #fff; }
+  .bnav-badge--green  { background: #22c55e; color: #fff; }
+  .bnav-badge--purple { background: #6c63ff; color: #fff; }
 }

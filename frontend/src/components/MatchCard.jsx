@@ -155,7 +155,7 @@ function QuickInsights({ match }) {
   );
 }
 
-export default function MatchCard({ match, onAnalyse, riskProfile = 'medium' }) {
+export default function MatchCard({ match, onAnalyse, onBet, riskProfile = 'medium' }) {
   const { homeTeam, awayTeam, score, odds, aiProbs, bets, tieredBets, hasValueBet } = match;
   const isLive     = ['1H','HT','2H','ET','P'].includes(match.status);
   const isEnded    = match.status === 'FT';
@@ -260,12 +260,12 @@ export default function MatchCard({ match, onAnalyse, riskProfile = 'medium' }) 
 
       <div className="card-footer">
         <span className="card-viewers">{viewers} personnes regardent</span>
-        <button
-          className="btn-analyse"
-          onClick={() => onAnalyse(match)}
-        >
-          Analyse complète →
-        </button>
+        <div className="card-footer-actions">
+          {onBet && (
+            <button className="btn-bet" onClick={() => onBet(match)}>Parier</button>
+          )}
+          <button className="btn-analyse" onClick={() => onAnalyse(match)}>Analyse →</button>
+        </div>
       </div>
     </article>
   );

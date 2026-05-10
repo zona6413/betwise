@@ -1,0 +1,211 @@
+.bet-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 500;
+  padding: 0;
+}
+
+@media (min-width: 600px) {
+  .bet-modal-overlay {
+    align-items: center;
+  }
+}
+
+.bet-modal {
+  background: #1a1a2e;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px 20px 0 0;
+  width: 100%;
+  max-width: 480px;
+  padding: 24px;
+  animation: slideUp 0.22s ease;
+}
+
+@media (min-width: 600px) {
+  .bet-modal {
+    border-radius: 20px;
+  }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(40px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.bet-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.bet-modal-match {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bet-modal-league {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #6c63ff;
+}
+
+.bet-modal-teams {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.bet-modal-close {
+  background: rgba(255,255,255,0.06);
+  border: none;
+  color: rgba(255,255,255,0.5);
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.bet-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.bet-field-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 6px;
+  display: block;
+}
+
+.bet-outcomes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.bet-outcome-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.6);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.bet-outcome-btn:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.15);
+}
+
+.bet-outcome-btn.active {
+  background: rgba(108,99,255,0.18);
+  border-color: rgba(108,99,255,0.5);
+  color: #a5b4fc;
+}
+
+.outcome-label {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.outcome-odd {
+  font-size: 15px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.bet-outcome-btn.active .outcome-odd {
+  color: #a5b4fc;
+}
+
+.bet-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.bet-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.bet-input {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+
+.bet-input:focus {
+  border-color: rgba(108,99,255,0.5);
+}
+
+.bet-input::placeholder {
+  color: rgba(255,255,255,0.25);
+  font-weight: 400;
+}
+
+.bet-gain-preview {
+  background: rgba(0,214,143,0.08);
+  border: 1px solid rgba(0,214,143,0.2);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 14px;
+  color: #00d68f;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.bet-gain-total {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(0,214,143,0.7);
+}
+
+.bet-submit {
+  background: linear-gradient(135deg, #6c63ff, #5b6ef5);
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  padding: 14px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  width: 100%;
+  letter-spacing: 0.2px;
+}
+
+.bet-submit:hover { opacity: 0.88; }
