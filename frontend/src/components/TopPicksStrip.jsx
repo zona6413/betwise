@@ -52,7 +52,7 @@ export default function TopPicksStrip({ matches, onAnalyse, riskProfile = 'mediu
   const cfg = PROFILE_CONFIG[riskProfile] ?? PROFILE_CONFIG.medium;
 
   const picks = matches
-    .filter(m => ['NS','1H','HT','2H','ET','P'].includes(m.status) && m.tieredBets?.[cfg.tier]?.odd)
+    .filter(m => ['NS','1H','HT','2H','ET','P'].includes(m.status) && m.tieredBets?.[cfg.tier]?.odd && m.hasRealOdds)
     .sort((a, b) => cfg.scoreOf(b) - cfg.scoreOf(a))
     .slice(0, 3);
 

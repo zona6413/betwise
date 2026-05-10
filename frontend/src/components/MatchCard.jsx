@@ -183,6 +183,7 @@ export default function MatchCard({ match, onAnalyse, riskProfile = 'medium' }) 
       <div className="card-header">
         <div className="card-league">
           <span className="league-name">{normalizeLeague(match.league)}</span>
+          {!match.hasRealOdds && <span className="badge-estimated">Cotes estimées</span>}
         </div>
         <div className="card-badges">
           {hasValueBet && edgeClass === 'fire' && <span className="badge badge--fire">Top pick</span>}

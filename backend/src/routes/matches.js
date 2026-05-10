@@ -75,7 +75,8 @@ function buildMatch(fixture, teamStats, realOddsMap, h2h = null, injuries = []) 
   const awayStats = teamStats[awayId] ?? DEFAULT_STATS;
 
   // Utilise les vraies cotes si disponibles, sinon synthétiques
-  const realOdds = realOddsMap?.get(fixture.fixture.id);
+  const realOdds   = realOddsMap?.get(fixture.fixture.id);
+  const hasRealOdds = !!realOdds;
   const { homeOdd, drawOdd, awayOdd, bookmaker } = realOdds
     ? realOdds
     : generateSyntheticOdds(homeStats, awayStats);
@@ -148,6 +149,7 @@ function buildMatch(fixture, teamStats, realOddsMap, h2h = null, injuries = []) 
     h2h,
     injuries,
     rawPredictions,
+    hasRealOdds,
     hasValueBet: bets.some(b => b.isValue),
   };
 }

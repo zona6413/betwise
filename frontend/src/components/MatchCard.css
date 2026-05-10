@@ -107,6 +107,18 @@
   border: 1px solid rgba(0,214,143,0.2);
 }
 
+.badge-estimated {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-dim);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border-lite);
+  border-radius: 4px;
+  padding: 2px 5px;
+  letter-spacing: 0.2px;
+  margin-left: 6px;
+}
+
 .status-badge {
   font-size: 9px;
   font-weight: 700;

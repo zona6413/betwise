@@ -8,13 +8,40 @@ import axios from 'axios';
 const BASE_URL = 'https://api.the-odds-api.com/v4';
 const getKey = () => process.env.ODDS_API_KEY;
 
-// Sports keys TheOddsAPI pour les 5 grandes ligues
+// Sports keys TheOddsAPI — toutes les ligues disponibles sur Winamax/Betclic/Unibet
 const SPORT_KEYS = [
-  'soccer_france_ligue_one',
+  // Top 5
   'soccer_epl',
+  'soccer_france_ligue_one',
   'soccer_spain_la_liga',
   'soccer_italy_serie_a',
   'soccer_germany_bundesliga',
+  // Coupes européennes
+  'soccer_uefa_champs_league',
+  'soccer_uefa_europa_league',
+  'soccer_uefa_europa_conference_league',
+  // Divisions 2
+  'soccer_efl_champ',
+  'soccer_france_ligue_two',
+  'soccer_germany_bundesliga2',
+  'soccer_italy_serie_b',
+  'soccer_spain_segunda_division',
+  // Autres ligues européennes
+  'soccer_netherlands_eredivisie',
+  'soccer_portugal_primeira_liga',
+  'soccer_belgium_first_div',
+  'soccer_turkey_super_league',
+  'soccer_scotland_premiership',
+  'soccer_greece_super_league',
+  'soccer_switzerland_superleague',
+  'soccer_austria_football_bundesliga',
+  'soccer_denmark_superliga',
+  'soccer_norway_eliteserien',
+  'soccer_sweden_allsvenskan',
+  // Ligues internationales
+  'soccer_brazil_campeonato',
+  'soccer_argentina_primera_division',
+  'soccer_usa_mls',
 ];
 
 const client = axios.create({ baseURL: BASE_URL, timeout: 10_000 });
