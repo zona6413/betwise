@@ -426,7 +426,7 @@
 
 /* ── Responsive ───────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .main { padding: 0 0 70px; }
+  .main { padding: 0 0 80px; }
   .container { padding: 0 12px; }
   .matches-grid { grid-template-columns: 1fr; gap: 10px; }
   .stats-bar { border-radius: var(--radius); overflow-x: auto; scrollbar-width: none; flex-wrap: nowrap; }
@@ -444,6 +444,6 @@
   .combo-trigger-btn { font-size: 11px; padding: 5px 12px; }
   .site-tagline { font-size: 14px; padding: 11px 16px; letter-spacing: 0; word-break: keep-all; }
   .site-tagline-icon { font-size: 16px; }
-  .tab-btn { padding: 6px 12px; font-size: 12px; }
+  .tab-bar { display: none; } /* remplacé par la bottom nav sur mobile */
   .date-group-label { font-size: 12px; }
 }

@@ -140,3 +140,11 @@
 }
 .bet-tiers-stats strong { color: var(--text-soft); font-weight: 700; }
 .dot-sep { color: var(--border-mid); }
+
+@media (max-width: 768px) {
+  .bet-row  { padding: 9px 12px; gap: 8px; }
+  .bet-type { font-size: 12px; }
+  .bet-odd  { font-size: 17px; }
+  .bet-why  { font-size: 9px; }
+  .bet-tiers-stats { font-size: 9px; padding: 6px 12px; }
+}

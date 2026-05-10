@@ -8,6 +8,7 @@ import AnalysisModal     from './components/AnalysisModal.jsx';
 import ComboModal        from './components/ComboModal.jsx';
 import Toast             from './components/Toast.jsx';
 import StatsTab          from './components/StatsTab.jsx';
+import BottomNav         from './components/BottomNav.jsx';
 import { useLearning }   from './hooks/useLearning.js';
 import './App.css';
 
@@ -291,6 +292,13 @@ export default function App() {
         message={toast.message}
         visible={toast.visible}
         type={toast.type}
+      />
+
+      <BottomNav
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        liveCount={liveMatches.length}
+        valueCount={valueCount}
       />
     </div>
   );

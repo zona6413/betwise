@@ -200,16 +200,37 @@
 /* ── Mobile ─────────────────────────────────────────────────────────────── */
 
 @media (max-width: 768px) {
-  .top-picks-grid {
-    grid-template-columns: 1fr;
-    gap: 8px;
-  }
-
-  .tp-card:not(.tp-card--best) {
-    display: none;
+  .top-picks {
+    margin-bottom: 20px;
   }
 
   .top-picks-sub {
     display: none;
+  }
+
+  /* Carousel horizontal — tous les picks visibles */
+  .top-picks-grid {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 10px;
+    padding-bottom: 6px;
+    margin: 0 -12px;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+  .top-picks-grid::-webkit-scrollbar { display: none; }
+
+  .tp-card {
+    min-width: 260px;
+    flex-shrink: 0;
+    scroll-snap-align: start;
+  }
+
+  /* Afficher tous les picks (pas seulement le meilleur) */
+  .tp-card:not(.tp-card--best) {
+    display: flex;
   }
 }
