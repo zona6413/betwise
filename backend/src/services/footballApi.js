@@ -125,7 +125,7 @@ function mapFixture(item) {
       id:     f.id,
       // API-Football inclut le fuseau horaire dans la date — pas besoin d'ajouter 'Z'
       date:   f.date,
-      status: { short: f.status.short },
+      status: { short: f.status.short, elapsed: f.status.elapsed ?? null },
       venue:  { name: f.venue?.name ?? '', city: f.venue?.city ?? '' },
     },
     league: {

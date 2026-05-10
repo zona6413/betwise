@@ -215,7 +215,7 @@ export default function MatchCard({ match, onAnalyse, riskProfile = 'medium' }) 
                 <span className="score-sep">–</span>
                 <span className="score-n">{score.away ?? 0}</span>
               </div>
-              {isLive  && <div className="live-tag"><span />EN DIRECT</div>}
+              {isLive  && <div className="live-tag"><span />{match.elapsed ? `${match.elapsed}'` : 'EN DIRECT'}</div>}
               {isEnded && <div className="ended-tag">Terminé</div>}
             </>
           ) : (

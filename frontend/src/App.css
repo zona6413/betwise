@@ -429,6 +429,91 @@
   color: #c7d2fe;
 }
 
+/* ── Top bar (profil + refresh) ───────────────────────────────── */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 18px 0 20px;
+  flex-wrap: wrap;
+}
+
+.risk-selector {
+  display: flex;
+  gap: 6px;
+}
+
+.risk-pill {
+  padding: 7px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.04);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.risk-pill:hover { background: rgba(255,255,255,0.07); color: var(--text-soft); }
+.risk-pill--active {
+  background: rgba(91,110,245,0.15);
+  border-color: rgba(91,110,245,0.4);
+  color: #a5b4fc;
+}
+
+.top-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+/* ── Home sections ────────────────────────────────────────────── */
+.home-section {
+  margin-bottom: 32px;
+}
+
+.home-section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.home-section-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #fff;
+  margin: 0;
+  letter-spacing: -0.2px;
+}
+
+.home-section-sub {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.picks-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+/* ── Live pill elapsed minute ─────────────────────────────────── */
+.pill-elapsed {
+  font-size: 10px;
+  font-weight: 700;
+  color: #f87171;
+  background: rgba(248,113,113,0.12);
+  border-radius: 4px;
+  padding: 1px 5px;
+  margin-left: 4px;
+}
+
 /* ── Responsive ───────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .main { padding: 0 0 80px; }
@@ -449,6 +534,10 @@
   .combo-trigger-btn { font-size: 11px; padding: 5px 12px; }
   .site-tagline { font-size: 14px; padding: 11px 16px; letter-spacing: 0; word-break: keep-all; }
   .site-tagline-icon { font-size: 16px; }
-  .tab-bar { display: none; } /* remplacé par la bottom nav sur mobile */
+  .tab-bar { display: none; }
   .date-group-label { font-size: 12px; }
+  .picks-grid { grid-template-columns: 1fr; }
+  .top-bar { margin: 12px 0 14px; }
+  .home-section-title { font-size: 14px; }
+  .home-section { margin-bottom: 22px; }
 }

@@ -2,8 +2,6 @@ import { useState, useMemo, useRef, useEffect } from 'react';
 import { useMatches }    from './hooks/useMatches.js';
 import Header            from './components/Header.jsx';
 import MatchCard         from './components/MatchCard.jsx';
-import HeroCard          from './components/HeroCard.jsx';
-import TopPicksStrip     from './components/TopPicksStrip.jsx';
 import AnalysisModal     from './components/AnalysisModal.jsx';
 import ComboModal        from './components/ComboModal.jsx';
 import Toast             from './components/Toast.jsx';
@@ -25,6 +23,14 @@ const TABS = [
 
 const LIVE_STATUSES = ['1H','HT','2H','ET','P'];
 
+const TOP_LEAGUES = ['Premier League','Ligue 1','La Liga','Serie A','Bundesliga','Champions League','Europa League','Conference League'];
+
+const RISK_PROFILES = [
+  { id: 'safe',   label: 'Prudent' },
+  { id: 'medium', label: 'Standard' },
+  { id: 'value',  label: 'Audacieux' },
+];
+
 function dateLabel(dateStr) {
   const d  = new Date(dateStr);
   const t  = new Date(); t.setHours(0,0,0,0);
@@ -35,18 +41,10 @@ function dateLabel(dateStr) {
   return d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
 }
 
-function normalizeLeague(name) {
-  return name ?? '';
-}
-
-const RISK_PROFILES = [
-  { id: 'safe',    label: 'Prudent',   desc: 'Paris sûrs uniquement' },
-  { id: 'medium',  label: 'Standard',  desc: 'Équilibre risque / gain' },
-  { id: 'value',   label: 'Audacieux', desc: 'Maximiser les gains' },
-];
+function normalizeLeague(name) { return name ?? ''; }
 
 export default function App() {
-  const { matches, loading, error, lastUpdated, fromCache, refresh } = useMatches();
+  const { matches, loading, error, lastUpdated, refresh } = useMatches();
   const learningStats = useLearning(matches);
   const [selectedMatch, setSelectedMatch] = useState(null);
   const [activeTab,     setActiveTab]     = useState('all');
@@ -57,9 +55,6 @@ export default function App() {
   const [toast,         setToast]         = useState({ visible: false, message: '', type: 'value' });
   const prevValueCount = useRef(0);
 
-  // Tous les matchs réels (API-Football temps réel)
-  // hasRealOdds = true → cotes Winamax/Betclic/Unibet confirmées
-  // hasRealOdds = false → cotes estimées (Odds API indisponible ou ligue non couverte)
   const bettableMatches = useMemo(() => matches, [matches]);
 
   const leagues = useMemo(
@@ -67,23 +62,58 @@ export default function App() {
     [bettableMatches]
   );
 
-  // Toast quand de nouveaux value bets apparaissent
+  const liveMatches = useMemo(
+    () => bettableMatches.filter(m => LIVE_STATUSES.includes(m.status)),
+    [bettableMatches]
+  );
+  const valueCount = bettableMatches.filter(m => m.hasValueBet).length;
+
+  // 3 recommandations IA selon le profil choisi
+  const aiPicks = useMemo(() => {
+    const tier = riskProfile === 'safe' ? 'safe' : riskProfile === 'value' ? 'value' : 'medium';
+    const withTier = bettableMatches.filter(m => m.tieredBets?.[tier]?.odd);
+    withTier.sort((a, b) => (b.tieredBets[tier].score ?? 0) - (a.tieredBets[tier].score ?? 0));
+    // Fallback : si pas assez avec le tier demandé, compléter avec medium puis safe
+    const fallbackTiers = tier === 'safe' ? ['medium'] : tier === 'value' ? ['medium', 'safe'] : ['safe'];
+    let picks = withTier.slice(0, 3);
+    if (picks.length < 3) {
+      for (const fb of fallbackTiers) {
+        const extra = bettableMatches
+          .filter(m => m.tieredBets?.[fb]?.odd && !picks.find(p => p.id === m.id))
+          .sort((a, b) => (b.tieredBets[fb].score ?? 0) - (a.tieredBets[fb].score ?? 0));
+        picks = [...picks, ...extra].slice(0, 3);
+        if (picks.length === 3) break;
+      }
+    }
+    return picks;
+  }, [bettableMatches, riskProfile]);
+
+  // Matchs importants : top 5 + coupes européennes, les plus proches en premier
+  const importantMatches = useMemo(() => {
+    const pickIds = new Set(aiPicks.map(m => m.id));
+    return bettableMatches
+      .filter(m => TOP_LEAGUES.some(l => m.league?.includes(l)) && !pickIds.has(m.id))
+      .sort((a, b) => new Date(a.date) - new Date(b.date))
+      .slice(0, 8);
+  }, [bettableMatches, aiPicks]);
+
+  // Toast value bets
   useEffect(() => {
-    const valueCount = bettableMatches.filter(m => m.hasValueBet).length;
     if (valueCount > 0 && prevValueCount.current === 0 && bettableMatches.length > 0) {
       const top = [...bettableMatches].filter(m => m.hasValueBet && m.bets)
         .sort((a,b) => Math.max(...b.bets.map(x=>x.ev)) - Math.max(...a.bets.map(x=>x.ev)))[0];
       if (top) {
         setToast({
           visible: true,
-          message: `${valueCount} value bet${valueCount > 1 ? 's' : ''} détecté${valueCount > 1 ? 's' : ''} · ${top.homeTeam.name} vs ${top.awayTeam.name}`,
+          message: `${valueCount} value bet${valueCount > 1 ? 's' : ''} · ${top.homeTeam.name} vs ${top.awayTeam.name}`,
           type: 'value',
         });
       }
     }
     prevValueCount.current = valueCount;
-  }, [bettableMatches]);
+  }, [bettableMatches, valueCount]);
 
+  // Liste filtrée pour la grille principale
   const filtered = useMemo(() => {
     let list = bettableMatches;
     if (searchQuery.length >= 2) {
@@ -108,10 +138,15 @@ export default function App() {
     if (activeTab === 'ucl') {
       list = list.filter(m => m.league?.includes('Champions League'));
     }
+    // Sur l'onglet "Tous", exclure les matchs déjà dans aiPicks + importantMatches
+    if (activeTab === 'all' && !searchQuery && activeLeague === 'all') {
+      const shownIds = new Set([...aiPicks, ...importantMatches].map(m => m.id));
+      list = list.filter(m => !shownIds.has(m.id));
+    }
     return list;
-  }, [bettableMatches, activeTab, activeLeague]);
+  }, [bettableMatches, activeTab, activeLeague, searchQuery, aiPicks, importantMatches]);
 
-  const grouped = useMemo(() => {
+  const groupedGrid = useMemo(() => {
     const map = new Map();
     for (const m of filtered) {
       const key = new Date(m.date).toDateString();
@@ -121,29 +156,12 @@ export default function App() {
     return [...map.values()];
   }, [filtered]);
 
-  const liveMatches = bettableMatches.filter(m => LIVE_STATUSES.includes(m.status));
-  const valueCount  = bettableMatches.filter(m => m.hasValueBet).length;
-  const topValue    = [...bettableMatches].filter(m => m.hasValueBet && m.bets)
-    .sort((a,b) => Math.max(...b.bets.map(x=>x.ev)) - Math.max(...a.bets.map(x=>x.ev)))[0];
-
-  // Hero card = top value bet (exclu des autres cartes si affiché)
-  const heroMatch   = activeTab === 'all' && activeLeague === 'all' ? topValue : null;
-  const gridMatches = heroMatch ? filtered.filter(m => m.id !== heroMatch.id) : filtered;
-  const groupedGrid = useMemo(() => {
-    const map = new Map();
-    for (const m of gridMatches) {
-      const key = new Date(m.date).toDateString();
-      if (!map.has(key)) map.set(key, { label: dateLabel(m.date), matches: [] });
-      map.get(key).matches.push(m);
-    }
-    return [...map.values()];
-  }, [gridMatches]);
+  const showHomeSections = activeTab === 'all' && !searchQuery && activeLeague === 'all';
 
   return (
     <div className="app">
       <Header
         lastUpdated={lastUpdated}
-        fromCache={fromCache}
         onRefresh={refresh}
         loading={loading}
         activeLeague={activeLeague}
@@ -152,77 +170,47 @@ export default function App() {
       />
 
       <main className="main">
-        <div className="site-tagline">
-          Comprends les matchs en 10 secondes
-        </div>
         <div className="container">
 
-          {/* Stats bar */}
-          <div className="stats-bar">
-            <div className="stats-bar-item">
-              <span className="stats-num">{bettableMatches.length}</span>
-              <span className="stats-lbl">Matchs</span>
+          {/* ── Profil + refresh ─────────────────────────────────── */}
+          <div className="top-bar">
+            <div className="risk-selector">
+              {RISK_PROFILES.map(p => (
+                <button
+                  key={p.id}
+                  className={`risk-pill ${riskProfile === p.id ? 'risk-pill--active' : ''}`}
+                  onClick={() => setRiskProfile(p.id)}
+                >{p.label}</button>
+              ))}
             </div>
-            <div className="stats-bar-sep" />
-            <div className="stats-bar-item">
-              <span className={`stats-num ${liveMatches.length > 0 ? 'stats-num--live' : ''}`}>{liveMatches.length}</span>
-              <span className="stats-lbl">En direct</span>
-            </div>
-            <div className="stats-bar-sep" />
-            <div className="stats-bar-item">
-              <span className={`stats-num ${valueCount > 0 ? 'stats-num--green' : ''}`}>{valueCount}</span>
-              <span className="stats-lbl">Value bets</span>
-            </div>
-            <div className="stats-bar-sep" />
-            <div className="stats-bar-item stats-bar-item--perf">
-              <span className="stats-perf-badge">68%</span>
-              <span className="stats-lbl">Réussite 30j</span>
-            </div>
-            {topValue && (
-              <>
-                <div className="stats-bar-sep" />
-                <div className="stats-bar-item stats-bar-item--hot">
-                  <span className="stats-hot-label">Top signal</span>
-                  <span className="stats-hot-match">{topValue.homeTeam.name} vs {topValue.awayTeam.name}</span>
-                </div>
-              </>
-            )}
-            <div className="stats-bar-refresh">
-              <button
-                className={`btn-refresh-sm ${loading ? 'spinning' : ''}`}
-                onClick={refresh}
-                disabled={loading}
-                title="Rafraîchir"
-              >↻</button>
-              {lastUpdated && (
-                <span className="stats-time">
-                  {lastUpdated.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}
-                </span>
-              )}
+            <div className="top-bar-right">
+              <button className="combo-trigger-btn" onClick={() => setShowCombo(true)}>Combo</button>
+              <button className={`btn-refresh-sm ${loading ? 'spinning' : ''}`} onClick={refresh} disabled={loading} title="Rafraîchir">↻</button>
+              {lastUpdated && <span className="stats-time">{lastUpdated.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</span>}
             </div>
           </div>
 
-          {/* Risk profile selector */}
-          <div className="risk-bar">
-            <span className="risk-bar-label">Mon profil :</span>
-            {RISK_PROFILES.map(p => (
-              <button
-                key={p.id}
-                className={`risk-btn ${riskProfile === p.id ? 'risk-btn--active' : ''} risk-btn--${p.id}`}
-                onClick={() => setRiskProfile(p.id)}
-                title={p.desc}
-              >
-                {p.label}
-              </button>
-            ))}
-            <div style={{ marginLeft: 'auto' }}>
-              <button className="combo-trigger-btn" onClick={() => setShowCombo(true)}>
-                Générer un combo
-              </button>
-            </div>
-          </div>
+          {loading && !bettableMatches.length && <Skeleton />}
+          {error && <ErrorBanner message={error} onRetry={refresh} />}
 
-          {/* Live banner */}
+          {/* ── 3 recommandations IA ─────────────────────────────── */}
+          {showHomeSections && !loading && aiPicks.length > 0 && (
+            <section className="home-section">
+              <div className="home-section-header">
+                <h2 className="home-section-title">Nos 3 recommandations IA</h2>
+                <span className="home-section-sub">{riskProfile === 'safe' ? 'Paris sûrs' : riskProfile === 'value' ? 'Maximiser les gains' : 'Équilibré'}</span>
+              </div>
+              <div className="picks-grid">
+                {aiPicks.map((match, i) => (
+                  <div key={match.id} className="animate-fade" style={{ animationDelay: `${i*60}ms` }}>
+                    <MatchCard match={match} onAnalyse={setSelectedMatch} riskProfile={riskProfile} />
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* ── Live strip ───────────────────────────────────────── */}
           {liveMatches.length > 0 && (
             <div className="live-banner">
               <span className="live-dot" />
@@ -231,29 +219,38 @@ export default function App() {
                 {liveMatches.map(m => (
                   <button key={m.id} className="live-banner-pill" onClick={() => setSelectedMatch(m)}>
                     {m.homeTeam.name} <strong>{m.score?.home ?? 0}–{m.score?.away ?? 0}</strong> {m.awayTeam.name}
+                    {m.elapsed && <span className="pill-elapsed">{m.elapsed}'</span>}
                   </button>
                 ))}
               </div>
             </div>
           )}
 
-          {/* Search */}
+          {/* ── Matchs importants ────────────────────────────────── */}
+          {showHomeSections && !loading && importantMatches.length > 0 && (
+            <section className="home-section">
+              <div className="home-section-header">
+                <h2 className="home-section-title">Matchs à ne pas manquer</h2>
+                <span className="home-section-sub">Top 5 + Coupes européennes</span>
+              </div>
+              <div className="matches-grid">
+                {importantMatches.map((match, i) => (
+                  <div key={match.id} className="animate-fade" style={{ animationDelay: `${i*40}ms` }}>
+                    <MatchCard match={match} onAnalyse={setSelectedMatch} riskProfile={riskProfile} />
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* ── Search + Tabs ────────────────────────────────────── */}
           <div className="search-bar-wrap">
-            <SearchBar
-              matches={bettableMatches}
-              onResult={setSearchQuery}
-              onClear={() => setSearchQuery('')}
-            />
+            <SearchBar matches={bettableMatches} onResult={setSearchQuery} onClear={() => setSearchQuery('')} />
           </div>
 
-          {/* Tabs */}
           <div className="tab-bar">
             {TABS.map(t => (
-              <button
-                key={t.id}
-                className={`tab-btn ${activeTab === t.id ? 'active' : ''}`}
-                onClick={() => setActiveTab(t.id)}
-              >
+              <button key={t.id} className={`tab-btn ${activeTab === t.id ? 'active' : ''}`} onClick={() => setActiveTab(t.id)}>
                 {t.label}
                 {t.id === 'live'  && liveMatches.length > 0 && <span className="tab-badge">{liveMatches.length}</span>}
                 {t.id === 'value' && valueCount > 0          && <span className="tab-badge tab-badge--green">{valueCount}</span>}
@@ -261,45 +258,44 @@ export default function App() {
             ))}
           </div>
 
-          {loading && !bettableMatches.length && <Skeleton />}
-          {error && <ErrorBanner message={error} onRetry={refresh} />}
-
-          {/* Onglet Taux */}
+          {/* ── Onglet Taux ──────────────────────────────────────── */}
           {activeTab === 'taux' && (
             <StatsTab matches={bettableMatches} onAnalyse={setSelectedMatch} learningStats={learningStats} />
           )}
 
-          {/* Top Picks du jour */}
-          {!loading && activeTab === 'all' && (
-            <TopPicksStrip matches={bettableMatches} onAnalyse={setSelectedMatch} riskProfile={riskProfile} />
-          )}
+          {/* ── Grille principale ────────────────────────────────── */}
+          {activeTab !== 'taux' && (
+            <>
+              {showHomeSections && filtered.length > 0 && (
+                <div className="home-section-header" style={{ marginTop: 8, marginBottom: 4 }}>
+                  <h2 className="home-section-title">Tous les matchs</h2>
+                  <span className="home-section-sub">{bettableMatches.length} matchs · {liveMatches.length} en direct</span>
+                </div>
+              )}
 
-          {/* Hero card — match du moment */}
-          {heroMatch && !loading && activeTab !== 'taux' && (
-            <HeroCard match={heroMatch} onAnalyse={setSelectedMatch} />
-          )}
+              {!loading && !error && filtered.length === 0 && (
+                <Empty tab={activeTab} onReset={() => { setActiveTab('all'); setSearchQuery(''); }} />
+              )}
 
-          {!loading && !error && filtered.length === 0 && activeTab !== 'taux' && (
-            <Empty tab={activeTab} onReset={() => setActiveTab('all')} />
-          )}
-
-          {activeTab !== 'taux' && groupedGrid.map((group, gi) => (
-            <div key={group.label} className="date-group">
-              <div className="date-group-header">
-                <span className="date-group-label">{group.label}</span>
-                <span className="date-group-count">
-                  {group.matches.length} match{group.matches.length > 1 ? 's' : ''}
-                </span>
-              </div>
-              <div className="matches-grid">
-                {group.matches.map((match, i) => (
-                  <div key={match.id} className="animate-fade" style={{ animationDelay: `${(gi*5+i)*30}ms` }}>
-                    <MatchCard match={match} onAnalyse={setSelectedMatch} riskProfile={riskProfile} />
+              {groupedGrid.map((group, gi) => (
+                <div key={group.label} className="date-group">
+                  {(!showHomeSections || groupedGrid.length > 1) && (
+                    <div className="date-group-header">
+                      <span className="date-group-label">{group.label}</span>
+                      <span className="date-group-count">{group.matches.length} match{group.matches.length > 1 ? 's' : ''}</span>
+                    </div>
+                  )}
+                  <div className="matches-grid">
+                    {group.matches.map((match, i) => (
+                      <div key={match.id} className="animate-fade" style={{ animationDelay: `${(gi*5+i)*30}ms` }}>
+                        <MatchCard match={match} onAnalyse={setSelectedMatch} riskProfile={riskProfile} />
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            </div>
-          ))}
+                </div>
+              ))}
+            </>
+          )}
 
         </div>
       </main>
@@ -307,23 +303,11 @@ export default function App() {
       {selectedMatch && (
         <AnalysisModal match={selectedMatch} onClose={() => setSelectedMatch(null)} riskProfile={riskProfile} />
       )}
-
       {showCombo && (
         <ComboModal matches={bettableMatches} onClose={() => setShowCombo(false)} />
       )}
-
-      <Toast
-        message={toast.message}
-        visible={toast.visible}
-        type={toast.type}
-      />
-
-      <BottomNav
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-        liveCount={liveMatches.length}
-        valueCount={valueCount}
-      />
+      <Toast message={toast.message} visible={toast.visible} type={toast.type} />
+      <BottomNav activeTab={activeTab} onTabChange={setActiveTab} liveCount={liveMatches.length} valueCount={valueCount} />
     </div>
   );
 }

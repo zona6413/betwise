@@ -122,6 +122,7 @@ function buildMatch(fixture, teamStats, realOddsMap, h2h = null, injuries = []) 
     id:            fixture.fixture.id,
     date:          fixture.fixture.date,
     status:        fixture.fixture.status.short,
+    elapsed:       fixture.fixture.status.elapsed ?? null,
     venue:         fixture.fixture.venue?.name ?? null,
     league:        fixture.league.name,
     leagueCountry: fixture.league.country,
