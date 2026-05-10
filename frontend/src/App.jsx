@@ -55,16 +55,22 @@ export default function App() {
   const [toast,         setToast]         = useState({ visible: false, message: '', type: 'value' });
   const prevValueCount = useRef(0);
 
-  const leagues = useMemo(
-    () => [...new Set(matches.map(m => normalizeLeague(m.league)))],
+  // Uniquement les matchs disponibles sur les bookmakers (vraies cotes)
+  const bettableMatches = useMemo(
+    () => matches.filter(m => m.hasRealOdds),
     [matches]
+  );
+
+  const leagues = useMemo(
+    () => [...new Set(bettableMatches.map(m => normalizeLeague(m.league)))],
+    [bettableMatches]
   );
 
   // Toast quand de nouveaux value bets apparaissent
   useEffect(() => {
-    const valueCount = matches.filter(m => m.hasValueBet).length;
-    if (valueCount > 0 && prevValueCount.current === 0 && matches.length > 0) {
-      const top = [...matches].filter(m => m.hasValueBet && m.bets)
+    const valueCount = bettableMatches.filter(m => m.hasValueBet).length;
+    if (valueCount > 0 && prevValueCount.current === 0 && bettableMatches.length > 0) {
+      const top = [...bettableMatches].filter(m => m.hasValueBet && m.bets)
         .sort((a,b) => Math.max(...b.bets.map(x=>x.ev)) - Math.max(...a.bets.map(x=>x.ev)))[0];
       if (top) {
         setToast({
@@ -75,10 +81,10 @@ export default function App() {
       }
     }
     prevValueCount.current = valueCount;
-  }, [matches]);
+  }, [bettableMatches]);
 
   const filtered = useMemo(() => {
-    let list = matches;
+    let list = bettableMatches;
     if (activeLeague !== 'all') list = list.filter(m => normalizeLeague(m.league) === activeLeague);
     if (activeTab === 'live')     list = list.filter(m => LIVE_STATUSES.includes(m.status));
     if (activeTab === 'value')    list = list.filter(m => m.hasValueBet);
@@ -94,7 +100,7 @@ export default function App() {
       list = list.filter(m => m.league?.includes('Champions League'));
     }
     return list;
-  }, [matches, activeTab, activeLeague]);
+  }, [bettableMatches, activeTab, activeLeague]);
 
   const grouped = useMemo(() => {
     const map = new Map();
@@ -106,9 +112,9 @@ export default function App() {
     return [...map.values()];
   }, [filtered]);
 
-  const liveMatches = matches.filter(m => LIVE_STATUSES.includes(m.status));
-  const valueCount  = matches.filter(m => m.hasValueBet).length;
-  const topValue    = [...matches].filter(m => m.hasValueBet && m.bets)
+  const liveMatches = bettableMatches.filter(m => LIVE_STATUSES.includes(m.status));
+  const valueCount  = bettableMatches.filter(m => m.hasValueBet).length;
+  const topValue    = [...bettableMatches].filter(m => m.hasValueBet && m.bets)
     .sort((a,b) => Math.max(...b.bets.map(x=>x.ev)) - Math.max(...a.bets.map(x=>x.ev)))[0];
 
   // Hero card = top value bet (exclu des autres cartes si affiché)
@@ -145,7 +151,7 @@ export default function App() {
           {/* Stats bar */}
           <div className="stats-bar">
             <div className="stats-bar-item">
-              <span className="stats-num">{matches.length}</span>
+              <span className="stats-num">{bettableMatches.length}</span>
               <span className="stats-lbl">Matchs</span>
             </div>
             <div className="stats-bar-sep" />
@@ -237,17 +243,17 @@ export default function App() {
             ))}
           </div>
 
-          {loading && !matches.length && <Skeleton />}
+          {loading && !bettableMatches.length && <Skeleton />}
           {error && <ErrorBanner message={error} onRetry={refresh} />}
 
           {/* Onglet Taux */}
           {activeTab === 'taux' && (
-            <StatsTab matches={matches} onAnalyse={setSelectedMatch} learningStats={learningStats} />
+            <StatsTab matches={bettableMatches} onAnalyse={setSelectedMatch} learningStats={learningStats} />
           )}
 
           {/* Top Picks du jour */}
           {!loading && activeTab === 'all' && (
-            <TopPicksStrip matches={matches} onAnalyse={setSelectedMatch} riskProfile={riskProfile} />
+            <TopPicksStrip matches={bettableMatches} onAnalyse={setSelectedMatch} riskProfile={riskProfile} />
           )}
 
           {/* Hero card — match du moment */}
@@ -285,7 +291,7 @@ export default function App() {
       )}
 
       {showCombo && (
-        <ComboModal matches={matches} onClose={() => setShowCombo(false)} />
+        <ComboModal matches={bettableMatches} onClose={() => setShowCombo(false)} />
       )}
 
       <Toast
