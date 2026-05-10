@@ -24,28 +24,52 @@ function ConfidenceBar({ score }) {
   );
 }
 
-export default function TopPicksStrip({ matches, onAnalyse }) {
+const PROFILE_CONFIG = {
+  safe: {
+    tier:     'safe',
+    title:    'Top Paris Prudents',
+    sub:      'Paris à haute probabilité de réussite',
+    labels:   ['Pari le plus sûr', '2e choix', '3e choix'],
+    scoreOf:  m => m.tieredBets?.safe?.prob ?? 0,
+  },
+  medium: {
+    tier:     'medium',
+    title:    'Top Paris Standard',
+    sub:      'Meilleur équilibre risque / gain',
+    labels:   ['Meilleur équilibre', '2e choix', '3e choix'],
+    scoreOf:  m => m.tieredBets?.stats?.pickScore ?? 0,
+  },
+  value: {
+    tier:     'value',
+    title:    'Top Paris Audacieux',
+    sub:      'Meilleures opportunités de valeur',
+    labels:   ['Meilleure opportunité', '2e choix', '3e choix'],
+    scoreOf:  m => m.tieredBets?.value?.ev ?? m.tieredBets?.value?.odd ?? 0,
+  },
+};
+
+export default function TopPicksStrip({ matches, onAnalyse, riskProfile = 'medium' }) {
+  const cfg = PROFILE_CONFIG[riskProfile] ?? PROFILE_CONFIG.medium;
+
   const picks = matches
-    .filter(m => ['NS','1H','HT','2H','ET','P'].includes(m.status) && m.tieredBets?.stats?.pickScore > 0)
-    .sort((a, b) => b.tieredBets.stats.pickScore - a.tieredBets.stats.pickScore)
+    .filter(m => ['NS','1H','HT','2H','ET','P'].includes(m.status) && m.tieredBets?.[cfg.tier]?.odd)
+    .sort((a, b) => cfg.scoreOf(b) - cfg.scoreOf(a))
     .slice(0, 3);
 
   if (picks.length === 0) return null;
 
-  const rankLabels = ['Meilleur pari du jour', '2e choix', '3e choix'];
-
   return (
     <section className="top-picks">
       <div className="top-picks-header">
-        <span className="top-picks-title">Top Picks du jour</span>
-        <span className="top-picks-sub">Sélectionnés par convergence de signaux — forme · rang · xG</span>
+        <span className="top-picks-title">{cfg.title}</span>
+        <span className="top-picks-sub">{cfg.sub}</span>
       </div>
 
       <div className="top-picks-grid">
         {picks.map((match, i) => {
-          const bet   = match.tieredBets.safe;
-          const score = match.tieredBets.stats.pickScore;
-          const conv  = match.tieredBets.stats.convergence;
+          const bet   = match.tieredBets[cfg.tier];
+          const score = cfg.scoreOf(match);
+          const conv  = match.tieredBets.stats?.convergence ?? 0;
 
           return (
             <div
@@ -55,7 +79,7 @@ export default function TopPicksStrip({ matches, onAnalyse }) {
             >
               <div className="tp-card-top">
                 <span className="tp-rank-num">{i + 1}</span>
-                <span className="tp-label">{rankLabels[i]}</span>
+                <span className="tp-label">{cfg.labels[i]}</span>
                 {conv >= 0.10 && <span className="tp-convergence-badge">Signaux convergents</span>}
               </div>
 

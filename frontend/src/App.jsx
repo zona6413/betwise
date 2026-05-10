@@ -246,7 +246,7 @@ export default function App() {
 
           {/* Top Picks du jour */}
           {!loading && activeTab === 'all' && (
-            <TopPicksStrip matches={matches} onAnalyse={setSelectedMatch} />
+            <TopPicksStrip matches={matches} onAnalyse={setSelectedMatch} riskProfile={riskProfile} />
           )}
 
           {/* Hero card — match du moment */}
