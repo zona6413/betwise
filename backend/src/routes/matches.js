@@ -18,8 +18,8 @@ import {
 } from '../services/analyzer.js';
 
 const router = Router();
-// 10 min avec vraie API, 90s avec mock
-const CACHE_TTL = process.env.API_FOOTBALL_KEY ? 600 : 90;
+// 3 min avec vraie API (matchs terminés disparaissent vite), 90s avec mock
+const CACHE_TTL = process.env.API_FOOTBALL_KEY ? 180 : 90;
 const cache      = new NodeCache({ stdTTL: CACHE_TTL });
 const oddsCache  = new NodeCache({ stdTTL: 21600 }); // cotes : 6h (préserve quota)
 const h2hCache   = new NodeCache({ stdTTL: 86400 });  // H2H : 24h

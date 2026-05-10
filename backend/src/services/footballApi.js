@@ -100,7 +100,8 @@ const LEAGUES = [
 
 const LEAGUE_MAP = new Map(LEAGUES.map(l => [l.id, l]));
 
-const LIVE_STATUSES = new Set(['1H', '2H', 'HT', 'ET', 'P', 'BT']);
+const LIVE_STATUSES    = new Set(['1H', '2H', 'HT', 'ET', 'P', 'BT']);
+const FINISHED_STATUSES = new Set(['FT', 'AET', 'PEN', 'INT', 'PST', 'CANC', 'ABD', 'AWD', 'WO']);
 
 const client = axios.create({
   baseURL: BASE_URL,
@@ -184,6 +185,10 @@ export async function getTodayFixtures() {
       if (!LEAGUE_IDS.has(item.league.id)) continue;
 
       const status = item.fixture.status.short;
+
+      // Exclure les matchs terminés ou annulés
+      if (FINISHED_STATUSES.has(status)) continue;
+
       if (!LIVE_STATUSES.has(status)) {
         const matchDate = item.fixture.date.split('T')[0];
         if (matchDate !== todayParis && matchDate !== tomorrowParis) continue;
