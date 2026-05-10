@@ -164,6 +164,63 @@ function resolveIdByName(name) {
   return null;
 }
 
+/**
+ * Croise les données joueurs avec la liste de blessés/suspendus du match.
+ * Marque chaque joueur injured:true si son nom est dans la liste,
+ * et remplace le topScorer par le suivant disponible quand c'est possible.
+ */
+export function applyInjuryFilter(players, injuries, homeId, awayId) {
+  if (!injuries?.length || !players) return players;
+
+  // Map teamId → Set<name_lowercase>
+  const injuredByTeam = new Map();
+  for (const inj of injuries) {
+    const tid = String(inj.teamId);
+    if (!injuredByTeam.has(tid)) injuredByTeam.set(tid, new Set());
+    const name = inj.name?.toLowerCase().trim();
+    if (name) injuredByTeam.get(tid).add(name);
+  }
+  // Fallback global (si teamId non disponible)
+  const allInjured = new Set(
+    injuries.map(i => i.name?.toLowerCase().trim()).filter(Boolean)
+  );
+
+  function isOut(playerName, teamId) {
+    if (!playerName) return false;
+    const n = playerName.toLowerCase().trim();
+    return injuredByTeam.get(String(teamId))?.has(n) || allInjured.has(n);
+  }
+
+  function markTeam(team, teamId) {
+    if (!team) return null;
+    const mark = p => p ? { ...p, injured: isOut(p.name, teamId) } : p;
+
+    // Pour le topScorer : si blessé, chercher le premier disponible parmi scorer2/scorer3
+    let effectiveTop = mark(team.topScorer);
+    let s2 = mark(team.scorer2);
+    let s3 = mark(team.scorer3);
+    // Réorganiser : mettre en avant le premier non-blessé
+    const ordered = [effectiveTop, s2, s3].filter(Boolean);
+    const available = ordered.filter(p => !p.injured);
+    const unavailable = ordered.filter(p => p.injured);
+    const reordered = [...available, ...unavailable];
+
+    return {
+      ...team,
+      topScorer: reordered[0] ?? null,
+      scorer2:   reordered[1] ?? null,
+      scorer3:   reordered[2] ?? null,
+      keyPlayer: mark(team.keyPlayer),
+      dangerMan: mark(team.dangerMan),
+    };
+  }
+
+  return {
+    home: markTeam(players.home, homeId),
+    away: markTeam(players.away, awayId),
+  };
+}
+
 /** Point d'entrée principal — retourne données des deux équipes */
 export function getMatchPlayers(homeId, awayId, homeName, awayName) {
   const hId = Number(homeId) || resolveIdByName(homeName);

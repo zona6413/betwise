@@ -338,7 +338,7 @@ export function generateTieredBets(homeName, awayName, homeStats, awayStats, aiP
   const addScorers = (playerGroup, teamXG, teamName) => {
     for (const key of ['topScorer', 'scorer2', 'scorer3']) {
       const p = playerGroup?.[key];
-      if (!p) continue;
+      if (!p || p.injured) continue; // Ignorer les blessés/suspendus
       const sb = computeScorerBet(p, teamXG);
       if (sb) scorerBets.push({ ...sb, team: teamName });
     }
@@ -537,18 +537,36 @@ export function generateAnalysis(homeTeam, awayTeam, homeStats, awayStats, bets,
   // ── Avantage terrain ──────────────────────────────────────────────────────
   lines.push(`${homeTeam} joue à domicile — avantage terrain +10% sur la victoire selon notre modèle Poisson.`);
 
-  // ── Joueurs clés ──────────────────────────────────────────────────────────
-  if (hP?.topScorer)
-    lines.push(`Buteur clé ${homeTeam} : ${hP.topScorer.name} (${hP.topScorer.goals} buts cette saison) — menace principale à neutraliser.`);
-  if (aP?.topScorer)
-    lines.push(`Buteur clé ${awayTeam} : ${aP.topScorer.name} (${aP.topScorer.goals} buts) — danger à surveiller.`);
-  if (hP?.keyPlayer)
+  // ── Joueurs clés (absents exclus des recommandations) ────────────────────
+  const playerLine = (label, p) => {
+    if (!p) return null;
+    if (p.injured) return `${label} ABSENT (blessé/suspendu) : ${p.name} — impact négatif sur l'attaque.`;
+    return null;
+  };
+
+  if (hP?.topScorer) {
+    if (hP.topScorer.injured)
+      lines.push(`Absent ${homeTeam} : ${hP.topScorer.name} (blessé/suspendu — ${hP.topScorer.goals ?? '?'} buts cette saison, son absence affaiblit considérablement l'attaque).`);
+    else
+      lines.push(`Buteur clé ${homeTeam} : ${hP.topScorer.name} (${hP.topScorer.goals} buts cette saison) — menace principale.`);
+  }
+  if (aP?.topScorer) {
+    if (aP.topScorer.injured)
+      lines.push(`Absent ${awayTeam} : ${aP.topScorer.name} (blessé/suspendu — ${aP.topScorer.goals ?? '?'} buts, absence importante).`);
+    else
+      lines.push(`Buteur clé ${awayTeam} : ${aP.topScorer.name} (${aP.topScorer.goals} buts) — danger à surveiller.`);
+  }
+  if (hP?.keyPlayer && !hP.keyPlayer.injured)
     lines.push(`Cerveau de jeu ${homeTeam} : ${hP.keyPlayer.name} (${hP.keyPlayer.role}) — créateur principal.`);
-  if (aP?.keyPlayer)
+  else if (hP?.keyPlayer?.injured)
+    lines.push(`Absent ${homeTeam} : ${hP.keyPlayer.name} (${hP.keyPlayer.role}) — blessé/suspendu, manque à gagner.`);
+  if (aP?.keyPlayer && !aP.keyPlayer.injured)
     lines.push(`Meneur ${awayTeam} : ${aP.keyPlayer.name} (${aP.keyPlayer.role}).`);
-  if (hP?.dangerMan)
+  else if (aP?.keyPlayer?.injured)
+    lines.push(`Absent ${awayTeam} : ${aP.keyPlayer.name} (${aP.keyPlayer.role}) — blessé/suspendu.`);
+  if (hP?.dangerMan && !hP.dangerMan.injured)
     lines.push(`Danger man ${homeTeam} : ${hP.dangerMan.name} — ${hP.dangerMan.note}.`);
-  if (aP?.dangerMan)
+  if (aP?.dangerMan && !aP.dangerMan.injured)
     lines.push(`Danger man ${awayTeam} : ${aP.dangerMan.name} — ${aP.dangerMan.note}.`);
 
   // ── Style de jeu ──────────────────────────────────────────────────────────

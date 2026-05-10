@@ -5,7 +5,7 @@ import { getTodayFixtures, getHeadToHead, getInjuries } from '../services/footba
 import { getOdds }                 from '../services/oddsApi.js';
 import { mergeData }               from '../services/merger.js';
 import { getTeamStatsMap, randomBookmaker } from '../services/standingsApi.js';
-import { getMatchPlayers, preloadTopScorers } from '../services/playerStats.js';
+import { getMatchPlayers, applyInjuryFilter, preloadTopScorers } from '../services/playerStats.js';
 import {
   impliedProbabilities,
   computeAIProbability,
@@ -82,7 +82,9 @@ function buildMatch(fixture, teamStats, realOddsMap, h2h = null, injuries = []) 
     ? realOdds
     : generateSyntheticOdds(homeStats, awayStats);
 
-  const players = getMatchPlayers(homeId, awayId, fixture.teams.home.name, fixture.teams.away.name);
+  const rawPlayers = getMatchPlayers(homeId, awayId, fixture.teams.home.name, fixture.teams.away.name);
+  // Croiser avec les blessés/suspendus du match — retire les joueurs absents des recommandations
+  const players = applyInjuryFilter(rawPlayers, injuries, Number(homeId), Number(awayId));
   const bookmakerProbs = impliedProbabilities(homeOdd, drawOdd, awayOdd);
   const aiProbs        = computeAIProbability(homeStats, awayStats);
   // Prédictions brutes exposées pour le moteur d'apprentissage
