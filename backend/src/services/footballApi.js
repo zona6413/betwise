@@ -12,41 +12,90 @@ const API_KEY  = process.env.API_FOOTBALL_KEY;
 const SEASON = 2025;
 
 const LEAGUES = [
-  // Top 5 européens
-  { id: 39,  displayName: 'Premier League',       country: 'England'      },
-  { id: 61,  displayName: 'Ligue 1',              country: 'France'       },
-  { id: 140, displayName: 'La Liga',              country: 'Spain'        },
-  { id: 135, displayName: 'Serie A',              country: 'Italy'        },
-  { id: 78,  displayName: 'Bundesliga',           country: 'Germany'      },
-  // Compétitions mondiales
-  { id: 1,   displayName: 'Coupe du Monde',       country: 'World'        },
-  // Coupes européennes
-  { id: 2,   displayName: 'Champions League',     country: 'Europe'       },
-  { id: 3,   displayName: 'Europa League',        country: 'Europe'       },
-  { id: 848, displayName: 'Conference League',    country: 'Europe'       },
-  // Divisions 2
-  { id: 40,  displayName: 'Championship',         country: 'England'      },
-  { id: 62,  displayName: 'Ligue 2',              country: 'France'       },
-  { id: 79,  displayName: '2. Bundesliga',        country: 'Germany'      },
-  { id: 136, displayName: 'Serie B',              country: 'Italy'        },
-  { id: 141, displayName: 'La Liga 2',            country: 'Spain'        },
-  // Autres ligues européennes
-  { id: 88,  displayName: 'Eredivisie',           country: 'Netherlands'  },
-  { id: 94,  displayName: 'Primeira Liga',        country: 'Portugal'     },
-  { id: 144, displayName: 'Belgian Pro League',   country: 'Belgium'      },
-  { id: 179, displayName: 'Scottish Premiership', country: 'Scotland'     },
-  { id: 203, displayName: 'Süper Lig',            country: 'Turkey'       },
-  { id: 197, displayName: 'Super League 1',       country: 'Greece'       },
-  { id: 207, displayName: 'Swiss Super League',   country: 'Switzerland'  },
-  { id: 218, displayName: 'Bundesliga Austria',   country: 'Austria'      },
-  { id: 119, displayName: 'Superliga',            country: 'Denmark'      },
-  { id: 103, displayName: 'Eliteserien',          country: 'Norway'       },
-  { id: 113, displayName: 'Allsvenskan',          country: 'Sweden'       },
-  // Ligues internationales
-  { id: 71,  displayName: 'Série A Brésil',       country: 'Brazil'       },
-  { id: 128, displayName: 'Liga Argentina',       country: 'Argentina'    },
-  { id: 253, displayName: 'MLS',                  country: 'USA'          },
-  { id: 307, displayName: 'Saudi Pro League',     country: 'Saudi Arabia' },
+  // ── Coupes mondiales & européennes ──────────────────────────────────────────
+  { id: 1,   displayName: 'Coupe du Monde',         country: 'World'            },
+  { id: 2,   displayName: 'Champions League',        country: 'Europe'           },
+  { id: 3,   displayName: 'Europa League',           country: 'Europe'           },
+  { id: 848, displayName: 'Conference League',       country: 'Europe'           },
+
+  // ── Angleterre ──────────────────────────────────────────────────────────────
+  { id: 39,  displayName: 'Premier League',          country: 'England'          },
+  { id: 40,  displayName: 'Championship',            country: 'England'          },
+  { id: 41,  displayName: 'League One',              country: 'England'          },
+  { id: 42,  displayName: 'League Two',              country: 'England'          },
+
+  // ── France ──────────────────────────────────────────────────────────────────
+  { id: 61,  displayName: 'Ligue 1',                 country: 'France'           },
+  { id: 62,  displayName: 'Ligue 2',                 country: 'France'           },
+
+  // ── Allemagne ───────────────────────────────────────────────────────────────
+  { id: 78,  displayName: 'Bundesliga',              country: 'Germany'          },
+  { id: 79,  displayName: '2. Bundesliga',           country: 'Germany'          },
+  { id: 80,  displayName: '3. Liga',                 country: 'Germany'          },
+
+  // ── Espagne ─────────────────────────────────────────────────────────────────
+  { id: 140, displayName: 'La Liga',                 country: 'Spain'            },
+  { id: 141, displayName: 'La Liga 2',               country: 'Spain'            },
+
+  // ── Italie ──────────────────────────────────────────────────────────────────
+  { id: 135, displayName: 'Serie A',                 country: 'Italy'            },
+  { id: 136, displayName: 'Serie B',                 country: 'Italy'            },
+
+  // ── Autres grandes ligues européennes ───────────────────────────────────────
+  { id: 88,  displayName: 'Eredivisie',              country: 'Netherlands'      },
+  { id: 94,  displayName: 'Primeira Liga',           country: 'Portugal'         },
+  { id: 144, displayName: 'Belgian Pro League',      country: 'Belgium'          },
+  { id: 179, displayName: 'Scottish Premiership',    country: 'Scotland'         },
+  { id: 203, displayName: 'Süper Lig',               country: 'Turkey'           },
+  { id: 197, displayName: 'Super League 1',          country: 'Greece'           },
+  { id: 207, displayName: 'Swiss Super League',      country: 'Switzerland'      },
+  { id: 218, displayName: 'Bundesliga Austria',      country: 'Austria'          },
+  { id: 119, displayName: 'Superliga',               country: 'Denmark'          },
+  { id: 103, displayName: 'Eliteserien',             country: 'Norway'           },
+  { id: 113, displayName: 'Allsvenskan',             country: 'Sweden'           },
+  { id: 106, displayName: 'Ekstraklasa',             country: 'Poland'           },
+
+  // ── Europe — ligues supplémentaires ─────────────────────────────────────────
+  { id: 210, displayName: 'HNL',                     country: 'Croatia'          },
+  { id: 283, displayName: 'Liga I',                  country: 'Romania'          },
+  { id: 172, displayName: 'First Professional League', country: 'Bulgaria'       },
+  { id: 271, displayName: 'OTP Bank Liga',           country: 'Hungary'          },
+  { id: 244, displayName: 'Veikkausliiga',           country: 'Finland'          },
+  { id: 345, displayName: 'Czech Liga',              country: 'Czech Republic'   },
+  { id: 332, displayName: 'Fortuna liga',            country: 'Slovakia'         },
+  { id: 322, displayName: 'PrvaLiga',                country: 'Slovenia'         },
+  { id: 164, displayName: 'Úrvalsdeild',             country: 'Iceland'          },
+  { id: 333, displayName: 'Premier League UA',       country: 'Ukraine'          },
+  { id: 208, displayName: 'Premier Liga',            country: 'Bosnia'           },
+  { id: 261, displayName: 'First Division',          country: 'Cyprus'           },
+  { id: 324, displayName: 'Meistriliiga',            country: 'Estonia'          },
+  { id: 326, displayName: 'A Lyga',                  country: 'Lithuania'        },
+  { id: 162, displayName: 'Virslīga',                country: 'Latvia'           },
+  { id: 267, displayName: 'Erovnuli Liga',           country: 'Georgia'          },
+  { id: 371, displayName: 'NIFL Premiership',        country: 'Northern Ireland' },
+  { id: 357, displayName: 'League of Ireland',       country: 'Ireland'          },
+
+  // ── Asie & Océanie ──────────────────────────────────────────────────────────
+  { id: 98,  displayName: 'J1 League',               country: 'Japan'            },
+  { id: 292, displayName: 'K League 1',              country: 'South Korea'      },
+  { id: 169, displayName: 'Super League',            country: 'China'            },
+  { id: 188, displayName: 'A-League',                country: 'Australia'        },
+
+  // ── Moyen-Orient ────────────────────────────────────────────────────────────
+  { id: 307, displayName: 'Saudi Pro League',        country: 'Saudi Arabia'     },
+
+  // ── Afrique ─────────────────────────────────────────────────────────────────
+  { id: 288, displayName: 'Premier Soccer League',   country: 'South Africa'     },
+  { id: 200, displayName: 'Botola Pro',              country: 'Morocco'          },
+
+  // ── Amériques ───────────────────────────────────────────────────────────────
+  { id: 71,  displayName: 'Série A Brésil',          country: 'Brazil'           },
+  { id: 128, displayName: 'Liga Argentina',          country: 'Argentina'        },
+  { id: 253, displayName: 'MLS',                     country: 'USA'              },
+  { id: 262, displayName: 'Liga MX',                 country: 'Mexico'           },
+  { id: 239, displayName: 'Primera A',               country: 'Colombia'         },
+  { id: 265, displayName: 'Primera División',        country: 'Chile'            },
+  { id: 240, displayName: 'LigaPro',                 country: 'Ecuador'          },
 ];
 
 const LEAGUE_MAP = new Map(LEAGUES.map(l => [l.id, l]));

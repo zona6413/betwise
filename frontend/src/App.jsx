@@ -9,6 +9,7 @@ import ComboModal        from './components/ComboModal.jsx';
 import Toast             from './components/Toast.jsx';
 import StatsTab          from './components/StatsTab.jsx';
 import BottomNav         from './components/BottomNav.jsx';
+import SearchBar         from './components/SearchBar.jsx';
 import { useLearning }   from './hooks/useLearning.js';
 import './App.css';
 
@@ -52,6 +53,7 @@ export default function App() {
   const [activeLeague,  setActiveLeague]  = useState('all');
   const [riskProfile,   setRiskProfile]   = useState('medium');
   const [showCombo,     setShowCombo]     = useState(false);
+  const [searchQuery,   setSearchQuery]   = useState('');
   const [toast,         setToast]         = useState({ visible: false, message: '', type: 'value' });
   const prevValueCount = useRef(0);
 
@@ -85,6 +87,14 @@ export default function App() {
 
   const filtered = useMemo(() => {
     let list = bettableMatches;
+    if (searchQuery.length >= 2) {
+      const q = searchQuery.toLowerCase();
+      list = list.filter(m =>
+        m.league?.toLowerCase().includes(q) ||
+        m.homeTeam?.name?.toLowerCase().includes(q) ||
+        m.awayTeam?.name?.toLowerCase().includes(q)
+      );
+    }
     if (activeLeague !== 'all') list = list.filter(m => normalizeLeague(m.league) === activeLeague);
     if (activeTab === 'live')     list = list.filter(m => LIVE_STATUSES.includes(m.status));
     if (activeTab === 'value')    list = list.filter(m => m.hasValueBet);
@@ -227,6 +237,15 @@ export default function App() {
               </div>
             </div>
           )}
+
+          {/* Search */}
+          <div className="search-bar-wrap">
+            <SearchBar
+              matches={bettableMatches}
+              onResult={setSearchQuery}
+              onClear={() => setSearchQuery('')}
+            />
+          </div>
 
           {/* Tabs */}
           <div className="tab-bar">
