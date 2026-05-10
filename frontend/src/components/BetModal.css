@@ -1,7 +1,7 @@
 .bet-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.7);
+  background: rgba(0,0,0,0.75);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: flex-end;
@@ -11,9 +11,7 @@
 }
 
 @media (min-width: 600px) {
-  .bet-modal-overlay {
-    align-items: center;
-  }
+  .bet-modal-overlay { align-items: center; }
 }
 
 .bet-modal {
@@ -21,15 +19,16 @@
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: 20px 20px 0 0;
   width: 100%;
-  max-width: 480px;
-  padding: 24px;
+  max-width: 540px;
+  max-height: 92dvh;
+  display: flex;
+  flex-direction: column;
   animation: slideUp 0.22s ease;
+  overflow: hidden;
 }
 
 @media (min-width: 600px) {
-  .bet-modal {
-    border-radius: 20px;
-  }
+  .bet-modal { border-radius: 20px; max-height: 88dvh; }
 }
 
 @keyframes slideUp {
@@ -37,18 +36,16 @@
   to   { transform: translateY(0);    opacity: 1; }
 }
 
+/* ── Header ── */
 .bet-modal-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: 20px;
+  padding: 20px 20px 12px;
+  flex-shrink: 0;
 }
 
-.bet-modal-match {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
+.bet-modal-match { display: flex; flex-direction: column; gap: 3px; }
 
 .bet-modal-league {
   font-size: 11px;
@@ -79,12 +76,147 @@
   flex-shrink: 0;
 }
 
+/* ── Category tabs ── */
+.bet-cat-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 0 20px 14px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  flex-shrink: 0;
+}
+.bet-cat-tabs::-webkit-scrollbar { display: none; }
+
+.bet-cat-tab {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.5);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.bet-cat-tab.active {
+  background: rgba(108,99,255,0.2);
+  border-color: rgba(108,99,255,0.5);
+  color: #a5b4fc;
+}
+
+/* ── Scrollable body ── */
 .bet-modal-body {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
+  padding: 0 20px 20px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.1) transparent;
 }
 
+/* ── Options grid ── */
+.bet-options-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.bet-option-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 11px 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.6);
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+}
+
+.bet-option-btn:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.15);
+}
+
+.bet-option-btn.active {
+  background: rgba(108,99,255,0.18);
+  border-color: rgba(108,99,255,0.55);
+  color: #a5b4fc;
+}
+
+.opt-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bet-option-btn.active .opt-label { color: #a5b4fc; }
+
+.opt-odd {
+  font-size: 16px;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1;
+}
+
+.opt-odd--manual {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.3);
+}
+
+.bet-option-btn.active .opt-odd { color: #c7d2fe; }
+
+.opt-sub {
+  font-size: 9px;
+  color: rgba(255,255,255,0.35);
+  font-weight: 500;
+  text-align: center;
+  line-height: 1.2;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Selected recap ── */
+.bet-selected-recap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(108,99,255,0.1);
+  border: 1px solid rgba(108,99,255,0.25);
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+
+.bet-selected-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: rgba(108,99,255,0.8);
+  flex-shrink: 0;
+}
+
+.bet-selected-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #a5b4fc;
+}
+
+/* ── Fields ── */
 .bet-field-label {
   font-size: 11px;
   font-weight: 700;
@@ -95,62 +227,13 @@
   display: block;
 }
 
-.bet-outcomes {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-}
-
-.bet-outcome-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: 12px 8px;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.08);
-  background: rgba(255,255,255,0.04);
-  color: rgba(255,255,255,0.6);
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.bet-outcome-btn:hover {
-  background: rgba(255,255,255,0.08);
-  border-color: rgba(255,255,255,0.15);
-}
-
-.bet-outcome-btn.active {
-  background: rgba(108,99,255,0.18);
-  border-color: rgba(108,99,255,0.5);
-  color: #a5b4fc;
-}
-
-.outcome-label {
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.outcome-odd {
-  font-size: 15px;
-  font-weight: 800;
-  color: #fff;
-}
-
-.bet-outcome-btn.active .outcome-odd {
-  color: #a5b4fc;
-}
-
 .bet-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
 
-.bet-field {
-  display: flex;
-  flex-direction: column;
-}
+.bet-field { display: flex; flex-direction: column; }
 
 .bet-input {
   background: rgba(255,255,255,0.05);
@@ -166,15 +249,14 @@
   transition: border-color 0.15s;
 }
 
-.bet-input:focus {
-  border-color: rgba(108,99,255,0.5);
-}
+.bet-input:focus { border-color: rgba(108,99,255,0.5); }
 
 .bet-input::placeholder {
   color: rgba(255,255,255,0.25);
   font-weight: 400;
 }
 
+/* ── Gain preview ── */
 .bet-gain-preview {
   background: rgba(0,214,143,0.08);
   border: 1px solid rgba(0,214,143,0.2);
@@ -194,6 +276,7 @@
   color: rgba(0,214,143,0.7);
 }
 
+/* ── Submit ── */
 .bet-submit {
   background: linear-gradient(135deg, #6c63ff, #5b6ef5);
   border: none;
@@ -208,4 +291,10 @@
   letter-spacing: 0.2px;
 }
 
-.bet-submit:hover { opacity: 0.88; }
+.bet-submit:hover:not(:disabled) { opacity: 0.88; }
+
+.bet-submit:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: rgba(255,255,255,0.1);
+}
