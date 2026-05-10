@@ -57,11 +57,10 @@ export default function App() {
   const [toast,         setToast]         = useState({ visible: false, message: '', type: 'value' });
   const prevValueCount = useRef(0);
 
-  // Uniquement les matchs disponibles sur les bookmakers (vraies cotes)
-  const bettableMatches = useMemo(
-    () => matches.filter(m => m.hasRealOdds),
-    [matches]
-  );
+  // Tous les matchs réels (API-Football temps réel)
+  // hasRealOdds = true → cotes Winamax/Betclic/Unibet confirmées
+  // hasRealOdds = false → cotes estimées (Odds API indisponible ou ligue non couverte)
+  const bettableMatches = useMemo(() => matches, [matches]);
 
   const leagues = useMemo(
     () => [...new Set(bettableMatches.map(m => normalizeLeague(m.league)))],

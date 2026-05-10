@@ -8,64 +8,35 @@ import axios from 'axios';
 const BASE_URL = 'https://api.the-odds-api.com/v4';
 const getKey = () => process.env.ODDS_API_KEY;
 
-// Sports keys TheOddsAPI — couverture maximale Winamax/Betclic/Unibet
-// Les clés invalides sont ignorées silencieusement grâce à Promise.allSettled
+// Sports keys TheOddsAPI — uniquement les ligues bien couvertes Winamax/Betclic/Unibet
+// Limité aux ~20 ligues principales pour préserver le quota mensuel
 const SPORT_KEYS = [
-  // Top 5 européens
+  // Top 5 européens + coupes
   'soccer_epl',
   'soccer_france_ligue_one',
   'soccer_spain_la_liga',
   'soccer_italy_serie_a',
   'soccer_germany_bundesliga',
-  // Coupes européennes
   'soccer_uefa_champs_league',
   'soccer_uefa_europa_league',
   'soccer_uefa_europa_conference_league',
-  // Divisions 2
+  // Divisions 2 populaires
   'soccer_efl_champ',
   'soccer_france_ligue_two',
   'soccer_germany_bundesliga2',
-  'soccer_italy_serie_b',
-  'soccer_spain_segunda_division',
   // Ligues européennes majeures
   'soccer_netherlands_eredivisie',
   'soccer_portugal_primeira_liga',
   'soccer_belgium_first_div',
   'soccer_turkey_super_league',
   'soccer_scotland_premiership',
-  'soccer_greece_super_league',
-  'soccer_switzerland_superleague',
-  'soccer_austria_football_bundesliga',
-  'soccer_denmark_superliga',
   'soccer_norway_eliteserien',
   'soccer_sweden_allsvenskan',
   'soccer_poland_ekstraklasa',
-  // Ligues européennes supplémentaires
-  'soccer_croatia_hnl',
-  'soccer_romania_liga_1',
-  'soccer_czech_republic_liga',
-  'soccer_hungary_nemzeti_bajnoksag',
-  'soccer_ukraine_premier_league',
-  'soccer_bulgaria_first_professional_league',
-  'soccer_finland_veikkausliiga',
-  'soccer_iceland_urvalsdeild',
-  'soccer_serbia_superliga',
-  // Asie & Océanie
-  'soccer_japan_j_league',
-  'soccer_south_korea_kleague1',
-  'soccer_australia_aleague',
-  'soccer_china_superleague',
-  // Moyen-Orient & Afrique
-  'soccer_saudi_arabia_professional_league',
-  'soccer_south_africa_psl',
   // Amériques
+  'soccer_usa_mls',
   'soccer_brazil_campeonato',
   'soccer_argentina_primera_division',
-  'soccer_usa_mls',
-  'soccer_mexico_ligamx',
-  'soccer_colombia_primera_a',
-  'soccer_chile_primera_division',
-  'soccer_ecuador_liga_pro',
 ];
 
 const client = axios.create({ baseURL: BASE_URL, timeout: 10_000 });

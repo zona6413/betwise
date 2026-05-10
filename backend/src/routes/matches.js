@@ -20,9 +20,10 @@ import {
 const router = Router();
 // 10 min avec vraie API, 90s avec mock
 const CACHE_TTL = process.env.API_FOOTBALL_KEY ? 600 : 90;
-const cache    = new NodeCache({ stdTTL: CACHE_TTL });
-const h2hCache     = new NodeCache({ stdTTL: 86400 }); // H2H : 24h
-const injuryCache  = new NodeCache({ stdTTL: 10800 }); // injuries : 3h
+const cache      = new NodeCache({ stdTTL: CACHE_TTL });
+const oddsCache  = new NodeCache({ stdTTL: 21600 }); // cotes : 6h (préserve quota)
+const h2hCache   = new NodeCache({ stdTTL: 86400 });  // H2H : 24h
+const injuryCache = new NodeCache({ stdTTL: 10800 }); // injuries : 3h
 
 const DEFAULT_STATS = { form: 'WDWLW', position: 12, wins: 10, draws: 8, losses: 10 };
 
@@ -167,10 +168,16 @@ router.get('/', async (req, res) => {
     const cached = cache.get('matches');
     if (cached) return res.json({ data: cached, cached: true, count: cached.length });
 
-    const [fixtures, teamStats, oddsData] = await Promise.all([
+    // Cotes cachées 6h séparément pour préserver le quota The Odds API
+    let oddsData = oddsCache.get('odds');
+    if (!oddsData) {
+      oddsData = await getOdds();
+      oddsCache.set('odds', oddsData);
+    }
+
+    const [fixtures, teamStats] = await Promise.all([
       getTodayFixtures(),
       getTeamStatsMap(),
-      getOdds(),
       preloadTopScorers(), // charge buteurs réels depuis API, cache 12h
     ]);
 
