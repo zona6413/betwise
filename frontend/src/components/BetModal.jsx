@@ -14,6 +14,38 @@ function poissonCDF(k, lambda) {
   return Math.min(1, p);
 }
 
+function resultProbs(lH, lA, maxG = 8) {
+  let home = 0, draw = 0, away = 0;
+  for (let h = 0; h <= maxG; h++) {
+    for (let a = 0; a <= maxG; a++) {
+      const p = poissonProb(h, lH) * poissonProb(a, lA);
+      if (h > a) home += p;
+      else if (h === a) draw += p;
+      else away += p;
+    }
+  }
+  return { home, draw, away };
+}
+
+function htftProbs(lH, lA, maxG = 5) {
+  const r  = { '11':0,'1X':0,'12':0,'X1':0,'XX':0,'X2':0,'21':0,'2X':0,'22':0 };
+  const lH1 = lH / 2, lA1 = lA / 2;
+  for (let h1 = 0; h1 <= maxG; h1++) {
+    for (let a1 = 0; a1 <= maxG; a1++) {
+      const pHT = poissonProb(h1, lH1) * poissonProb(a1, lA1);
+      const ht  = h1 > a1 ? '1' : h1 === a1 ? 'X' : '2';
+      for (let h2 = 0; h2 <= maxG; h2++) {
+        for (let a2 = 0; a2 <= maxG; a2++) {
+          const p  = pHT * poissonProb(h2, lH1) * poissonProb(a2, lA1);
+          const ft = (h1+h2) > (a1+a2) ? '1' : (h1+h2) === (a1+a2) ? 'X' : '2';
+          r[ht + ft] += p;
+        }
+      }
+    }
+  }
+  return r;
+}
+
 function jointProbs(lH, lA, maxG = 8) {
   let bttsHome = 0, bttsDraw = 0, bttsAway = 0;
   let nBttsHome = 0, nBttsDraw = 0, nBttsAway = 0;
@@ -55,7 +87,9 @@ function buildCategories(match) {
   const under25  = 1 - over25;
   const under35  = 1 - over35;
 
-  const jp = jointProbs(homeExpG, awayExpG);
+  const jp   = jointProbs(homeExpG, awayExpG);
+  const htR  = resultProbs(homeExpG / 2, awayExpG / 2);
+  const htft = htftProbs(homeExpG, awayExpG);
 
   const dc1X = Math.min(0.97, homeP + drawP);
   const dcX2 = Math.min(0.97, drawP + awayP);
@@ -111,9 +145,9 @@ function buildCategories(match) {
       label: 'Mi-temps',
       cols: 3,
       options: [
-        { key: 'HT_1', label: match.homeTeam.name, sub: 'Mène à la pause',  odd: null },
-        { key: 'HT_X', label: 'Nul',               sub: 'Égalité mi-temps', odd: null },
-        { key: 'HT_2', label: match.awayTeam.name, sub: 'Mène à la pause',  odd: null },
+        { key: 'HT_1', label: match.homeTeam.name, sub: 'Mène à la pause',  odd: probToOdd(htR.home) },
+        { key: 'HT_X', label: 'Nul',               sub: 'Égalité mi-temps', odd: probToOdd(htR.draw) },
+        { key: 'HT_2', label: match.awayTeam.name, sub: 'Mène à la pause',  odd: probToOdd(htR.away) },
       ],
     },
     {
@@ -121,15 +155,15 @@ function buildCategories(match) {
       label: 'Mi-temps / Résultat',
       cols: 3,
       options: [
-        { key: 'HTFT_1_1', label: '1/1', sub: 'Dom. mène & gagne',    odd: null },
-        { key: 'HTFT_1_X', label: '1/X', sub: 'Dom. mène & nul',      odd: null },
-        { key: 'HTFT_1_2', label: '1/2', sub: 'Dom. mène & Ext. gagne', odd: null },
-        { key: 'HTFT_X_1', label: 'X/1', sub: 'Nul MT & Dom. gagne',  odd: null },
-        { key: 'HTFT_X_X', label: 'X/X', sub: 'Nul MT & Nul FT',      odd: null },
-        { key: 'HTFT_X_2', label: 'X/2', sub: 'Nul MT & Ext. gagne',  odd: null },
-        { key: 'HTFT_2_1', label: '2/1', sub: 'Ext. mène & Dom. gagne', odd: null },
-        { key: 'HTFT_2_X', label: '2/X', sub: 'Ext. mène & nul',      odd: null },
-        { key: 'HTFT_2_2', label: '2/2', sub: 'Ext. mène & gagne',    odd: null },
+        { key: 'HTFT_1_1', label: '1/1', sub: 'Dom. mène & gagne',      odd: probToOdd(htft['11']) },
+        { key: 'HTFT_1_X', label: '1/X', sub: 'Dom. mène & nul',        odd: probToOdd(htft['1X']) },
+        { key: 'HTFT_1_2', label: '1/2', sub: 'Dom. mène & Ext. gagne', odd: probToOdd(htft['12']) },
+        { key: 'HTFT_X_1', label: 'X/1', sub: 'Nul MT & Dom. gagne',    odd: probToOdd(htft['X1']) },
+        { key: 'HTFT_X_X', label: 'X/X', sub: 'Nul MT & Nul FT',        odd: probToOdd(htft['XX']) },
+        { key: 'HTFT_X_2', label: 'X/2', sub: 'Nul MT & Ext. gagne',    odd: probToOdd(htft['X2']) },
+        { key: 'HTFT_2_1', label: '2/1', sub: 'Ext. mène & Dom. gagne', odd: probToOdd(htft['21']) },
+        { key: 'HTFT_2_X', label: '2/X', sub: 'Ext. mène & nul',        odd: probToOdd(htft['2X']) },
+        { key: 'HTFT_2_2', label: '2/2', sub: 'Ext. mène & gagne',      odd: probToOdd(htft['22']) },
       ],
     },
     {

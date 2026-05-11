@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import './BetTrackerPanel.css';
 
 const STATUS_LABEL = { pending: 'En attente', won: 'Gagné', lost: 'Perdu', void: 'Annulé' };
@@ -75,6 +76,8 @@ export default function BetTrackerPanel({ bets, stats, onResolve, onVoid, onDele
 }
 
 function BetRow({ bet, onResolve, onVoid, onDelete }) {
+  const [confirmDel, setConfirmDel] = useState(false);
+
   return (
     <div className={`bet-row-card bet-row-card--${STATUS_CLS[bet.status]}`}>
       <div className="bet-row-top">
@@ -116,7 +119,15 @@ function BetRow({ bet, onResolve, onVoid, onDelete }) {
             <button className="bet-action-btn bet-action-btn--void" onClick={() => onVoid(bet.id)}>Annuler</button>
           </>
         )}
-        <button className="bet-action-btn bet-action-btn--delete" onClick={() => onDelete(bet.id)}>Supprimer</button>
+        {confirmDel ? (
+          <>
+            <span className="bet-delete-confirm-text">Supprimer ?</span>
+            <button className="bet-action-btn bet-action-btn--delete" onClick={() => onDelete(bet.id)}>Oui</button>
+            <button className="bet-action-btn" onClick={() => setConfirmDel(false)}>Non</button>
+          </>
+        ) : (
+          <button className="bet-action-btn bet-action-btn--delete" onClick={() => setConfirmDel(true)}>Supprimer</button>
+        )}
       </div>
     </div>
   );
