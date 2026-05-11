@@ -1,6 +1,17 @@
 import { useState } from 'react';
 import './BetModal.css';
 
+const BANKROLL_KEY = 'betwise_bankroll';
+
+function loadBankroll() {
+  try { return localStorage.getItem(BANKROLL_KEY) ?? ''; }
+  catch { return ''; }
+}
+function saveBankroll(v) {
+  try { localStorage.setItem(BANKROLL_KEY, v); } catch {}
+}
+
+// ── Maths ────────────────────────────────────────────────────────────────────
 function poissonProb(k, lambda) {
   if (lambda <= 0) return k === 0 ? 1 : 0;
   let logP = -lambda + k * Math.log(lambda);
@@ -66,6 +77,18 @@ function probToOdd(prob) {
   return Math.max(1.01, +((1 / prob) * 0.92).toFixed(2));
 }
 
+function valueEdge(prob, odd) {
+  if (!prob || !odd || prob <= 0 || odd < 1) return null;
+  return +(prob * odd - 1).toFixed(3);
+}
+
+function kellyFraction(prob, odd) {
+  if (!prob || !odd || odd <= 1 || prob <= 0 || prob >= 1) return null;
+  const f = (prob * odd - 1) / (odd - 1);
+  return f > 0 ? f : null;
+}
+
+// ── Build categories ─────────────────────────────────────────────────────────
 function buildCategories(match) {
   const s   = match.tieredBets?.stats;
   const o   = match.odds;
@@ -99,98 +122,83 @@ function buildCategories(match) {
 
   const cats = [
     {
-      id: 'result',
-      label: 'Résultat',
-      cols: 3,
+      id: 'result', label: 'Résultat', cols: 3,
       options: [
-        { key: '1',    label: match.homeTeam.name, sub: 'Domicile',   odd: o?.home ?? probToOdd(homeP) },
-        { key: 'X',    label: 'Nul',               sub: 'Match nul',  odd: o?.draw ?? probToOdd(drawP) },
-        { key: '2',    label: match.awayTeam.name, sub: 'Extérieur',  odd: o?.away ?? probToOdd(awayP) },
+        { key: '1', label: match.homeTeam.name, sub: 'Domicile',   odd: o?.home ?? probToOdd(homeP), prob: homeP },
+        { key: 'X', label: 'Nul',               sub: 'Match nul',  odd: o?.draw ?? probToOdd(drawP), prob: drawP },
+        { key: '2', label: match.awayTeam.name, sub: 'Extérieur',  odd: o?.away ?? probToOdd(awayP), prob: awayP },
       ],
     },
     {
-      id: 'double_chance',
-      label: 'Double chance',
-      cols: 3,
+      id: 'double_chance', label: 'Double chance', cols: 3,
       options: [
-        { key: 'DC_1X', label: '1X', sub: `${match.homeTeam.name} ou Nul`,   odd: probToOdd(dc1X) },
-        { key: 'DC_X2', label: 'X2', sub: `Nul ou ${match.awayTeam.name}`,   odd: probToOdd(dcX2) },
-        { key: 'DC_12', label: '12', sub: "L'un des deux gagne",              odd: probToOdd(dc12) },
+        { key: 'DC_1X', label: '1X', sub: `${match.homeTeam.name} ou Nul`,  odd: probToOdd(dc1X), prob: dc1X },
+        { key: 'DC_X2', label: 'X2', sub: `Nul ou ${match.awayTeam.name}`,  odd: probToOdd(dcX2), prob: dcX2 },
+        { key: 'DC_12', label: '12', sub: "L'un des deux gagne",             odd: probToOdd(dc12), prob: dc12 },
       ],
     },
     {
-      id: 'btts',
-      label: 'BTTS',
-      cols: 2,
+      id: 'btts', label: 'BTTS', cols: 2,
       options: [
-        { key: 'BTTS_Y', label: 'Oui', sub: 'Les deux équipes marquent',          odd: probToOdd(bttsProb) },
-        { key: 'BTTS_N', label: 'Non', sub: 'Au moins une équipe ne marque pas',  odd: probToOdd(1 - bttsProb) },
+        { key: 'BTTS_Y', label: 'Oui', sub: 'Les deux équipes marquent',         odd: probToOdd(bttsProb),     prob: bttsProb     },
+        { key: 'BTTS_N', label: 'Non', sub: 'Au moins une équipe ne marque pas', odd: probToOdd(1 - bttsProb), prob: 1 - bttsProb },
       ],
     },
     {
-      id: 'total',
-      label: 'Total buts',
-      cols: 2,
+      id: 'total', label: 'Total buts', cols: 2,
       options: [
-        { key: 'OV15', label: '+1.5', sub: '2 buts ou +',    odd: probToOdd(over15)  },
-        { key: 'UN15', label: '-1.5', sub: '0 ou 1 but',     odd: probToOdd(under15) },
-        { key: 'OV25', label: '+2.5', sub: '3 buts ou +',    odd: probToOdd(over25)  },
-        { key: 'UN25', label: '-2.5', sub: '0, 1 ou 2 buts', odd: probToOdd(under25) },
-        { key: 'OV35', label: '+3.5', sub: '4 buts ou +',    odd: probToOdd(over35)  },
-        { key: 'UN35', label: '-3.5', sub: '3 buts max',     odd: probToOdd(under35) },
+        { key: 'OV15', label: '+1.5', sub: '2 buts ou +',    odd: probToOdd(over15),  prob: over15  },
+        { key: 'UN15', label: '-1.5', sub: '0 ou 1 but',     odd: probToOdd(under15), prob: under15 },
+        { key: 'OV25', label: '+2.5', sub: '3 buts ou +',    odd: probToOdd(over25),  prob: over25  },
+        { key: 'UN25', label: '-2.5', sub: '0, 1 ou 2 buts', odd: probToOdd(under25), prob: under25 },
+        { key: 'OV35', label: '+3.5', sub: '4 buts ou +',    odd: probToOdd(over35),  prob: over35  },
+        { key: 'UN35', label: '-3.5', sub: '3 buts max',     odd: probToOdd(under35), prob: under35 },
       ],
     },
     {
-      id: 'mi_temps',
-      label: 'Mi-temps',
-      cols: 3,
+      id: 'mi_temps', label: 'Mi-temps', cols: 3,
       options: [
-        { key: 'HT_1', label: match.homeTeam.name, sub: 'Mène à la pause',  odd: probToOdd(htR.home) },
-        { key: 'HT_X', label: 'Nul',               sub: 'Égalité mi-temps', odd: probToOdd(htR.draw) },
-        { key: 'HT_2', label: match.awayTeam.name, sub: 'Mène à la pause',  odd: probToOdd(htR.away) },
+        { key: 'HT_1', label: match.homeTeam.name, sub: 'Mène à la pause',  odd: probToOdd(htR.home), prob: htR.home },
+        { key: 'HT_X', label: 'Nul',               sub: 'Égalité mi-temps', odd: probToOdd(htR.draw), prob: htR.draw },
+        { key: 'HT_2', label: match.awayTeam.name, sub: 'Mène à la pause',  odd: probToOdd(htR.away), prob: htR.away },
       ],
     },
     {
-      id: 'mi_temps_ft',
-      label: 'Mi-temps / Résultat',
-      cols: 3,
+      id: 'mi_temps_ft', label: 'Mi-temps / Résultat', cols: 3,
       options: [
-        { key: 'HTFT_1_1', label: '1/1', sub: 'Dom. mène & gagne',      odd: probToOdd(htft['11']) },
-        { key: 'HTFT_1_X', label: '1/X', sub: 'Dom. mène & nul',        odd: probToOdd(htft['1X']) },
-        { key: 'HTFT_1_2', label: '1/2', sub: 'Dom. mène & Ext. gagne', odd: probToOdd(htft['12']) },
-        { key: 'HTFT_X_1', label: 'X/1', sub: 'Nul MT & Dom. gagne',    odd: probToOdd(htft['X1']) },
-        { key: 'HTFT_X_X', label: 'X/X', sub: 'Nul MT & Nul FT',        odd: probToOdd(htft['XX']) },
-        { key: 'HTFT_X_2', label: 'X/2', sub: 'Nul MT & Ext. gagne',    odd: probToOdd(htft['X2']) },
-        { key: 'HTFT_2_1', label: '2/1', sub: 'Ext. mène & Dom. gagne', odd: probToOdd(htft['21']) },
-        { key: 'HTFT_2_X', label: '2/X', sub: 'Ext. mène & nul',        odd: probToOdd(htft['2X']) },
-        { key: 'HTFT_2_2', label: '2/2', sub: 'Ext. mène & gagne',      odd: probToOdd(htft['22']) },
+        { key: 'HTFT_1_1', label: '1/1', sub: 'Dom. mène & gagne',      odd: probToOdd(htft['11']), prob: htft['11'] },
+        { key: 'HTFT_1_X', label: '1/X', sub: 'Dom. mène & nul',        odd: probToOdd(htft['1X']), prob: htft['1X'] },
+        { key: 'HTFT_1_2', label: '1/2', sub: 'Dom. mène & Ext. gagne', odd: probToOdd(htft['12']), prob: htft['12'] },
+        { key: 'HTFT_X_1', label: 'X/1', sub: 'Nul MT & Dom. gagne',    odd: probToOdd(htft['X1']), prob: htft['X1'] },
+        { key: 'HTFT_X_X', label: 'X/X', sub: 'Nul MT & Nul FT',        odd: probToOdd(htft['XX']), prob: htft['XX'] },
+        { key: 'HTFT_X_2', label: 'X/2', sub: 'Nul MT & Ext. gagne',    odd: probToOdd(htft['X2']), prob: htft['X2'] },
+        { key: 'HTFT_2_1', label: '2/1', sub: 'Ext. mène & Dom. gagne', odd: probToOdd(htft['21']), prob: htft['21'] },
+        { key: 'HTFT_2_X', label: '2/X', sub: 'Ext. mène & nul',        odd: probToOdd(htft['2X']), prob: htft['2X'] },
+        { key: 'HTFT_2_2', label: '2/2', sub: 'Ext. mène & gagne',      odd: probToOdd(htft['22']), prob: htft['22'] },
       ],
     },
     {
-      id: 'btts_result',
-      label: 'BTTS + Résultat',
-      cols: 2,
+      id: 'btts_result', label: 'BTTS + Résultat', cols: 2,
       options: [
-        { key: 'BTTS_Y_1', label: 'Oui + Dom.', sub: 'BTTS & domicile gagne',  odd: probToOdd(jp.bttsHome)  },
-        { key: 'BTTS_Y_X', label: 'Oui + Nul',  sub: 'BTTS & match nul',       odd: probToOdd(jp.bttsDraw)  },
-        { key: 'BTTS_Y_2', label: 'Oui + Ext.', sub: 'BTTS & extérieur gagne', odd: probToOdd(jp.bttsAway)  },
-        { key: 'BTTS_N_1', label: 'Non + Dom.', sub: 'Pas BTTS & dom. gagne',  odd: probToOdd(jp.nBttsHome) },
-        { key: 'BTTS_N_X', label: 'Non + Nul',  sub: 'Pas BTTS & nul',         odd: probToOdd(jp.nBttsDraw) },
-        { key: 'BTTS_N_2', label: 'Non + Ext.', sub: 'Pas BTTS & ext. gagne',  odd: probToOdd(jp.nBttsAway) },
+        { key: 'BTTS_Y_1', label: 'Oui + Dom.', sub: 'BTTS & domicile gagne',  odd: probToOdd(jp.bttsHome),  prob: jp.bttsHome  },
+        { key: 'BTTS_Y_X', label: 'Oui + Nul',  sub: 'BTTS & match nul',       odd: probToOdd(jp.bttsDraw),  prob: jp.bttsDraw  },
+        { key: 'BTTS_Y_2', label: 'Oui + Ext.', sub: 'BTTS & extérieur gagne', odd: probToOdd(jp.bttsAway),  prob: jp.bttsAway  },
+        { key: 'BTTS_N_1', label: 'Non + Dom.', sub: 'Pas BTTS & dom. gagne',  odd: probToOdd(jp.nBttsHome), prob: jp.nBttsHome },
+        { key: 'BTTS_N_X', label: 'Non + Nul',  sub: 'Pas BTTS & nul',         odd: probToOdd(jp.nBttsDraw), prob: jp.nBttsDraw },
+        { key: 'BTTS_N_2', label: 'Non + Ext.', sub: 'Pas BTTS & ext. gagne',  odd: probToOdd(jp.nBttsAway), prob: jp.nBttsAway },
       ],
     },
   ];
 
   if (scorerBets.length > 0) {
     cats.push({
-      id: 'scorer',
-      label: 'Buteur',
-      cols: 2,
+      id: 'scorer', label: 'Buteur', cols: 2,
       options: scorerBets.slice(0, 6).map(b => ({
         key:   `SCR_${b.player}`,
         label: b.player,
         sub:   `${Math.round(b.prob * 100)}% de probabilité`,
         odd:   probToOdd(b.prob * 0.65),
+        prob:  b.prob * 0.65,
       })),
     });
   }
@@ -218,13 +226,14 @@ function outcomeLabel(key, opt, match) {
     'HT_X': 'Nul à la mi-temps',
     'HT_2': `${match.awayTeam.name} mène à la pause`,
   };
-  if (key.startsWith('SCR_'))      return `Buteur : ${opt.label}`;
-  if (key.startsWith('HTFT_'))     return `Mi-temps/Résultat : ${opt.label}`;
-  if (key.startsWith('BTTS_Y_'))   return `BTTS Oui + ${opt.label.split(' + ')[1]}`;
-  if (key.startsWith('BTTS_N_'))   return `BTTS Non + ${opt.label.split(' + ')[1]}`;
+  if (key.startsWith('SCR_'))    return `Buteur : ${opt.label}`;
+  if (key.startsWith('HTFT_'))   return `Mi-temps/Résultat : ${opt.label}`;
+  if (key.startsWith('BTTS_Y_')) return `BTTS Oui + ${opt.label.split(' + ')[1]}`;
+  if (key.startsWith('BTTS_N_')) return `BTTS Non + ${opt.label.split(' + ')[1]}`;
   return map[key] ?? opt.label;
 }
 
+// ── Component ────────────────────────────────────────────────────────────────
 export default function BetModal({ match, onAdd, onClose }) {
   const categories = buildCategories(match);
   const [catId,     setCatId]     = useState(categories[0].id);
@@ -232,9 +241,20 @@ export default function BetModal({ match, onAdd, onClose }) {
   const [odds,      setOdds]      = useState('');
   const [stake,     setStake]     = useState('');
   const [bookmaker, setBookmaker] = useState(match.odds?.bookmaker ?? '');
+  const [bankroll,  setBankroll]  = useState(loadBankroll);
 
   const currentCat = categories.find(c => c.id === catId);
   const currentOpt = currentCat?.options.find(o => o.key === optKey);
+
+  const parsedOdds     = parseFloat(odds);
+  const parsedStake    = parseFloat(stake);
+  const parsedBankroll = parseFloat(bankroll);
+
+  // Value & Kelly — calculés sur la cote saisie par l'utilisateur
+  const liveEdge  = currentOpt?.prob && parsedOdds >= 1 ? valueEdge(currentOpt.prob, parsedOdds) : null;
+  const isValue   = liveEdge !== null && liveEdge > 0.02;
+  const kf        = currentOpt?.prob && parsedOdds >= 1 ? kellyFraction(currentOpt.prob, parsedOdds) : null;
+  const kellySugg = kf && parsedBankroll > 0 ? +(kf * 0.5 * parsedBankroll).toFixed(2) : null;
 
   function handleSelectOpt(opt) {
     setOptKey(opt.key);
@@ -248,10 +268,15 @@ export default function BetModal({ match, onAdd, onClose }) {
     setOdds('');
   }
 
+  function handleBankrollChange(e) {
+    setBankroll(e.target.value);
+    saveBankroll(e.target.value);
+  }
+
   function handleSubmit(e) {
     e.preventDefault();
-    const s = parseFloat(stake);
-    const o = parseFloat(odds);
+    const s = parsedStake;
+    const o = parsedOdds;
     if (!s || s <= 0 || !o || o < 1 || !optKey || !currentOpt) return;
 
     onAdd({
@@ -270,11 +295,8 @@ export default function BetModal({ match, onAdd, onClose }) {
     onClose();
   }
 
-  const gain = parseFloat(stake) && parseFloat(odds)
-    ? ((parseFloat(stake) * parseFloat(odds)) - parseFloat(stake)).toFixed(2)
-    : null;
-
-  const canSubmit = !!optKey && !!parseFloat(stake) && parseFloat(odds) >= 1;
+  const gain      = parsedStake && parsedOdds ? ((parsedStake * parsedOdds) - parsedStake).toFixed(2) : null;
+  const canSubmit = !!optKey && !!parsedStake && parsedOdds >= 1;
 
   return (
     <div className="bet-modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
@@ -306,38 +328,44 @@ export default function BetModal({ match, onAdd, onClose }) {
             className="bet-options-grid"
             style={{ gridTemplateColumns: `repeat(${currentCat.cols}, 1fr)` }}
           >
-            {currentCat.options.map(opt => (
-              <button
-                key={opt.key}
-                type="button"
-                className={`bet-option-btn ${optKey === opt.key ? 'active' : ''}`}
-                onClick={() => handleSelectOpt(opt)}
-              >
-                <span className="opt-label">{opt.label}</span>
-                {opt.odd
-                  ? <span className="opt-odd">{opt.odd}</span>
-                  : <span className="opt-odd opt-odd--manual">saisir</span>
-                }
-                <span className="opt-sub">{opt.sub}</span>
-              </button>
-            ))}
+            {currentCat.options.map(opt => {
+              const edge = valueEdge(opt.prob, opt.odd);
+              const hasValue = edge !== null && edge > 0.02;
+              return (
+                <button
+                  key={opt.key}
+                  type="button"
+                  className={`bet-option-btn ${optKey === opt.key ? 'active' : ''} ${hasValue ? 'has-value' : ''}`}
+                  onClick={() => handleSelectOpt(opt)}
+                >
+                  {hasValue && <span className="opt-value-badge">VALUE</span>}
+                  <span className="opt-label">{opt.label}</span>
+                  {opt.odd
+                    ? <span className="opt-odd">{opt.odd}</span>
+                    : <span className="opt-odd opt-odd--manual">saisir</span>
+                  }
+                  <span className="opt-sub">{opt.sub}</span>
+                </button>
+              );
+            })}
           </div>
 
           {/* Selected bet recap */}
           {optKey && currentOpt && (
-            <div className="bet-selected-recap">
+            <div className={`bet-selected-recap ${isValue ? 'is-value' : ''}`}>
               <span className="bet-selected-label">Pari sélectionné</span>
               <span className="bet-selected-name">{outcomeLabel(optKey, currentOpt, match)}</span>
+              {isValue && <span className="bet-value-chip">VALUE +{Math.round(liveEdge * 100)}%</span>}
             </div>
           )}
 
           {/* Odds + Stake */}
           <div className="bet-row">
             <div className="bet-field">
-              <label className="bet-field-label">Cote</label>
+              <label className="bet-field-label">Cote bookmaker</label>
               <input
                 type="number"
-                className="bet-input"
+                className={`bet-input ${isValue ? 'input-value' : ''}`}
                 value={odds}
                 min="1"
                 step="0.01"
@@ -345,9 +373,23 @@ export default function BetModal({ match, onAdd, onClose }) {
                 placeholder="ex: 2.10"
                 required
               />
+              {liveEdge !== null && (
+                <span className={`bet-edge-hint ${isValue ? 'positive' : 'negative'}`}>
+                  {isValue ? `✓ Value +${Math.round(liveEdge * 100)}%` : `Edge ${Math.round(liveEdge * 100)}%`}
+                </span>
+              )}
             </div>
             <div className="bet-field">
-              <label className="bet-field-label">Mise (€)</label>
+              <div className="bet-stake-label-row">
+                <label className="bet-field-label">Mise (€)</label>
+                {kellySugg !== null && (
+                  <button
+                    type="button"
+                    className="bet-kelly-chip"
+                    onClick={() => setStake(String(kellySugg))}
+                  >Kelly ½ : {kellySugg} €</button>
+                )}
+              </div>
               <input
                 type="number"
                 className="bet-input"
@@ -361,26 +403,43 @@ export default function BetModal({ match, onAdd, onClose }) {
             </div>
           </div>
 
-          <div className="bet-field">
-            <label className="bet-field-label">Bookmaker (optionnel)</label>
-            <input
-              type="text"
-              className="bet-input"
-              value={bookmaker}
-              onChange={e => setBookmaker(e.target.value)}
-              placeholder="Betclic, Winamax, Unibet…"
-            />
+          {/* Bankroll + Bookmaker */}
+          <div className="bet-row">
+            <div className="bet-field">
+              <label className="bet-field-label">Bankroll (€)</label>
+              <input
+                type="number"
+                className="bet-input"
+                value={bankroll}
+                min="1"
+                step="10"
+                onChange={handleBankrollChange}
+                placeholder="ex: 500"
+              />
+            </div>
+            <div className="bet-field">
+              <label className="bet-field-label">Bookmaker</label>
+              <input
+                type="text"
+                className="bet-input"
+                value={bookmaker}
+                onChange={e => setBookmaker(e.target.value)}
+                placeholder="Betclic, Winamax…"
+              />
+            </div>
           </div>
 
           {gain !== null && (
             <div className="bet-gain-preview">
               Gain potentiel : <strong>+{gain} €</strong>
-              <span className="bet-gain-total">Retour : {(parseFloat(stake) * parseFloat(odds)).toFixed(2)} €</span>
+              <span className="bet-gain-total">Retour : {(parsedStake * parsedOdds).toFixed(2)} €</span>
             </div>
           )}
 
-          <button type="submit" className="bet-submit" disabled={!canSubmit}>
-            {canSubmit ? 'Enregistrer le pari' : optKey ? 'Entrez la mise' : 'Choisissez un pari'}
+          <button type="submit" className={`bet-submit ${isValue ? 'bet-submit--value' : ''}`} disabled={!canSubmit}>
+            {canSubmit
+              ? isValue ? '⚡ Enregistrer — VALUE BET' : 'Enregistrer le pari'
+              : optKey ? 'Entrez la mise' : 'Choisissez un pari'}
           </button>
         </form>
       </div>

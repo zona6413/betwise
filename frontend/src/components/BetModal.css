@@ -276,6 +276,77 @@
   color: rgba(0,214,143,0.7);
 }
 
+/* ── Value badge sur option ── */
+.opt-value-badge {
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  color: #00d68f;
+  background: rgba(0,214,143,0.12);
+  border: 1px solid rgba(0,214,143,0.3);
+  border-radius: 4px;
+  padding: 1px 5px;
+  text-transform: uppercase;
+  line-height: 1.4;
+}
+
+.bet-option-btn.has-value {
+  border-color: rgba(0,214,143,0.3);
+}
+.bet-option-btn.has-value .opt-odd { color: #00d68f; }
+
+/* ── Selected recap value ── */
+.bet-selected-recap.is-value {
+  border-color: rgba(0,214,143,0.4);
+  background: rgba(0,214,143,0.07);
+}
+
+.bet-value-chip {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 800;
+  color: #00d68f;
+  background: rgba(0,214,143,0.15);
+  border: 1px solid rgba(0,214,143,0.3);
+  border-radius: 6px;
+  padding: 3px 8px;
+  flex-shrink: 0;
+}
+
+/* ── Edge hint sous la cote ── */
+.bet-edge-hint {
+  font-size: 10px;
+  font-weight: 700;
+  margin-top: 5px;
+}
+.bet-edge-hint.positive { color: #00d68f; }
+.bet-edge-hint.negative { color: rgba(255,255,255,0.3); }
+
+.input-value { border-color: rgba(0,214,143,0.5) !important; }
+
+/* ── Kelly chip ── */
+.bet-stake-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.bet-stake-label-row .bet-field-label { margin-bottom: 0; }
+
+.bet-kelly-chip {
+  font-size: 9px;
+  font-weight: 700;
+  color: #a5b4fc;
+  background: rgba(108,99,255,0.12);
+  border: 1px solid rgba(108,99,255,0.3);
+  border-radius: 6px;
+  padding: 3px 7px;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+.bet-kelly-chip:hover { background: rgba(108,99,255,0.22); }
+
 /* ── Submit ── */
 .bet-submit {
   background: linear-gradient(135deg, #6c63ff, #5b6ef5);
@@ -289,6 +360,11 @@
   transition: opacity 0.15s;
   width: 100%;
   letter-spacing: 0.2px;
+}
+
+.bet-submit--value {
+  background: linear-gradient(135deg, #00d68f, #00b574) !important;
+  color: #001a0f;
 }
 
 .bet-submit:hover:not(:disabled) { opacity: 0.88; }
