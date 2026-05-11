@@ -2,7 +2,7 @@
  * Moteur d'apprentissage automatique
  *
  * Pour chaque match terminé (FT), on enregistre :
- *   - les probabilités que le modèle avait prédites
+ *   - les probabilités RAW (pré-calibration) que le modèle avait prédites
  *   - le vrai score
  *
  * On calcule ensuite des facteurs de calibration par marché.
@@ -12,12 +12,46 @@
  *      seulement 50% du temps → facteur 0.81 → on ajuste à la baisse.
  */
 
-// ── Stockage en mémoire (persiste pendant l'uptime Render) ───────────────────
-const outcomes = [];           // max 500 résultats
-const MAX_OUTCOMES = 500;
-const MIN_FOR_CALIBRATION = 8; // minimum de résultats avant d'appliquer la calibration
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname  = dirname(fileURLToPath(import.meta.url));
+const DATA_DIR   = join(__dirname, '../../../data');
+const DATA_FILE  = join(DATA_DIR, 'outcomes.json');
+
+const MAX_OUTCOMES        = 500;
+const MIN_FOR_CALIBRATION = 8;
 
 const MARKETS = ['homeWin', 'draw', 'awayWin', 'over15', 'over25', 'over35', 'btts', 'under25'];
+
+// ── Persistance disque ────────────────────────────────────────────────────────
+function loadFromDisk() {
+  try {
+    if (existsSync(DATA_FILE)) {
+      const data = JSON.parse(readFileSync(DATA_FILE, 'utf8'));
+      if (Array.isArray(data)) {
+        console.log(`[learning] ${data.length} résultats chargés depuis le disque`);
+        return data;
+      }
+    }
+  } catch (e) {
+    console.warn('[learning] Impossible de lire le fichier de données:', e.message);
+  }
+  return [];
+}
+
+function saveToDisk(outcomes) {
+  try {
+    if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true });
+    writeFileSync(DATA_FILE, JSON.stringify(outcomes.slice(-MAX_OUTCOMES)));
+  } catch (e) {
+    console.warn('[learning] Impossible de sauvegarder sur disque:', e.message);
+  }
+}
+
+// ── Données en mémoire (chargées depuis disque au démarrage) ──────────────────
+const outcomes = loadFromDisk();
 
 // ── Extrait le vrai résultat depuis un score ──────────────────────────────────
 function extractActual(homeGoals, awayGoals) {
@@ -43,6 +77,8 @@ export function recordOutcome({ matchId, date, homeTeam, awayTeam, predictions, 
 
   if (outcomes.length > MAX_OUTCOMES) outcomes.shift();
 
+  saveToDisk(outcomes);
+
   const cal = computeCalibration();
   console.log(`[learning] +1 résultat (total: ${outcomes.length}) | ${homeTeam} ${homeGoals}-${awayGoals} ${awayTeam} | calibration: ${cal ? 'active' : 'pas encore'}`);
 
@@ -65,8 +101,8 @@ function computeCalibration() {
 
     // Facteur de correction : si on surprédit → facteur < 1, si sous-prédit → facteur > 1
     const rawFactor = avgPredicted > 0.01 ? actualRate / avgPredicted : 1;
-    // On bride le facteur entre 0.60 et 1.50 pour éviter les corrections trop violentes
-    const factor = Math.max(0.60, Math.min(1.50, rawFactor));
+    // On bride le facteur entre 0.70 et 1.40 pour éviter les corrections trop violentes
+    const factor = Math.max(0.70, Math.min(1.40, rawFactor));
 
     // Précision directionnelle : est-ce qu'on avait le bon "côté" (>50% ou <50%) ?
     const directional = valid.filter(o => (o.predictions[market] > 0.5) === o.actual[market]).length;
@@ -88,7 +124,7 @@ function computeCalibration() {
 // ── Applique la calibration aux probabilités d'un match ───────────────────────
 export function applyCalibration(rawProbs) {
   const cal = computeCalibration();
-  if (!cal) return rawProbs; // pas encore assez de données
+  if (!cal) return rawProbs;
 
   const result = { ...rawProbs };
   for (const [market, data] of Object.entries(cal)) {
@@ -108,7 +144,6 @@ export function getLearningStats() {
   const recent = outcomes.slice(-20);
   let recentCorrect = 0, recentTotal = 0;
   for (const o of recent) {
-    // On prend le marché Over 1.5 comme indicateur général (le plus fiable)
     if (o.predictions.over15 !== undefined) {
       recentTotal++;
       const predicted = o.predictions.over15 > 0.5;
@@ -120,20 +155,20 @@ export function getLearningStats() {
   let bestMarket = null, worstMarket = null;
   if (cal) {
     const sorted = Object.entries(cal).sort((a, b) => b[1].accuracy - a[1].accuracy);
-    bestMarket  = sorted[0]  ? { market: sorted[0][0],  ...sorted[0][1]  } : null;
+    bestMarket  = sorted[0]     ? { market: sorted[0][0],     ...sorted[0][1]     } : null;
     worstMarket = sorted.at(-1) ? { market: sorted.at(-1)[0], ...sorted.at(-1)[1] } : null;
   }
 
   return {
-    totalOutcomes:    outcomes.length,
+    totalOutcomes:     outcomes.length,
     minForCalibration: MIN_FOR_CALIBRATION,
-    isCalibrated:     !!cal,
-    calibration:      cal,
-    recentAccuracy:   recentTotal > 0 ? +(recentCorrect / recentTotal).toFixed(3) : null,
-    recentSample:     recentTotal,
+    isCalibrated:      !!cal,
+    calibration:       cal,
+    recentAccuracy:    recentTotal > 0 ? +(recentCorrect / recentTotal).toFixed(3) : null,
+    recentSample:      recentTotal,
     bestMarket,
     worstMarket,
-    lastOutcomes:     outcomes.slice(-5).map(o => ({
+    lastOutcomes:      outcomes.slice(-5).map(o => ({
       matchId:   o.matchId,
       match:     `${o.homeTeam} ${o.actual.homeWin ? '>' : o.actual.draw ? '=' : '<'} ${o.awayTeam}`,
       date:      o.date,

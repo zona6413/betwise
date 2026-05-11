@@ -15,6 +15,8 @@ import {
   detectValueBets,
   generateAnalysis,
   generateTieredBets,
+  computeRawAIProbability,
+  computeRawOverUnderProbs,
 } from '../services/analyzer.js';
 
 const router = Router();
@@ -87,19 +89,20 @@ function buildMatch(fixture, teamStats, realOddsMap, h2h = null, injuries = []) 
   const players = applyInjuryFilter(rawPlayers, injuries, Number(homeId), Number(awayId));
   const bookmakerProbs = impliedProbabilities(homeOdd, drawOdd, awayOdd);
   const aiProbs        = computeAIProbability(homeStats, awayStats);
-  // Prédictions brutes exposées pour le moteur d'apprentissage
-  const hxg = estimateExpectedGoals(homeStats, awayStats, true);
-  const axg = estimateExpectedGoals(awayStats, homeStats, false);
-  const ou  = computeOverUnderProbs(hxg, axg);
+  // Prédictions RAW pré-calibration pour le moteur d'apprentissage
+  const hxg        = estimateExpectedGoals(homeStats, awayStats, true);
+  const axg        = estimateExpectedGoals(awayStats, homeStats, false);
+  const rawAi      = computeRawAIProbability(homeStats, awayStats);
+  const rawOU      = computeRawOverUnderProbs(hxg, axg);
   const rawPredictions = {
-    homeWin: +aiProbs.home.toFixed(3),
-    draw:    +aiProbs.draw.toFixed(3),
-    awayWin: +aiProbs.away.toFixed(3),
-    over15:  +ou.over15.toFixed(3),
-    over25:  +ou.over25.toFixed(3),
-    over35:  +ou.over35.toFixed(3),
+    homeWin: rawAi.homeWin,
+    draw:    rawAi.draw,
+    awayWin: rawAi.awayWin,
+    over15:  rawOU.over15,
+    over25:  rawOU.over25,
+    over35:  rawOU.over35,
     btts:    +computeBTTSProb(hxg, axg).toFixed(3),
-    under25: +ou.under25.toFixed(3),
+    under25: rawOU.under25,
   };
   const tieredBets     = generateTieredBets(
     fixture.teams.home.name, fixture.teams.away.name,

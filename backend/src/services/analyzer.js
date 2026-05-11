@@ -163,6 +163,32 @@ export function computeOverUnderProbs(homeExpG, awayExpG) {
   return applyCalibration(raw);
 }
 
+// Versions RAW (pré-calibration) pour le moteur d'apprentissage
+export function computeRawAIProbability(homeStats, awayStats) {
+  const h = computeTeamStrength(homeStats);
+  const a = computeTeamStrength(awayStats);
+  const homeScore = (h.attack * 1.12 + (1 - a.defence) * 0.92) / 2;
+  const awayScore = (a.attack * 0.88 + (1 - h.defence) * 0.88) / 2;
+  const gap       = Math.abs(homeScore - awayScore);
+  const drawPool  = Math.min(0.32, 0.20 + (1 - gap) * 0.10);
+  const total     = homeScore + awayScore + drawPool;
+  return {
+    homeWin: +(homeScore / total).toFixed(3),
+    draw:    +(drawPool  / total).toFixed(3),
+    awayWin: +(awayScore / total).toFixed(3),
+  };
+}
+
+export function computeRawOverUnderProbs(homeExpG, awayExpG) {
+  const total = homeExpG + awayExpG;
+  return {
+    over15:  +overProb(total, 1).toFixed(3),
+    over25:  +overProb(total, 2).toFixed(3),
+    over35:  +overProb(total, 3).toFixed(3),
+    under25: +(1 - overProb(total, 2)).toFixed(3),
+  };
+}
+
 // ── Double chance ─────────────────────────────────────────────────────────────
 
 function doubleChanceProbs(aiProbs) {
