@@ -12,6 +12,8 @@ import StatsTab          from './components/StatsTab.jsx';
 import BottomNav         from './components/BottomNav.jsx';
 import SearchBar         from './components/SearchBar.jsx';
 import { useLearning }   from './hooks/useLearning.js';
+import GamblingWarning, { shouldShowWarning } from './components/GamblingWarning.jsx';
+import LegalFooter       from './components/LegalFooter.jsx';
 import './App.css';
 
 const TABS = [
@@ -59,6 +61,7 @@ export default function App() {
   const [showCombo,     setShowCombo]     = useState(false);
   const [searchQuery,   setSearchQuery]   = useState('');
   const [toast,         setToast]         = useState({ visible: false, message: '', type: 'value' });
+  const [showWarning,   setShowWarning]   = useState(shouldShowWarning);
   const prevValueCount = useRef(0);
 
   const bettableMatches = useMemo(() => matches, [matches]);
@@ -326,8 +329,10 @@ export default function App() {
       {betMatch && (
         <BetModal match={betMatch} onAdd={addBet} onClose={() => setBetMatch(null)} />
       )}
+      <LegalFooter />
       <Toast message={toast.message} visible={toast.visible} type={toast.type} />
       <BottomNav activeTab={activeTab} onTabChange={setActiveTab} liveCount={liveMatches.length} valueCount={valueCount} pendingBets={betStats.pending} />
+      {showWarning && <GamblingWarning onClose={() => setShowWarning(false)} />}
     </div>
   );
 }
