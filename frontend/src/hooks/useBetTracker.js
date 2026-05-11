@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 
 const KEY = 'betwise_bets_v1';
 
@@ -59,14 +59,14 @@ export function useBetTracker() {
     });
   }, []);
 
-  // Statistiques globales
-  const stats = (() => {
-    const resolved = bets.filter(b => b.status !== 'pending' && b.status !== 'void');
-    const won      = resolved.filter(b => b.status === 'won');
-    const lost     = resolved.filter(b => b.status === 'lost');
-    const totalStaked  = bets.filter(b => b.status !== 'void').reduce((s, b) => s + b.stake, 0);
-    const totalProfit  = resolved.reduce((s, b) => s + (b.profit ?? 0), 0);
-    const pending      = bets.filter(b => b.status === 'pending');
+  const stats = useMemo(() => {
+    const resolved       = bets.filter(b => b.status !== 'pending' && b.status !== 'void');
+    const won            = resolved.filter(b => b.status === 'won');
+    const lost           = resolved.filter(b => b.status === 'lost');
+    const totalStaked    = bets.filter(b => b.status !== 'void').reduce((s, b) => s + b.stake, 0);
+    const resolvedStaked = resolved.reduce((s, b) => s + b.stake, 0);
+    const totalProfit    = resolved.reduce((s, b) => s + (b.profit ?? 0), 0);
+    const pending        = bets.filter(b => b.status === 'pending');
     return {
       total:       bets.length,
       pending:     pending.length,
@@ -74,10 +74,10 @@ export function useBetTracker() {
       lost:        lost.length,
       totalStaked: +totalStaked.toFixed(2),
       totalProfit: +totalProfit.toFixed(2),
-      roi:         resolved.length ? +((totalProfit / totalStaked) * 100).toFixed(1) : null,
+      roi:         resolved.length ? +((totalProfit / resolvedStaked) * 100).toFixed(1) : null,
       winRate:     resolved.length ? Math.round((won.length / resolved.length) * 100) : null,
     };
-  })();
+  }, [bets]);
 
   return { bets, stats, addBet, resolveBet, voidBet, deleteBet };
 }

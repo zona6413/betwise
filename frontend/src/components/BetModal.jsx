@@ -1,6 +1,34 @@
 import { useState } from 'react';
 import './BetModal.css';
 
+function poissonProb(k, lambda) {
+  if (lambda <= 0) return k === 0 ? 1 : 0;
+  let logP = -lambda + k * Math.log(lambda);
+  for (let i = 2; i <= k; i++) logP -= Math.log(i);
+  return Math.exp(logP);
+}
+
+function poissonCDF(k, lambda) {
+  let p = 0;
+  for (let i = 0; i <= k; i++) p += poissonProb(i, lambda);
+  return Math.min(1, p);
+}
+
+function jointProbs(lH, lA, maxG = 8) {
+  let bttsHome = 0, bttsDraw = 0, bttsAway = 0;
+  let nBttsHome = 0, nBttsDraw = 0, nBttsAway = 0;
+  for (let h = 0; h <= maxG; h++) {
+    for (let a = 0; a <= maxG; a++) {
+      const p    = poissonProb(h, lH) * poissonProb(a, lA);
+      const btts = h >= 1 && a >= 1;
+      if      (h > a)   btts ? (bttsHome  += p) : (nBttsHome  += p);
+      else if (h === a) btts ? (bttsDraw  += p) : (nBttsDraw  += p);
+      else              btts ? (bttsAway  += p) : (nBttsAway  += p);
+    }
+  }
+  return { bttsHome, bttsDraw, bttsAway, nBttsHome, nBttsDraw, nBttsAway };
+}
+
 function probToOdd(prob) {
   if (!prob || prob <= 0 || prob >= 1) return null;
   return Math.max(1.01, +((1 / prob) * 0.92).toFixed(2));
@@ -15,13 +43,19 @@ function buildCategories(match) {
   const drawP = aiP?.draw ?? 0.28;
   const awayP = aiP?.away ?? (1 - homeP - drawP);
 
-  const bttsProb = s?.bttsProb ?? 0.45;
-  const over25   = s?.over25   ?? 0.50;
-  const over15   = Math.min(0.96, over25 + 0.19);
-  const over35   = Math.max(0.05, over25 - 0.20);
+  const homeExpG  = s?.homeExpG ?? 1.2;
+  const awayExpG  = s?.awayExpG ?? 0.9;
+  const totalExpG = homeExpG + awayExpG;
+
+  const bttsProb = s?.bttsProb ?? +((1 - Math.exp(-homeExpG)) * (1 - Math.exp(-awayExpG))).toFixed(2);
+  const over15   = s?.over15   ?? +(1 - poissonCDF(1, totalExpG)).toFixed(2);
+  const over25   = s?.over25   ?? +(1 - poissonCDF(2, totalExpG)).toFixed(2);
+  const over35   = s?.over35   ?? +(1 - poissonCDF(3, totalExpG)).toFixed(2);
   const under15  = 1 - over15;
   const under25  = 1 - over25;
   const under35  = 1 - over35;
+
+  const jp = jointProbs(homeExpG, awayExpG);
 
   const dc1X = Math.min(0.97, homeP + drawP);
   const dcX2 = Math.min(0.97, drawP + awayP);
@@ -103,12 +137,12 @@ function buildCategories(match) {
       label: 'BTTS + Résultat',
       cols: 2,
       options: [
-        { key: 'BTTS_Y_1', label: 'Oui + Dom.', sub: 'BTTS & domicile gagne', odd: probToOdd(bttsProb * homeP * 2.2) },
-        { key: 'BTTS_Y_X', label: 'Oui + Nul',  sub: 'BTTS & match nul',      odd: probToOdd(bttsProb * drawP * 2.2) },
-        { key: 'BTTS_Y_2', label: 'Oui + Ext.', sub: 'BTTS & extérieur gagne', odd: probToOdd(bttsProb * awayP * 2.2) },
-        { key: 'BTTS_N_1', label: 'Non + Dom.', sub: 'Pas BTTS & dom. gagne', odd: probToOdd((1 - bttsProb) * homeP * 2.2) },
-        { key: 'BTTS_N_X', label: 'Non + Nul',  sub: 'Pas BTTS & nul',        odd: probToOdd((1 - bttsProb) * drawP * 2.2) },
-        { key: 'BTTS_N_2', label: 'Non + Ext.', sub: 'Pas BTTS & ext. gagne', odd: probToOdd((1 - bttsProb) * awayP * 2.2) },
+        { key: 'BTTS_Y_1', label: 'Oui + Dom.', sub: 'BTTS & domicile gagne',  odd: probToOdd(jp.bttsHome)  },
+        { key: 'BTTS_Y_X', label: 'Oui + Nul',  sub: 'BTTS & match nul',       odd: probToOdd(jp.bttsDraw)  },
+        { key: 'BTTS_Y_2', label: 'Oui + Ext.', sub: 'BTTS & extérieur gagne', odd: probToOdd(jp.bttsAway)  },
+        { key: 'BTTS_N_1', label: 'Non + Dom.', sub: 'Pas BTTS & dom. gagne',  odd: probToOdd(jp.nBttsHome) },
+        { key: 'BTTS_N_X', label: 'Non + Nul',  sub: 'Pas BTTS & nul',         odd: probToOdd(jp.nBttsDraw) },
+        { key: 'BTTS_N_2', label: 'Non + Ext.', sub: 'Pas BTTS & ext. gagne',  odd: probToOdd(jp.nBttsAway) },
       ],
     },
   ];
