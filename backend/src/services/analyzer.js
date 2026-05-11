@@ -360,9 +360,9 @@ export function generateTieredBets(homeName, awayName, homeStats, awayStats, aiP
   }
 
   return {
-    safe:   { ...safeBet,   level: 'SAFE',  confidence: probToConfidence(safeBet.prob),  pickScore: safePickScore },
-    medium: { ...mediumBet, level: 'MOYEN', confidence: probToConfidence(mediumBet.prob), pickScore: medPickScore },
-    value:  { ...valueBet,  level: 'VALUE', confidence: probToConfidence(valueBet.prob) },
+    safe:   { ...safeBet,   level: 'SAFE',  confidence: probToConfidence(safeBet.prob),  pickScore: safePickScore, reliability: marketReliability(safeBet.type) },
+    medium: { ...mediumBet, level: 'MOYEN', confidence: probToConfidence(mediumBet.prob), pickScore: medPickScore,  reliability: marketReliability(mediumBet.type) },
+    value:  { ...valueBet,  level: 'VALUE', confidence: probToConfidence(valueBet.prob),  pickScore: computePickScore(valueBet, homeStats, awayStats, homeExpG, awayExpG), reliability: marketReliability(valueBet.type) },
     scorerBets,
     stats:  {
       homeExpG:    +homeExpG.toFixed(2),

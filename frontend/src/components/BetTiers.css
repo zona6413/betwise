@@ -43,7 +43,7 @@
 .bet-row--risky  { border-left: 2px solid #ef4444; }
 
 .bet-row-left { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
-.bet-row-right { flex-shrink: 0; text-align: right; }
+/* .bet-row-right overridden above */
 
 /* Header row */
 .bet-row-header { display: flex; align-items: center; gap: 5px; }
@@ -103,7 +103,48 @@
 .bet-row--value  .tier-conf-fill { background: var(--gold); }
 .bet-row--risky  .tier-conf-fill { background: #ef4444; }
 
-/* Right side */
+/* ── Pick score bar ───────────────────────────────────────────── */
+.pick-score-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+}
+.pick-score-bar-track {
+  width: 40px;
+  height: 3px;
+  background: var(--border-lite);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.pick-score-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+.pick-score-val {
+  font-size: 8px;
+  font-weight: 700;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+  min-width: 16px;
+  text-align: right;
+}
+
+/* ── Right side ───────────────────────────────────────────────── */
+.bet-row-right { flex-shrink: 0; text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+
+.bet-prob-block { display: flex; flex-direction: column; align-items: flex-end; margin-top: 2px; }
+.bet-prob-label { font-size: 8px; color: var(--text-dim); font-weight: 500; text-transform: uppercase; letter-spacing: 0.4px; }
+
+.bet-reliability { display: flex; flex-direction: column; align-items: flex-end; margin-top: 4px; }
+.bet-reliability-label { font-size: 8px; color: var(--text-dim); font-weight: 500; text-transform: uppercase; letter-spacing: 0.4px; }
+.bet-reliability-val { font-size: 11px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.bet-reliability-val.high { color: var(--green); }
+.bet-reliability-val.med  { color: #f59e0b; }
+.bet-reliability-val.low  { color: #ef4444; }
+
+/* ── Right side */
 .bet-odd {
   font-size: 20px;
   font-weight: 900;
@@ -118,11 +159,11 @@
 .bet-row--risky  .bet-odd { color: #ef4444; }
 
 .bet-prob {
-  font-size: 11px;
-  color: var(--text-dim);
-  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-soft);
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
-  margin-top: 2px;
+  line-height: 1;
 }
 
 /* ── Stats bar ────────────────────────────────────────────────── */

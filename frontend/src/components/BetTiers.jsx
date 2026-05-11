@@ -6,20 +6,25 @@ const LEVELS = {
   RISQUE: { color: 'risky',  label: 'RISQUÉ' },
 };
 
-function ConfidenceBar({ confidence }) {
-  const widths = { 'Élevée': 88, 'Bonne': 70, 'Modérée': 50, 'Faible': 30 };
-  const w = widths[confidence] ?? 50;
+function PickScoreBar({ score }) {
+  if (score == null) return null;
+  const pct = Math.min(100, Math.round(score * 100));
+  const color = pct >= 70 ? '#22c55e' : pct >= 50 ? '#f59e0b' : '#ef4444';
   return (
-    <div className="tier-conf-track">
-      <div className="tier-conf-fill" style={{ width: `${w}%` }} />
+    <div className="pick-score-bar-wrap" title={`Score qualité : ${pct}/100`}>
+      <div className="pick-score-bar-track">
+        <div className="pick-score-bar-fill" style={{ width: `${pct}%`, background: color }} />
+      </div>
+      <span className="pick-score-val">{pct}</span>
     </div>
   );
 }
 
 function BetRow({ bet, which }) {
   if (!bet) return null;
-  const lvl = LEVELS[which];
-  const prob = Math.round((bet.prob ?? 0) * 100);
+  const lvl      = LEVELS[which];
+  const prob     = Math.round((bet.prob ?? 0) * 100);
+  const relPct   = bet.reliability != null ? Math.round(bet.reliability * 100) : null;
 
   return (
     <div className={`bet-row bet-row--${lvl.color}`}>
@@ -27,14 +32,28 @@ function BetRow({ bet, which }) {
         <div className="bet-row-header">
           <span className={`bet-level-tag bet-level-tag--${lvl.color}`}>{lvl.label}</span>
           <span className="bet-conf-label">{bet.confidence}</span>
+          <PickScoreBar score={bet.pickScore} />
         </div>
         <div className="bet-type">{bet.type}</div>
         <div className="bet-why">{bet.why}</div>
-        <ConfidenceBar confidence={bet.confidence} />
+        <div className="tier-conf-track">
+          <div className="tier-conf-fill" style={{ width: `${prob}%` }} />
+        </div>
       </div>
       <div className="bet-row-right">
         <div className="bet-odd">{(bet.odd ?? 0).toFixed(2)}</div>
-        <div className="bet-prob">{prob}%</div>
+        <div className="bet-prob-block">
+          <span className="bet-prob-label">Probabilité</span>
+          <span className="bet-prob">{prob}%</span>
+        </div>
+        {relPct != null && (
+          <div className="bet-reliability">
+            <span className="bet-reliability-label">Fiabilité marché</span>
+            <span className={`bet-reliability-val ${relPct >= 85 ? 'high' : relPct >= 75 ? 'med' : 'low'}`}>
+              {relPct}%
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );
