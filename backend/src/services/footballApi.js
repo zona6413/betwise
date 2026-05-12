@@ -160,8 +160,8 @@ async function fetchAllFixturesForDate(date) {
 
 export async function getTodayFixtures() {
   if (!API_KEY) {
-    console.warn('[footballApi] API_FOOTBALL_KEY absent — fallback mock');
-    return getMockFixtures();
+    console.error('[footballApi] API_FOOTBALL_KEY absent — aucun match disponible');
+    return [];
   }
 
   try {
@@ -200,8 +200,8 @@ export async function getTodayFixtures() {
     fixtures.sort((a, b) => new Date(a.fixture.date) - new Date(b.fixture.date));
 
     if (!fixtures.length) {
-      console.warn('[footballApi] Aucun match dans nos ligues — fallback mock');
-      return getMockFixtures();
+      console.warn('[footballApi] Aucun match dans nos ligues aujourd\'hui/demain');
+      return [];
     }
 
     console.log(`[footballApi] ${fixtures.length} matchs récupérés`);
@@ -286,43 +286,3 @@ export async function getHeadToHead(homeId, awayId, last = 10) {
   }
 }
 
-// ── Mock de secours ──────────────────────────────────────────────────────────
-function getMockFixtures() {
-  const d = offsetHours => {
-    const dt = new Date();
-    dt.setHours(dt.getHours() + offsetHours, 0, 0, 0);
-    return dt.toISOString();
-  };
-  return [
-    { fixture: { id: 2267413, date: d(2),  status: { short: 'NS' }, venue: { name: 'Emirates Stadium' } },
-      league:  { id: 2, name: 'Champions League', country: 'Europe', logo: '' },
-      teams:   { home: { id: 42,  name: 'Arsenal',          logo: '' },
-                 away: { id: 530, name: 'Atlético Madrid',  logo: '' } },
-      goals: { home: null, away: null } },
-    { fixture: { id: 2267414, date: d(3),  status: { short: 'NS' }, venue: { name: 'Old Trafford' } },
-      league:  { id: 39, name: 'Premier League', country: 'England', logo: '' },
-      teams:   { home: { id: 33, name: 'Manchester United', logo: '' },
-                 away: { id: 40, name: 'Liverpool',         logo: '' } },
-      goals: { home: null, away: null } },
-    { fixture: { id: 2267415, date: d(26), status: { short: 'NS' }, venue: { name: 'Parc des Princes' } },
-      league:  { id: 61, name: 'Ligue 1', country: 'France', logo: '' },
-      teams:   { home: { id: 85, name: 'Paris Saint-Germain', logo: '' },
-                 away: { id: 81, name: 'Marseille',           logo: '' } },
-      goals: { home: null, away: null } },
-    { fixture: { id: 2267416, date: d(27), status: { short: 'NS' }, venue: { name: 'Santiago Bernabéu' } },
-      league:  { id: 140, name: 'La Liga', country: 'Spain', logo: '' },
-      teams:   { home: { id: 541, name: 'Real Madrid',  logo: '' },
-                 away: { id: 529, name: 'FC Barcelona', logo: '' } },
-      goals: { home: null, away: null } },
-    { fixture: { id: 2267417, date: d(28), status: { short: 'NS' }, venue: { name: 'Allianz Arena' } },
-      league:  { id: 78, name: 'Bundesliga', country: 'Germany', logo: '' },
-      teams:   { home: { id: 157, name: 'Bayern Munich',     logo: '' },
-                 away: { id: 165, name: 'Borussia Dortmund', logo: '' } },
-      goals: { home: null, away: null } },
-    { fixture: { id: 2267418, date: d(29), status: { short: 'NS' }, venue: { name: 'San Siro' } },
-      league:  { id: 135, name: 'Serie A', country: 'Italy', logo: '' },
-      teams:   { home: { id: 505, name: 'Inter Milan', logo: '' },
-                 away: { id: 496, name: 'Juventus',    logo: '' } },
-      goals: { home: null, away: null } },
-  ];
-}
