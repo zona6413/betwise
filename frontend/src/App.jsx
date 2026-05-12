@@ -1,6 +1,7 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { useMatches }    from './hooks/useMatches.js';
 import { useBetTracker } from './hooks/useBetTracker.js';
+import { useAuth }       from './hooks/useAuth.js';
 import Header            from './components/Header.jsx';
 import MatchCard         from './components/MatchCard.jsx';
 import AnalysisModal     from './components/AnalysisModal.jsx';
@@ -14,6 +15,7 @@ import SearchBar         from './components/SearchBar.jsx';
 import { useLearning }   from './hooks/useLearning.js';
 import GamblingWarning, { shouldShowWarning } from './components/GamblingWarning.jsx';
 import LegalFooter       from './components/LegalFooter.jsx';
+import AuthModal         from './components/AuthModal.jsx';
 import './App.css';
 
 const FINISHED_STATUSES = new Set(['FT', 'AET', 'PEN', 'AWD', 'WO']);
@@ -80,7 +82,9 @@ function normalizeLeague(name) { return name ?? ''; }
 export default function App() {
   const { matches, loading, error, lastUpdated, refresh } = useMatches();
   const learningStats = useLearning(matches);
-  const { bets, stats: betStats, addBet, resolveBet, voidBet, deleteBet } = useBetTracker();
+  const { user, isLoggedIn, loading: authLoading, error: authError, setError: setAuthError, register, login, logout, authFetch } = useAuth();
+  const { bets, stats: betStats, addBet, resolveBet, voidBet, deleteBet, syncing } = useBetTracker(authFetch, isLoggedIn);
+  const [showAuth, setShowAuth] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState(null);
   const [betMatch,      setBetMatch]      = useState(null);
   const [activeTab,     setActiveTab]     = useState('all');
@@ -239,6 +243,14 @@ export default function App() {
               <button className="combo-trigger-btn" onClick={() => setShowCombo(true)}>Combo</button>
               <button className={`btn-refresh-sm ${loading ? 'spinning' : ''}`} onClick={refresh} disabled={loading} title="Rafraîchir">↻</button>
               {lastUpdated && <span className="stats-time">{lastUpdated.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</span>}
+              {isLoggedIn ? (
+                <div className="user-pill" title={user?.email}>
+                  <span className="user-avatar">{(user?.username || user?.email || '?')[0].toUpperCase()}</span>
+                  <button className="user-logout" onClick={logout} title="Se déconnecter">✕</button>
+                </div>
+              ) : (
+                <button className="btn-login" onClick={() => setShowAuth(true)}>Connexion</button>
+              )}
             </div>
           </div>
 
@@ -376,6 +388,16 @@ export default function App() {
       <Toast message={toast.message} visible={toast.visible} type={toast.type} />
       <BottomNav activeTab={activeTab} onTabChange={setActiveTab} liveCount={liveMatches.length} valueCount={valueCount} pendingBets={betStats.pending} />
       {showWarning && <GamblingWarning onClose={() => setShowWarning(false)} />}
+      {showAuth && (
+        <AuthModal
+          onLogin={async (email, pwd) => { const ok = await login(email, pwd); if (ok) setShowAuth(false); }}
+          onRegister={async (email, pwd, username) => { const ok = await register(email, pwd, username); if (ok) setShowAuth(false); }}
+          onClose={() => { setShowAuth(false); setAuthError(null); }}
+          loading={authLoading}
+          error={authError}
+          setError={setAuthError}
+        />
+      )}
     </div>
   );
 }

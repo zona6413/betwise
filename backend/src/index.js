@@ -1,17 +1,29 @@
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
+import express   from 'express';
+import cors      from 'cors';
+import dotenv    from 'dotenv';
+import mongoose  from 'mongoose';
 import matchesRouter  from './routes/matches.js';
 import learningRouter from './routes/learning.js';
+import authRouter     from './routes/auth.js';
+import betsRouter     from './routes/bets.js';
 
 dotenv.config();
 
 // Nettoie les variables d'env (évite les \n invisibles copiés-collés)
-if (process.env.ODDS_API_KEY) process.env.ODDS_API_KEY = process.env.ODDS_API_KEY.trim();
+if (process.env.ODDS_API_KEY)     process.env.ODDS_API_KEY     = process.env.ODDS_API_KEY.trim();
 if (process.env.API_FOOTBALL_KEY) process.env.API_FOOTBALL_KEY = process.env.API_FOOTBALL_KEY.trim();
 
-const app = express();
+const app  = express();
 const PORT = process.env.PORT || 3001;
+
+// ── MongoDB ─────────────────────────────────────────────────────────────────────
+if (process.env.MONGODB_URI) {
+  mongoose.connect(process.env.MONGODB_URI)
+    .then(() => console.log('✅ MongoDB connecté'))
+    .catch(err => console.error('❌ MongoDB erreur:', err.message));
+} else {
+  console.warn('⚠️  MONGODB_URI absent — comptes utilisateurs désactivés');
+}
 
 // ── Middleware ──────────────────────────────────────────────────────────────────
 app.use(cors({ origin: '*' }));
@@ -38,6 +50,8 @@ app.get('/api/health', (_req, res) => {
 
 app.use('/api/matches',  matchesRouter);
 app.use('/api/learning', learningRouter);
+app.use('/api/auth',     authRouter);
+app.use('/api/bets',     betsRouter);
 
 // Debug key
 app.get('/api/debug/key', (_req, res) => {
@@ -80,5 +94,6 @@ app.use((_req, res) => res.status(404).json({ error: 'Route not found' }));
 app.listen(PORT, () => {
   console.log(`\n🚀 BetWise backend  →  http://localhost:${PORT}`);
   console.log(`   API-Football : ${process.env.API_FOOTBALL_KEY ? '✅ clé configurée' : '⚠️  mode mock (sans clé API)'}`);
-  console.log(`   TheOddsAPI   : ${process.env.ODDS_API_KEY ? '✅ clé configurée' : '⚠️  mode mock (sans clé API)'}\n`);
+  console.log(`   TheOddsAPI   : ${process.env.ODDS_API_KEY     ? '✅ clé configurée' : '⚠️  mode mock (sans clé API)'}`);
+  console.log(`   MongoDB      : ${process.env.MONGODB_URI      ? '✅ configuré'      : '⚠️  non configuré (comptes désactivés)'}\n`);
 });
