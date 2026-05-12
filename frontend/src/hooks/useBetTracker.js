@@ -31,12 +31,12 @@ export function useBetTracker() {
     });
   }, []);
 
-  const resolveBet = useCallback((id, won) => {
+  const resolveBet = useCallback((id, won, autoResolved = false) => {
     setBets(prev => {
       const next = prev.map(b => {
         if (b.id !== id) return b;
         const profit = won ? +(b.stake * b.odds - b.stake).toFixed(2) : -b.stake;
-        return { ...b, status: won ? 'won' : 'lost', profit };
+        return { ...b, status: won ? 'won' : 'lost', profit, autoResolved: autoResolved || undefined };
       });
       save(next);
       return next;

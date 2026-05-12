@@ -214,6 +214,76 @@
 .bet-action-btn--lost:hover { background: rgba(248,113,113,0.18); }
 .bet-action-btn--delete:hover { color: #f87171; }
 
+/* ── Filtres ── */
+.tracker-filters {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.tracker-filter-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.45);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.tracker-filter-btn:hover  { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.8); }
+.tracker-filter-btn.active { background: rgba(108,99,255,0.15); border-color: rgba(108,99,255,0.4); color: #a5b4fc; }
+
+.tracker-filter-count {
+  font-size: 10px;
+  font-weight: 800;
+  background: rgba(255,255,255,0.12);
+  border-radius: 10px;
+  padding: 1px 5px;
+  min-width: 16px;
+  text-align: center;
+}
+.tracker-filter-btn.active .tracker-filter-count {
+  background: rgba(108,99,255,0.3);
+}
+
+.tracker-sort-select {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.5);
+  cursor: pointer;
+  outline: none;
+}
+.tracker-sort-select option { background: #1a1a2e; }
+
+/* ── Liste ── */
+.tracker-list { display: flex; flex-direction: column; }
+
+/* ── Footer de la bet-row ── */
+.bet-row-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.bet-row-auto-tag {
+  font-size: 9px;
+  opacity: 0.6;
+  font-weight: 600;
+}
+
 /* ── Empty state ── */
 .tracker-empty {
   text-align: center;

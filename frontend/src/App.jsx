@@ -16,6 +16,34 @@ import GamblingWarning, { shouldShowWarning } from './components/GamblingWarning
 import LegalFooter       from './components/LegalFooter.jsx';
 import './App.css';
 
+const FINISHED_STATUSES = new Set(['FT', 'AET', 'PEN', 'AWD', 'WO']);
+
+// Détermine si un pari est gagné selon le score final
+function checkBetOutcome(outcomeName, score) {
+  if (!score || score.home === null || score.away === null) return null;
+  const h = score.home, a = score.away, total = h + a;
+  const n = outcomeName ?? '';
+  if (n.includes('Domicile') || n === '1') return h > a;
+  if (n.includes('Nul')      || n === 'X') return h === a;
+  if (n.includes('Extérieur')|| n === '2') return a > h;
+  if (n.includes('Double chance 1X') || n.includes('DC 1X')) return h >= a;
+  if (n.includes('Double chance X2') || n.includes('DC X2')) return a >= h;
+  if (n.includes('Double chance 12') || n.includes('DC 12')) return h !== a;
+  if (n.includes('Over 0.5'))  return total > 0;
+  if (n.includes('Under 0.5')) return total <= 0;
+  if (n.includes('Over 1.5'))  return total > 1;
+  if (n.includes('Under 1.5')) return total <= 1;
+  if (n.includes('Over 2.5'))  return total > 2;
+  if (n.includes('Under 2.5')) return total <= 2;
+  if (n.includes('Over 3.5'))  return total > 3;
+  if (n.includes('Under 3.5')) return total <= 3;
+  if (n.includes('Over 4.5'))  return total > 4;
+  if (n.includes('Under 4.5')) return total <= 4;
+  if (n.startsWith('BTTS') && !n.includes('No') && !n.includes('+')) return h > 0 && a > 0;
+  if (n.includes('No BTTS'))   return !(h > 0 && a > 0);
+  return null; // ne peut pas déterminer
+}
+
 const TABS = [
   { id: 'all',      label: 'Tous' },
   { id: 'live',     label: 'En direct' },
@@ -105,6 +133,21 @@ export default function App() {
       .sort((a, b) => new Date(a.date) - new Date(b.date))
       .slice(0, 8);
   }, [bettableMatches, aiPicks]);
+
+  // ── Auto-résolution des paris quand un match est terminé ───────────────────
+  useEffect(() => {
+    const pendingBets = bets.filter(b => b.status === 'pending' && b.matchId);
+    if (!pendingBets.length || !matches.length) return;
+
+    for (const bet of pendingBets) {
+      const match = matches.find(m => String(m.id) === String(bet.matchId));
+      if (!match) continue;
+      if (!FINISHED_STATUSES.has(match.status)) continue;
+      const won = checkBetOutcome(bet.outcomeName, match.score);
+      if (won === null) continue; // outcome indéterminable (ex: buteur)
+      resolveBet(bet.id, won, true); // true = autoResolved
+    }
+  }, [matches]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Toast value bets
   useEffect(() => {

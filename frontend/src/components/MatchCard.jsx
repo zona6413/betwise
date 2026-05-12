@@ -2,6 +2,22 @@ import { useState, useEffect } from 'react';
 import BetTiers from './BetTiers.jsx';
 import './MatchCard.css';
 
+function TeamLogo({ logo, name }) {
+  const [failed, setFailed] = useState(false);
+  const initials = name ? name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) : '?';
+  if (!logo || failed) {
+    return <div className="team-logo-fallback">{initials}</div>;
+  }
+  return (
+    <img
+      src={logo}
+      alt={name}
+      className="team-logo"
+      onError={() => setFailed(true)}
+    />
+  );
+}
+
 function StatusBadge({ status }) {
   const map = {
     NS:   { label: 'À venir',       cls: 'upcoming' },
@@ -195,10 +211,7 @@ export default function MatchCard({ match, onAnalyse, onBet, riskProfile = 'medi
       <div className="card-body">
         <div className="team team--home">
           <div className="team-logo-wrap">
-            {homeTeam.logo && (
-              <img src={homeTeam.logo} alt={homeTeam.name} className="team-logo"
-                onError={e => e.target.parentElement.style.display='none'} />
-            )}
+            <TeamLogo logo={homeTeam.logo} name={homeTeam.name} />
           </div>
           <div className="team-name">{homeTeam.name}</div>
           <div className="team-meta">
@@ -235,10 +248,7 @@ export default function MatchCard({ match, onAnalyse, onBet, riskProfile = 'medi
 
         <div className="team team--away">
           <div className="team-logo-wrap">
-            {awayTeam.logo && (
-              <img src={awayTeam.logo} alt={awayTeam.name} className="team-logo"
-                onError={e => e.target.parentElement.style.display='none'} />
-            )}
+            <TeamLogo logo={awayTeam.logo} name={awayTeam.name} />
           </div>
           <div className="team-name">{awayTeam.name}</div>
           <div className="team-meta">
