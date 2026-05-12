@@ -25,8 +25,8 @@ export default function Header({ lastUpdated, fromCache, onRefresh, loading, act
               <polygon points="14,2 6,14 12,14 10,22 18,10 12,10" fill="url(#bolt)" opacity="0.3"/>
               <defs>
                 <linearGradient id="bolt" x1="6" y1="2" x2="18" y2="22" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#fff"/>
-                  <stop offset="100%" stop-color="#fbbf24"/>
+                  <stop offset="0%" stopColor="#fff"/>
+                  <stop offset="100%" stopColor="#fbbf24"/>
                 </linearGradient>
               </defs>
             </svg>
