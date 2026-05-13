@@ -87,7 +87,7 @@ export default function App() {
   const [showAuth, setShowAuth] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState(null);
   const [betMatch,      setBetMatch]      = useState(null);
-  const [activeTab,     setActiveTab]     = useState('all');
+  const [activeTab,     setActiveTab]     = useState('today');
   const [activeLeague,  setActiveLeague]  = useState('all');
   const [riskProfile,   setRiskProfile]   = useState('medium');
   const [showCombo,     setShowCombo]     = useState(false);
@@ -95,6 +95,37 @@ export default function App() {
   const [toast,         setToast]         = useState({ visible: false, message: '', type: 'value' });
   const [showWarning,   setShowWarning]   = useState(shouldShowWarning);
   const prevValueCount = useRef(0);
+
+  // ── Rôles & accès ──────────────────────────────────────────────────────────
+  const isAdmin      = user?.role === 'admin';
+  const isProOrAdmin = user?.role === 'pro' || user?.role === 'admin';
+  const isFree       = !isProOrAdmin;
+
+  // Tabs accessibles selon le rôle
+  const accessibleTabs = useMemo(() => {
+    if (isAdmin)      return new Set(['all','live','value','today','tomorrow','ucl','taux','paris']);
+    if (isProOrAdmin) return new Set(['all','live','value','today','tomorrow','ucl','paris']);
+    return new Set(['today']);
+  }, [isAdmin, isProOrAdmin]);
+
+  // Reset l'onglet si le rôle change et que l'onglet n'est plus accessible
+  useEffect(() => {
+    if (!accessibleTabs.has(activeTab)) setActiveTab('today');
+  }, [accessibleTabs]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  function handleTabChange(tabId) {
+    if (!accessibleTabs.has(tabId)) {
+      const msg = tabId === 'taux'
+        ? '🔒 Taux réservé aux admins'
+        : isFree
+          ? '🔒 Fonctionnalité Pro — Connecte-toi ou abonne-toi'
+          : '🔒 Accès restreint';
+      setToast({ visible: true, message: msg, type: 'lock' });
+      setTimeout(() => setToast(t => ({ ...t, visible: false })), 3000);
+      return;
+    }
+    setActiveTab(tabId);
+  }
 
   const bettableMatches = useMemo(() => matches, [matches]);
 
@@ -240,7 +271,7 @@ export default function App() {
               ))}
             </div>
             <div className="top-bar-right">
-              <button className="combo-trigger-btn" onClick={() => setShowCombo(true)}>Combo</button>
+              {isProOrAdmin && <button className="combo-trigger-btn" onClick={() => setShowCombo(true)}>Combo</button>}
               <button className={`btn-refresh-sm ${loading ? 'spinning' : ''}`} onClick={refresh} disabled={loading} title="Rafraîchir">↻</button>
               {lastUpdated && <span className="stats-time">{lastUpdated.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</span>}
               {isLoggedIn ? (
@@ -257,8 +288,16 @@ export default function App() {
           {loading && !bettableMatches.length && <Skeleton />}
           {error && <ErrorBanner message={error} onRetry={refresh} />}
 
+          {/* ── Banner upgrade pour les gratuits ─────────────────── */}
+          {isFree && (
+            <div className="upgrade-banner">
+              <span>⚡ Débloquez toutes les analyses, value bets, combos et stats</span>
+              <button className="btn-upgrade" onClick={() => setShowAuth(true)}>Passer Pro</button>
+            </div>
+          )}
+
           {/* ── 3 recommandations IA ─────────────────────────────── */}
-          {showHomeSections && !loading && aiPicks.length > 0 && (
+          {showHomeSections && !loading && aiPicks.length > 0 && isProOrAdmin && (
             <section className="home-section">
               <div className="home-section-header">
                 <h2 className="home-section-title">Nos 3 recommandations IA</h2>
@@ -267,7 +306,7 @@ export default function App() {
               <div className="picks-grid">
                 {aiPicks.map((match, i) => (
                   <div key={match.id} className="animate-fade" style={{ animationDelay: `${i*60}ms` }}>
-                    <MatchCard match={match} onAnalyse={setSelectedMatch} onBet={setBetMatch} riskProfile={riskProfile} />
+                    <MatchCard match={match} onAnalyse={setSelectedMatch} onBet={isProOrAdmin ? setBetMatch : null} riskProfile={riskProfile} />
                   </div>
                 ))}
               </div>
@@ -291,7 +330,7 @@ export default function App() {
           )}
 
           {/* ── Matchs importants ────────────────────────────────── */}
-          {showHomeSections && !loading && importantMatches.length > 0 && (
+          {showHomeSections && !loading && importantMatches.length > 0 && isProOrAdmin && (
             <section className="home-section">
               <div className="home-section-header">
                 <h2 className="home-section-title">Matchs à ne pas manquer</h2>
@@ -300,7 +339,7 @@ export default function App() {
               <div className="matches-grid">
                 {importantMatches.map((match, i) => (
                   <div key={match.id} className="animate-fade" style={{ animationDelay: `${i*40}ms` }}>
-                    <MatchCard match={match} onAnalyse={setSelectedMatch} onBet={setBetMatch} riskProfile={riskProfile} />
+                    <MatchCard match={match} onAnalyse={setSelectedMatch} onBet={isProOrAdmin ? setBetMatch : null} riskProfile={riskProfile} />
                   </div>
                 ))}
               </div>
@@ -313,13 +352,21 @@ export default function App() {
           </div>
 
           <div className="tab-bar">
-            {TABS.map(t => (
-              <button key={t.id} className={`tab-btn ${activeTab === t.id ? 'active' : ''}`} onClick={() => setActiveTab(t.id)}>
-                {t.label}
-                {t.id === 'live'  && liveMatches.length > 0 && <span className="tab-badge">{liveMatches.length}</span>}
-                {t.id === 'value' && valueCount > 0          && <span className="tab-badge tab-badge--green">{valueCount}</span>}
-              </button>
-            ))}
+            {TABS.map(t => {
+              const locked = !accessibleTabs.has(t.id);
+              return (
+                <button
+                  key={t.id}
+                  className={`tab-btn ${activeTab === t.id ? 'active' : ''} ${locked ? 'tab-btn--locked' : ''}`}
+                  onClick={() => handleTabChange(t.id)}
+                  title={locked ? (t.id === 'taux' ? 'Réservé aux admins' : 'Fonctionnalité Pro') : ''}
+                >
+                  {locked && <span className="tab-lock">🔒</span>}{t.label}
+                  {!locked && t.id === 'live'  && liveMatches.length > 0 && <span className="tab-badge">{liveMatches.length}</span>}
+                  {!locked && t.id === 'value' && valueCount > 0          && <span className="tab-badge tab-badge--green">{valueCount}</span>}
+                </button>
+              );
+            })}
           </div>
 
           {/* ── Onglet Taux ──────────────────────────────────────── */}
@@ -363,7 +410,7 @@ export default function App() {
                   <div className="matches-grid">
                     {group.matches.map((match, i) => (
                       <div key={match.id} className="animate-fade" style={{ animationDelay: `${(gi*5+i)*30}ms` }}>
-                        <MatchCard match={match} onAnalyse={setSelectedMatch} onBet={setBetMatch} riskProfile={riskProfile} />
+                        <MatchCard match={match} onAnalyse={setSelectedMatch} onBet={isProOrAdmin ? setBetMatch : null} riskProfile={riskProfile} />
                       </div>
                     ))}
                   </div>
