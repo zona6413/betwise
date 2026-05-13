@@ -29,44 +29,86 @@ const injuryCache = new NodeCache({ stdTTL: 10800 }); // injuries : 3h
 
 const DEFAULT_STATS = { form: 'WDWLW', position: 12, wins: 10, draws: 8, losses: 10 };
 
-// ── Génère des cotes réalistes style Winamax ────────────────────────────────────
+// ── Poisson pour la génération de cotes ─────────────────────────────────────────
+function poissonPmf(lambda, k) {
+  if (lambda <= 0) return k === 0 ? 1 : 0;
+  let p = Math.exp(-lambda);
+  for (let i = 1; i <= k; i++) p *= lambda / i;
+  return p;
+}
+
+// Probabilités 1X2 via distribution de Poisson jointe sur les scores
+function poissonProbs(xgHome, xgAway) {
+  let homeWin = 0, draw = 0, awayWin = 0;
+  const MAX = 8;
+  for (let h = 0; h <= MAX; h++) {
+    const ph = poissonPmf(xgHome, h);
+    for (let a = 0; a <= MAX; a++) {
+      const p = ph * poissonPmf(xgAway, a);
+      if (h > a)       homeWin += p;
+      else if (h === a) draw   += p;
+      else              awayWin += p;
+    }
+  }
+  return { homeWin, draw, awayWin };
+}
+
+// ── Génère des cotes réalistes via modèle Poisson ───────────────────────────────
 function generateSyntheticOdds(homeStats, awayStats) {
-  const formPts = form => {
-    if (!form) return 7;
-    return form.toUpperCase().split('').slice(-5)
-      .reduce((s, c) => s + (c === 'W' ? 3 : c === 'D' ? 1 : 0), 0);
-  };
+  const LEAGUE_AVG_HOME = 1.42;
+  const LEAGUE_AVG_AWAY = 1.18;
 
-  // Force 0-100 : position (60%) + forme (40%) + bonus domicile
-  const leagueSize = 20;
-  const homeRating = ((leagueSize - homeStats.position) / (leagueSize - 1)) * 60
-                   + (formPts(homeStats.form) / 15) * 40 + 8;
-  const awayRating = ((leagueSize - awayStats.position) / (leagueSize - 1)) * 60
-                   + (formPts(awayStats.form) / 15) * 40;
+  // xG domicile : attaque dom × faiblesse défense extérieure
+  let xgHome, xgAway;
 
-  const total = homeRating + awayRating;
+  if (homeStats?.homeGpg && awayStats?.awayCgpg) {
+    const homeAttack  = homeStats.homeGpg   / LEAGUE_AVG_HOME;
+    const awayDefence = awayStats.awayCgpg  / LEAGUE_AVG_AWAY;
+    xgHome = LEAGUE_AVG_HOME * homeAttack * awayDefence;
+  } else {
+    // Fallback position + forme
+    const formPts = s => s?.form ? s.form.toUpperCase().split('').slice(-5)
+      .reduce((acc, c) => acc + (c === 'W' ? 3 : c === 'D' ? 1 : 0), 0) : 7;
+    const leagueSize = 20;
+    const hRating = ((leagueSize - (homeStats?.position ?? 10)) / (leagueSize - 1)) * 60
+                  + (formPts(homeStats) / 15) * 40 + 8;
+    const aRating = ((leagueSize - (awayStats?.position ?? 10)) / (leagueSize - 1)) * 60
+                  + (formPts(awayStats) / 15) * 40;
+    xgHome = LEAGUE_AVG_HOME * (0.4 + (hRating / 100) * 1.2);
+    xgAway = LEAGUE_AVG_AWAY * (0.4 + (aRating / 100) * 1.2);
+  }
 
-  // Probabilité de nul : plus élevée si les équipes sont proches
-  const diff = Math.abs(homeRating - awayRating) / total;
-  const drawProb = Math.max(0.18, 0.30 - diff * 0.35);
+  if (homeStats?.awayGpg && awayStats?.homeCgpg) {
+    const awayAttack  = awayStats.awayGpg  / LEAGUE_AVG_AWAY;
+    const homeDefence = homeStats.homeCgpg / LEAGUE_AVG_HOME;
+    xgAway = LEAGUE_AVG_AWAY * awayAttack * homeDefence;
+  } else if (!xgAway) {
+    xgAway = LEAGUE_AVG_AWAY;
+  }
 
-  const homeWinProb = (homeRating / total) * (1 - drawProb);
-  const awayWinProb = (awayRating / total) * (1 - drawProb);
+  // Clamp xG dans des plages réalistes
+  xgHome = Math.max(0.40, Math.min(3.20, xgHome));
+  xgAway = Math.max(0.30, Math.min(2.80, xgAway));
 
-  // Marge bookmaker ~6%
-  const margin = 1.06;
+  // Probabilités via Poisson joint
+  const { homeWin, draw, awayWin } = poissonProbs(xgHome, xgAway);
 
-  // Arrondi Winamax : multiples de 0.05
-  const round = x => {
-    const raw = margin / Math.max(x, 0.05);
-    return Math.round(Math.max(1.15, raw) * 20) / 20;
+  // Marge bookmaker ~5.5% (réaliste Winamax/Bet365)
+  const margin = 1.055;
+
+  // Conversion en cotes + arrondi Winamax (multiples de 0.05)
+  const toOdd = prob => {
+    const raw = (margin / Math.max(prob, 0.03));
+    return Math.round(Math.max(1.10, Math.min(raw, 25)) * 20) / 20;
   };
 
   return {
-    homeOdd:   round(homeWinProb),
-    drawOdd:   round(drawProb),
-    awayOdd:   round(awayWinProb),
+    homeOdd:   toOdd(homeWin),
+    drawOdd:   toOdd(draw),
+    awayOdd:   toOdd(awayWin),
     bookmaker: randomBookmaker(),
+    xgHome:    +xgHome.toFixed(2),
+    xgAway:    +xgAway.toFixed(2),
   };
 }
 

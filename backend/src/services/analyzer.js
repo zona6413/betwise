@@ -100,14 +100,32 @@ export function computeAIProbability(homeStats, awayStats) {
 }
 
 // ── Expected Goals (xG estimé) ───────────────────────────────────────────────
+// Utilise les vrais buts/match si disponibles (gpg/cgpg), sinon fallback sur forces
+// Modèle : xG = scoring_rate_attack × conceding_rate_defence / league_avg
+
+const LEAGUE_AVG_HOME = 1.42; // moyenne buts marqués à dom en Europe
+const LEAGUE_AVG_AWAY = 1.18; // moyenne buts marqués à l'ext en Europe
 
 export function estimateExpectedGoals(attackStats, defenceStats, isHome = false) {
-  const { attack }   = computeTeamStrength(attackStats);
-  const { defence }  = computeTeamStrength(defenceStats);
-  const defWeakness  = 1 - defence;
-  // Calibrated bases: home leagues avg ~1.40 goals, away ~1.18
-  const base = isHome ? 1.42 : 1.18;
-  const xg   = base * (0.50 + attack * 0.85) * (0.50 + defWeakness * 0.85);
+  // Si on a les vrais buts/match → modèle Dixon-Coles simplifié
+  if (isHome && attackStats?.homeGpg && defenceStats?.homeCgpg) {
+    const attackRate  = attackStats.homeGpg / LEAGUE_AVG_HOME;   // force d'attaque domicile
+    const defenceRate = defenceStats.awayCgpg / LEAGUE_AVG_AWAY; // faiblesse défense visiteur
+    const xg = LEAGUE_AVG_HOME * attackRate * defenceRate;
+    return Math.max(0.30, Math.min(3.5, xg));
+  }
+  if (!isHome && attackStats?.awayGpg && defenceStats?.awayCgpg) {
+    const attackRate  = attackStats.awayGpg  / LEAGUE_AVG_AWAY;  // force d'attaque extérieur
+    const defenceRate = defenceStats.homeCgpg / LEAGUE_AVG_HOME;  // faiblesse défense domicile
+    const xg = LEAGUE_AVG_AWAY * attackRate * defenceRate;
+    return Math.max(0.25, Math.min(3.5, xg));
+  }
+  // Fallback : modèle basé sur force/faiblesse relative
+  const { attack }  = computeTeamStrength(attackStats);
+  const { defence } = computeTeamStrength(defenceStats);
+  const defWeakness = 1 - defence;
+  const base = isHome ? LEAGUE_AVG_HOME : LEAGUE_AVG_AWAY;
+  const xg   = base * (0.45 + attack * 0.90) * (0.45 + defWeakness * 0.90);
   return Math.max(0.25, Math.min(3.2, xg));
 }
 
