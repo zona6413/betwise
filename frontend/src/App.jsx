@@ -17,6 +17,7 @@ import GamblingWarning, { shouldShowWarning } from './components/GamblingWarning
 import LegalFooter       from './components/LegalFooter.jsx';
 import AuthModal         from './components/AuthModal.jsx';
 import PricingModal      from './components/PricingModal.jsx';
+import LandingPage       from './components/LandingPage.jsx';
 import './App.css';
 
 const FINISHED_STATUSES = new Set(['FT', 'AET', 'PEN', 'AWD', 'WO']);
@@ -85,6 +86,11 @@ export default function App() {
   const learningStats = useLearning(matches);
   const { user, isLoggedIn, loading: authLoading, error: authError, setError: setAuthError, register, login, logout, authFetch, refreshUser } = useAuth();
   const { bets, stats: betStats, addBet, resolveBet, voidBet, deleteBet, syncing } = useBetTracker(authFetch, isLoggedIn);
+  // Landing page : affiché pour les visiteurs non connectés qui n'ont pas encore cliqué "Commencer"
+  const [showLanding, setShowLanding] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return !localStorage.getItem('bw_visited') && !localStorage.getItem('bw_token');
+  });
   const [showAuth,    setShowAuth]    = useState(false);
   const [showPricing, setShowPricing] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState(null);
@@ -113,6 +119,14 @@ export default function App() {
       window.history.replaceState({}, '', window.location.pathname);
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Masquer la landing dès que l'utilisateur est connecté
+  useEffect(() => {
+    if (isLoggedIn) {
+      localStorage.setItem('bw_visited', '1');
+      setShowLanding(false);
+    }
+  }, [isLoggedIn]);
 
   // Portail Stripe — gérer / annuler l'abonnement
   async function handleManageSubscription() {
@@ -275,6 +289,49 @@ export default function App() {
   }, [filtered]);
 
   const showHomeSections = activeTab === 'all' && !searchQuery && activeLeague === 'all';
+
+  // ── Landing page pour les visiteurs non connectés ────────
+  if (showLanding && !isLoggedIn) {
+    return (
+      <>
+        <LandingPage
+          onStart={() => {
+            localStorage.setItem('bw_visited', '1');
+            setShowLanding(false);
+          }}
+          onLogin={() => {
+            localStorage.setItem('bw_visited', '1');
+            setShowLanding(false);
+            setShowAuth(true);
+          }}
+          onPricing={() => {
+            localStorage.setItem('bw_visited', '1');
+            setShowLanding(false);
+            setShowPricing(true);
+          }}
+        />
+        {showAuth && (
+          <AuthModal
+            onLogin={async (email, pwd) => { const ok = await login(email, pwd); if (ok) setShowAuth(false); }}
+            onRegister={async (email, pwd, username) => { const ok = await register(email, pwd, username); if (ok) setShowAuth(false); }}
+            onClose={() => { setShowAuth(false); setAuthError(null); }}
+            loading={authLoading}
+            error={authError}
+            setError={setAuthError}
+          />
+        )}
+        {showPricing && (
+          <PricingModal
+            onClose={() => setShowPricing(false)}
+            authFetch={authFetch}
+            isLoggedIn={isLoggedIn}
+            user={user}
+            onOpenAuth={() => { setShowPricing(false); setShowAuth(true); }}
+          />
+        )}
+      </>
+    );
+  }
 
   return (
     <div className="app">
