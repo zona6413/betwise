@@ -6,6 +6,7 @@ import matchesRouter  from './routes/matches.js';
 import learningRouter from './routes/learning.js';
 import authRouter     from './routes/auth.js';
 import betsRouter     from './routes/bets.js';
+import stripeRouter   from './routes/stripe.js';
 
 dotenv.config();
 
@@ -27,6 +28,10 @@ if (process.env.MONGODB_URI) {
 
 // ── Middleware ──────────────────────────────────────────────────────────────────
 app.use(cors({ origin: '*' }));
+
+// ⚠️ Webhook Stripe doit recevoir le raw body — monté AVANT express.json()
+app.use('/api/stripe/webhook', express.raw({ type: 'application/json' }));
+
 app.use(express.json());
 
 // Log chaque requête en dev
@@ -52,6 +57,7 @@ app.use('/api/matches',  matchesRouter);
 app.use('/api/learning', learningRouter);
 app.use('/api/auth',     authRouter);
 app.use('/api/bets',     betsRouter);
+app.use('/api/stripe',   stripeRouter);
 
 // Debug key
 app.get('/api/debug/key', (_req, res) => {

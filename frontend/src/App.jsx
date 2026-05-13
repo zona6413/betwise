@@ -16,6 +16,7 @@ import { useLearning }   from './hooks/useLearning.js';
 import GamblingWarning, { shouldShowWarning } from './components/GamblingWarning.jsx';
 import LegalFooter       from './components/LegalFooter.jsx';
 import AuthModal         from './components/AuthModal.jsx';
+import PricingModal      from './components/PricingModal.jsx';
 import './App.css';
 
 const FINISHED_STATUSES = new Set(['FT', 'AET', 'PEN', 'AWD', 'WO']);
@@ -84,7 +85,8 @@ export default function App() {
   const learningStats = useLearning(matches);
   const { user, isLoggedIn, loading: authLoading, error: authError, setError: setAuthError, register, login, logout, authFetch } = useAuth();
   const { bets, stats: betStats, addBet, resolveBet, voidBet, deleteBet, syncing } = useBetTracker(authFetch, isLoggedIn);
-  const [showAuth, setShowAuth] = useState(false);
+  const [showAuth,    setShowAuth]    = useState(false);
+  const [showPricing, setShowPricing] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState(null);
   const [betMatch,      setBetMatch]      = useState(null);
   const [activeTab,     setActiveTab]     = useState('today');
@@ -95,6 +97,20 @@ export default function App() {
   const [toast,         setToast]         = useState({ visible: false, message: '', type: 'value' });
   const [showWarning,   setShowWarning]   = useState(shouldShowWarning);
   const prevValueCount = useRef(0);
+
+  // Retour depuis Stripe Checkout
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('payment') === 'success') {
+      setToast({ visible: true, message: '🎉 Paiement réussi ! Ton compte Pro est activé.', type: 'value' });
+      setTimeout(() => setToast(t => ({ ...t, visible: false })), 5000);
+      window.history.replaceState({}, '', window.location.pathname);
+    } else if (params.get('payment') === 'cancelled') {
+      setToast({ visible: true, message: 'Paiement annulé.', type: 'lock' });
+      setTimeout(() => setToast(t => ({ ...t, visible: false })), 3000);
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Rôles & accès ──────────────────────────────────────────────────────────
   const isAdmin      = user?.role === 'admin';
@@ -292,7 +308,7 @@ export default function App() {
           {isFree && (
             <div className="upgrade-banner">
               <span>⚡ Débloquez toutes les analyses, value bets, combos et stats</span>
-              <button className="btn-upgrade" onClick={() => setShowAuth(true)}>Passer Pro</button>
+              <button className="btn-upgrade" onClick={() => isLoggedIn ? setShowPricing(true) : setShowAuth(true)}>Passer Pro</button>
             </div>
           )}
 
@@ -443,6 +459,14 @@ export default function App() {
           loading={authLoading}
           error={authError}
           setError={setAuthError}
+        />
+      )}
+      {showPricing && (
+        <PricingModal
+          onClose={() => setShowPricing(false)}
+          authFetch={authFetch}
+          isLoggedIn={isLoggedIn}
+          onOpenAuth={() => { setShowPricing(false); setShowAuth(true); }}
         />
       )}
     </div>
