@@ -19,10 +19,9 @@ userSchema.pre('save', function (next) {
 });
 
 // Hash le mot de passe avant sauvegarde
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
+userSchema.pre('save', async function () {
+  if (!this.isModified('password')) return;
   this.password = await bcrypt.hash(this.password, 10);
-  next();
 });
 
 // Vérifie le mot de passe
