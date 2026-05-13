@@ -108,7 +108,7 @@ const LEAGUE_AVG_AWAY = 1.18; // moyenne buts marqués à l'ext en Europe
 
 export function estimateExpectedGoals(attackStats, defenceStats, isHome = false) {
   // Si on a les vrais buts/match → modèle Dixon-Coles simplifié
-  if (isHome && attackStats?.homeGpg && defenceStats?.homeCgpg) {
+  if (isHome && attackStats?.homeGpg && defenceStats?.awayCgpg) {
     const attackRate  = attackStats.homeGpg / LEAGUE_AVG_HOME;   // force d'attaque domicile
     const defenceRate = defenceStats.awayCgpg / LEAGUE_AVG_AWAY; // faiblesse défense visiteur
     const xg = LEAGUE_AVG_HOME * attackRate * defenceRate;
@@ -375,7 +375,12 @@ export function generateTieredBets(homeName, awayName, homeStats, awayStats, aiP
     .filter(c => c.odd > 2.0)
     .sort((a, b) => (b.prob * b.odd) - (a.prob * a.odd));
 
-  const valueBet = valueCandidates[0] ?? valueCandidates[valueCandidates.length - 1];
+  const valueBet = valueCandidates[0] ?? {
+    type: `Score exact ${predictedScore}`,
+    prob: 0.12,
+    odd:  Math.max(4.00, exactOdd),
+    why:  `Mode Poisson : ${homeName} xG ${homeExpG.toFixed(1)} vs ${awayName} xG ${awayExpG.toFixed(1)}.`,
+  };
 
   // ── Buteurs probables (modèle buts/match × xG × position) ──────────────
   const scorerBets = [];

@@ -53,6 +53,9 @@ function saveToDisk(outcomes) {
 // ── Données en mémoire (chargées depuis disque au démarrage) ──────────────────
 const outcomes = loadFromDisk();
 
+// Cache de calibration — invalidé uniquement quand un nouveau résultat est enregistré
+let _calibrationCache = null;
+
 // ── Extrait le vrai résultat depuis un score ──────────────────────────────────
 function extractActual(homeGoals, awayGoals) {
   const total = homeGoals + awayGoals;
@@ -77,6 +80,9 @@ export function recordOutcome({ matchId, date, homeTeam, awayTeam, predictions, 
 
   if (outcomes.length > MAX_OUTCOMES) outcomes.shift();
 
+  // Invalider le cache de calibration
+  _calibrationCache = null;
+
   saveToDisk(outcomes);
 
   const cal = computeCalibration();
@@ -85,9 +91,10 @@ export function recordOutcome({ matchId, date, homeTeam, awayTeam, predictions, 
   return { recorded: true, total: outcomes.length };
 }
 
-// ── Calcule les facteurs de calibration ───────────────────────────────────────
+// ── Calcule les facteurs de calibration (avec cache) ─────────────────────────
 function computeCalibration() {
-  if (outcomes.length < MIN_FOR_CALIBRATION) return null;
+  if (_calibrationCache !== null) return _calibrationCache;
+  if (outcomes.length < MIN_FOR_CALIBRATION) return (_calibrationCache = null);
 
   const cal = {};
   for (const market of MARKETS) {
@@ -118,7 +125,8 @@ function computeCalibration() {
                   : 'calibré',
     };
   }
-  return Object.keys(cal).length ? cal : null;
+  _calibrationCache = Object.keys(cal).length ? cal : null;
+  return _calibrationCache;
 }
 
 // ── Applique la calibration aux probabilités d'un match ───────────────────────

@@ -89,7 +89,7 @@ export default function App() {
   // Landing page : affiché pour les visiteurs non connectés qui n'ont pas encore cliqué "Commencer"
   const [showLanding, setShowLanding] = useState(() => {
     if (typeof window === 'undefined') return false;
-    return !localStorage.getItem('bw_visited') && !localStorage.getItem('bw_token');
+    return !localStorage.getItem('bw_visited') && !localStorage.getItem('betwise_token_v1');
   });
   const [showAuth,    setShowAuth]    = useState(false);
   const [showPricing, setShowPricing] = useState(false);
@@ -160,13 +160,18 @@ export default function App() {
 
   function handleTabChange(tabId) {
     if (!accessibleTabs.has(tabId)) {
-      const msg = tabId === 'taux'
-        ? '🔒 Taux réservé aux admins'
-        : isFree
-          ? '🔒 Fonctionnalité Pro — Connecte-toi ou abonne-toi'
-          : '🔒 Accès restreint';
-      setToast({ visible: true, message: msg, type: 'lock' });
-      setTimeout(() => setToast(t => ({ ...t, visible: false })), 3000);
+      if (tabId === 'taux') {
+        setToast({ visible: true, message: '🔒 Taux réservé aux admins', type: 'lock' });
+        setTimeout(() => setToast(t => ({ ...t, visible: false })), 3000);
+      } else if (isLoggedIn) {
+        // Utilisateur connecté mais pas Pro → ouvrir directement la modal pricing
+        setShowPricing(true);
+      } else {
+        // Visiteur non connecté → ouvrir la connexion
+        setToast({ visible: true, message: '🔒 Fonctionnalité Pro — Connecte-toi ou abonne-toi', type: 'lock' });
+        setTimeout(() => setToast(t => ({ ...t, visible: false })), 3000);
+        setShowAuth(true);
+      }
       return;
     }
     setActiveTab(tabId);

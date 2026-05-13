@@ -11,8 +11,10 @@ import stripeRouter   from './routes/stripe.js';
 dotenv.config();
 
 // Nettoie les variables d'env (évite les \n invisibles copiés-collés)
-if (process.env.ODDS_API_KEY)     process.env.ODDS_API_KEY     = process.env.ODDS_API_KEY.trim();
-if (process.env.API_FOOTBALL_KEY) process.env.API_FOOTBALL_KEY = process.env.API_FOOTBALL_KEY.trim();
+const ENV_TRIM = ['ODDS_API_KEY', 'API_FOOTBALL_KEY', 'STRIPE_SECRET_KEY', 'STRIPE_PRICE_MONTHLY', 'STRIPE_PRICE_YEARLY', 'STRIPE_WEBHOOK_SECRET', 'MONGODB_URI', 'JWT_SECRET', 'ADMIN_EMAIL'];
+for (const key of ENV_TRIM) {
+  if (process.env[key]) process.env[key] = process.env[key].trim();
+}
 
 const app  = express();
 const PORT = process.env.PORT || 3001;

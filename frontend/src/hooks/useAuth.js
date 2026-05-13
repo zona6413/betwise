@@ -27,9 +27,8 @@ function loadSession() {
 }
 
 export function useAuth() {
-  const stored = loadSession();
-  const [token, setToken]   = useState(stored?.token ?? null);
-  const [user,  setUser]    = useState(stored?.user  ?? null);
+  const [token, setToken] = useState(() => loadSession()?.token ?? null);
+  const [user,  setUser]  = useState(() => loadSession()?.user  ?? null);
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState(null);
 
