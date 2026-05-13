@@ -13,9 +13,8 @@ const userSchema = new mongoose.Schema({
 });
 
 // Auto-promouvoir l'admin
-userSchema.pre('save', function (next) {
+userSchema.pre('save', function () {
   if (ADMIN_EMAIL && this.email === ADMIN_EMAIL) this.role = 'admin';
-  next();
 });
 
 // Hash le mot de passe avant sauvegarde
