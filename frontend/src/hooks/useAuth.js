@@ -94,5 +94,18 @@ export function useAuth() {
     });
   }, [token]);
 
-  return { user, token, isLoggedIn, loading, error, setError, register, login, logout, authFetch };
+  // Recharge le profil depuis le serveur (utile après un paiement Stripe)
+  const refreshUser = useCallback(async () => {
+    if (!token) return;
+    try {
+      const r = await fetch(`${API}/api/auth/me`, { headers: { Authorization: `Bearer ${token}` } });
+      if (r.ok) {
+        const data = await r.json();
+        setUser(data.user);
+        try { localStorage.setItem(USER_KEY, JSON.stringify(data.user)); } catch {}
+      }
+    } catch {}
+  }, [token]);
+
+  return { user, token, isLoggedIn, loading, error, setError, register, login, logout, authFetch, refreshUser };
 }

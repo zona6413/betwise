@@ -83,7 +83,7 @@ function normalizeLeague(name) { return name ?? ''; }
 export default function App() {
   const { matches, loading, error, lastUpdated, refresh } = useMatches();
   const learningStats = useLearning(matches);
-  const { user, isLoggedIn, loading: authLoading, error: authError, setError: setAuthError, register, login, logout, authFetch } = useAuth();
+  const { user, isLoggedIn, loading: authLoading, error: authError, setError: setAuthError, register, login, logout, authFetch, refreshUser } = useAuth();
   const { bets, stats: betStats, addBet, resolveBet, voidBet, deleteBet, syncing } = useBetTracker(authFetch, isLoggedIn);
   const [showAuth,    setShowAuth]    = useState(false);
   const [showPricing, setShowPricing] = useState(false);
@@ -102,6 +102,8 @@ export default function App() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('payment') === 'success') {
+      // Recharge le profil pour obtenir le nouveau rôle Pro
+      refreshUser?.();
       setToast({ visible: true, message: '🎉 Paiement réussi ! Ton compte Pro est activé.', type: 'value' });
       setTimeout(() => setToast(t => ({ ...t, visible: false })), 5000);
       window.history.replaceState({}, '', window.location.pathname);
@@ -111,6 +113,19 @@ export default function App() {
       window.history.replaceState({}, '', window.location.pathname);
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Portail Stripe — gérer / annuler l'abonnement
+  async function handleManageSubscription() {
+    try {
+      const res  = await authFetch(`https://betwise-suh4.onrender.com/api/stripe/portal`, { method: 'POST' });
+      const data = await res.json();
+      if (data.url) window.location.href = data.url;
+      else setToast({ visible: true, message: data.error ?? 'Erreur portail', type: 'lock' });
+    } catch {
+      setToast({ visible: true, message: 'Erreur réseau', type: 'lock' });
+    }
+    setTimeout(() => setToast(t => ({ ...t, visible: false })), 3000);
+  }
 
   // ── Rôles & accès ──────────────────────────────────────────────────────────
   const isAdmin      = user?.role === 'admin';
@@ -292,7 +307,12 @@ export default function App() {
               {lastUpdated && <span className="stats-time">{lastUpdated.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</span>}
               {isLoggedIn ? (
                 <div className="user-pill" title={user?.email}>
+                  {user?.role === 'admin' && <span className="role-badge role-badge--admin">Admin</span>}
+                  {user?.role === 'pro'   && <span className="role-badge role-badge--pro">Pro</span>}
                   <span className="user-avatar">{(user?.username || user?.email || '?')[0].toUpperCase()}</span>
+                  {user?.role === 'pro' && (
+                    <button className="user-manage" onClick={handleManageSubscription} title="Gérer mon abonnement">⚙</button>
+                  )}
                   <button className="user-logout" onClick={logout} title="Se déconnecter">✕</button>
                 </div>
               ) : (
@@ -466,6 +486,7 @@ export default function App() {
           onClose={() => setShowPricing(false)}
           authFetch={authFetch}
           isLoggedIn={isLoggedIn}
+          user={user}
           onOpenAuth={() => { setShowPricing(false); setShowAuth(true); }}
         />
       )}

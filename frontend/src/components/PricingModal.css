@@ -157,3 +157,39 @@
   margin: 0;
   line-height: 1.5;
 }
+
+.pricing-login-hint {
+  text-align: center;
+  font-size: 13px;
+  color: rgba(255,255,255,0.4);
+  margin: 0 0 12px;
+}
+.pricing-link {
+  background: none;
+  border: none;
+  color: #9ba3f8;
+  cursor: pointer;
+  font-size: 13px;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.pricing-current {
+  text-align: center;
+  padding: 20px 0 8px;
+}
+.pricing-current-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+.pricing-current h2 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 8px;
+}
+.pricing-current p {
+  font-size: 14px;
+  color: rgba(255,255,255,0.5);
+  margin: 0;
+}

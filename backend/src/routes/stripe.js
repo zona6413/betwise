@@ -1,30 +1,37 @@
-import { Router }      from 'express';
-import Stripe           from 'stripe';
-import User             from '../models/User.js';
-import { requireAuth }  from '../middleware/auth.js';
+import { Router }     from 'express';
+import Stripe          from 'stripe';
+import User            from '../models/User.js';
+import { requireAuth } from '../middleware/auth.js';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-const router = Router();
+const stripe       = new Stripe(process.env.STRIPE_SECRET_KEY ?? 'sk_test_placeholder');
+const router       = Router();
+const PRICE_MONTHLY = process.env.STRIPE_PRICE_MONTHLY;
+const PRICE_YEARLY  = process.env.STRIPE_PRICE_YEARLY;
+const FRONTEND_URL  = (process.env.FRONTEND_URL ?? 'https://betwise.vercel.app').replace(/\/$/, '');
 
-// ── Prix Stripe (à créer dans le dashboard Stripe puis coller les IDs ici via env)
-const PRICE_MONTHLY = process.env.STRIPE_PRICE_MONTHLY; // ex: price_xxx
-const PRICE_YEARLY  = process.env.STRIPE_PRICE_YEARLY;  // ex: price_xxx
-const FRONTEND_URL  = process.env.FRONTEND_URL || 'https://betwise.vercel.app';
-
-// POST /api/stripe/create-checkout  →  crée une session Stripe Checkout
+// ── POST /api/stripe/create-checkout ──────────────────────────────────────────
+// Crée une session Stripe Checkout et retourne l'URL de paiement
 router.post('/create-checkout', requireAuth, async (req, res) => {
   try {
+    if (!process.env.STRIPE_SECRET_KEY) {
+      return res.status(503).json({ error: 'Paiement non configuré — contacte le support' });
+    }
     const { plan } = req.body; // 'monthly' | 'yearly'
     const priceId  = plan === 'yearly' ? PRICE_YEARLY : PRICE_MONTHLY;
-    if (!priceId) return res.status(400).json({ error: 'Plan invalide' });
+    if (!priceId) return res.status(400).json({ error: 'Plan invalide ou prix non configuré' });
 
     const user = await User.findById(req.userId);
     if (!user) return res.status(404).json({ error: 'Utilisateur introuvable' });
 
+    // Si l'utilisateur a déjà un customer Stripe, le réutiliser
+    const customerParams = user.stripeCustomerId
+      ? { customer: user.stripeCustomerId }
+      : { customer_email: user.email };
+
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       payment_method_types: ['card'],
-      customer_email: user.email,
+      ...customerParams,
       line_items: [{ price: priceId, quantity: 1 }],
       success_url: `${FRONTEND_URL}?payment=success`,
       cancel_url:  `${FRONTEND_URL}?payment=cancelled`,
@@ -32,6 +39,7 @@ router.post('/create-checkout', requireAuth, async (req, res) => {
       subscription_data: {
         metadata: { userId: String(user._id) },
       },
+      locale: 'fr',
     });
 
     res.json({ url: session.url });
@@ -41,12 +49,58 @@ router.post('/create-checkout', requireAuth, async (req, res) => {
   }
 });
 
-// POST /api/stripe/webhook  →  reçoit les events Stripe (paiement réussi, annulation…)
-router.post('/webhook', express_raw, async (req, res) => {
+// ── POST /api/stripe/portal ────────────────────────────────────────────────────
+// Ouvre le portail Stripe pour gérer / annuler l'abonnement
+router.post('/portal', requireAuth, async (req, res) => {
+  try {
+    if (!process.env.STRIPE_SECRET_KEY) {
+      return res.status(503).json({ error: 'Paiement non configuré' });
+    }
+    const user = await User.findById(req.userId);
+    if (!user?.stripeCustomerId) {
+      return res.status(400).json({ error: 'Aucun abonnement actif trouvé' });
+    }
+
+    const session = await stripe.billingPortal.sessions.create({
+      customer:   user.stripeCustomerId,
+      return_url: FRONTEND_URL,
+    });
+
+    res.json({ url: session.url });
+  } catch (err) {
+    console.error('[stripe] portal:', err.message);
+    res.status(500).json({ error: 'Erreur portail de paiement' });
+  }
+});
+
+// ── GET /api/stripe/status ─────────────────────────────────────────────────────
+// Retourne le statut d'abonnement de l'utilisateur connecté
+router.get('/status', requireAuth, async (req, res) => {
+  try {
+    const user = await User.findById(req.userId);
+    if (!user) return res.status(404).json({ error: 'Utilisateur introuvable' });
+    res.json({
+      role:               user.role,
+      isPro:              user.isPro(),
+      subscriptionExpiry: user.subscriptionExpiry,
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+// ── POST /api/stripe/webhook ───────────────────────────────────────────────────
+// Reçoit les événements Stripe (raw body monté dans index.js)
+router.post('/webhook', async (req, res) => {
   const sig    = req.headers['stripe-signature'];
   const secret = process.env.STRIPE_WEBHOOK_SECRET;
-  let event;
 
+  if (!secret) {
+    console.warn('[stripe] STRIPE_WEBHOOK_SECRET non défini — webhook ignoré');
+    return res.json({ received: true });
+  }
+
+  let event;
   try {
     event = stripe.webhooks.constructEvent(req.body, sig, secret);
   } catch (err) {
@@ -57,20 +111,27 @@ router.post('/webhook', express_raw, async (req, res) => {
   try {
     switch (event.type) {
 
-      // Abonnement activé / renouvelé
+      // ── Paiement réussi → activer Pro ──────────────────────────
       case 'invoice.payment_succeeded': {
         const invoice = event.data.object;
-        const sub     = await stripe.subscriptions.retrieve(invoice.subscription);
-        const userId  = sub.metadata?.userId;
-        if (!userId) break;
+        if (invoice.billing_reason === 'subscription_create' || invoice.billing_reason === 'subscription_cycle') {
+          const sub    = await stripe.subscriptions.retrieve(invoice.subscription);
+          const userId = sub.metadata?.userId;
+          if (!userId) break;
 
-        const expiry = new Date(sub.current_period_end * 1000);
-        await User.findByIdAndUpdate(userId, { role: 'pro', subscriptionExpiry: expiry });
-        console.log(`[stripe] ✅ Pro activé — userId=${userId} jusqu'au ${expiry.toISOString()}`);
+          const expiry     = new Date(sub.current_period_end * 1000);
+          const customerId = sub.customer;
+          await User.findByIdAndUpdate(userId, {
+            role: 'pro',
+            subscriptionExpiry: expiry,
+            stripeCustomerId:   customerId,
+          });
+          console.log(`[stripe] ✅ Pro activé — userId=${userId} expire=${expiry.toISOString()}`);
+        }
         break;
       }
 
-      // Abonnement annulé / expiré
+      // ── Abonnement résilié → repasser en free ──────────────────
       case 'customer.subscription.deleted': {
         const sub    = event.data.object;
         const userId = sub.metadata?.userId;
@@ -81,12 +142,28 @@ router.post('/webhook', express_raw, async (req, res) => {
         break;
       }
 
-      // Échec de paiement
+      // ── Abonnement mis à jour (renouvellement, changement de plan) ─
+      case 'customer.subscription.updated': {
+        const sub    = event.data.object;
+        const userId = sub.metadata?.userId;
+        if (!userId) break;
+
+        if (sub.status === 'active') {
+          const expiry = new Date(sub.current_period_end * 1000);
+          await User.findByIdAndUpdate(userId, { role: 'pro', subscriptionExpiry: expiry });
+          console.log(`[stripe] 🔄 Abonnement renouvelé — userId=${userId}`);
+        } else if (['canceled', 'unpaid', 'past_due'].includes(sub.status)) {
+          await User.findByIdAndUpdate(userId, { role: 'free', subscriptionExpiry: null });
+          console.log(`[stripe] ⚠️ Abonnement dégradé (${sub.status}) — userId=${userId}`);
+        }
+        break;
+      }
+
+      // ── Échec de paiement ──────────────────────────────────────
       case 'invoice.payment_failed': {
         const invoice = event.data.object;
         const sub     = await stripe.subscriptions.retrieve(invoice.subscription);
-        const userId  = sub.metadata?.userId;
-        console.warn(`[stripe] ⚠️ Paiement échoué — userId=${userId}`);
+        console.warn(`[stripe] ⚠️ Paiement échoué — userId=${sub.metadata?.userId}`);
         break;
       }
 
@@ -99,11 +176,5 @@ router.post('/webhook', express_raw, async (req, res) => {
 
   res.json({ received: true });
 });
-
-// Middleware pour lire le raw body (nécessaire pour vérifier la signature Stripe)
-function express_raw(req, res, next) {
-  // Ce middleware est monté sur la route webhook uniquement dans index.js
-  next();
-}
 
 export default router;

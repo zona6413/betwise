@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema({
   username:  { type: String, trim: true, default: '' },
   role:      { type: String, enum: ['free', 'pro', 'admin'], default: 'free' },
   subscriptionExpiry: { type: Date, default: null },
+  stripeCustomerId:   { type: String, default: null },
   createdAt: { type: Date, default: Date.now },
 });
 
