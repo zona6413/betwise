@@ -18,6 +18,7 @@ import LegalFooter       from './components/LegalFooter.jsx';
 import AuthModal         from './components/AuthModal.jsx';
 import PricingModal      from './components/PricingModal.jsx';
 import LandingPage       from './components/LandingPage.jsx';
+import LegalPage         from './components/LegalPage.jsx';
 import './App.css';
 
 const FINISHED_STATUSES = new Set(['FT', 'AET', 'PEN', 'AWD', 'WO']);
@@ -54,6 +55,7 @@ const TABS = [
   { id: 'value',    label: 'Value bets' },
   { id: 'today',    label: "Aujourd'hui" },
   { id: 'tomorrow', label: 'Demain' },
+  { id: 'cdm',      label: 'Coupe du Monde' },
   { id: 'ucl',      label: 'Champions League' },
   { id: 'taux',     label: 'Taux' },
   { id: 'paris',    label: 'Mes paris' },
@@ -87,6 +89,7 @@ export default function App() {
   const { user, isLoggedIn, loading: authLoading, error: authError, setError: setAuthError, register, login, logout, authFetch, refreshUser } = useAuth();
   const { bets, stats: betStats, addBet, resolveBet, voidBet, deleteBet, syncing } = useBetTracker(authFetch, isLoggedIn);
   // Landing page : affiché pour les visiteurs non connectés qui n'ont pas encore cliqué "Commencer"
+  const [legalTab,    setLegalTab]    = useState(null); // null = fermé, sinon 'mentions'|'cgu'|'confidentialite'|'jeu'
   const [showLanding, setShowLanding] = useState(() => {
     if (typeof window === 'undefined') return false;
     return !localStorage.getItem('bw_visited') && !localStorage.getItem('betwise_token_v1');
@@ -148,9 +151,9 @@ export default function App() {
 
   // Tabs accessibles selon le rôle
   const accessibleTabs = useMemo(() => {
-    if (isAdmin)      return new Set(['all','live','value','today','tomorrow','ucl','taux','paris']);
-    if (isProOrAdmin) return new Set(['all','live','value','today','tomorrow','ucl','paris']);
-    return new Set(['today']);
+    if (isAdmin)      return new Set(['all','live','value','today','tomorrow','cdm','ucl','taux','paris']);
+    if (isProOrAdmin) return new Set(['all','live','value','today','tomorrow','cdm','ucl','paris']);
+    return new Set(['today', 'cdm']); // Coupe du Monde accessible à tous — levier de conversion
   }, [isAdmin, isProOrAdmin]);
 
   // Reset l'onglet si le rôle change et que l'onglet n'est plus accessible
@@ -274,6 +277,14 @@ export default function App() {
     }
     if (activeTab === 'ucl') {
       list = list.filter(m => m.league?.includes('Champions League'));
+    }
+    if (activeTab === 'cdm') {
+      list = list.filter(m =>
+        m.league === 'Coupe du Monde' ||
+        m.leagueCountry === 'World' ||
+        m.league?.toLowerCase().includes('world cup') ||
+        m.league?.toLowerCase().includes('fifa')
+      );
     }
     // Sur l'onglet "Tous", exclure les matchs déjà dans aiPicks + importantMatches
     if (activeTab === 'all' && !searchQuery && activeLeague === 'all') {
@@ -529,10 +540,11 @@ export default function App() {
       {betMatch && (
         <BetModal match={betMatch} onAdd={addBet} onClose={() => setBetMatch(null)} />
       )}
-      <LegalFooter />
+      <LegalFooter onOpenLegal={setLegalTab} />
       <Toast message={toast.message} visible={toast.visible} type={toast.type} />
       <BottomNav activeTab={activeTab} onTabChange={setActiveTab} liveCount={liveMatches.length} valueCount={valueCount} pendingBets={betStats.pending} />
       {showWarning && <GamblingWarning onClose={() => setShowWarning(false)} />}
+      {legalTab && <LegalPage initialTab={legalTab} onClose={() => setLegalTab(null)} />}
       {showAuth && (
         <AuthModal
           onLogin={async (email, pwd) => { const ok = await login(email, pwd); if (ok) setShowAuth(false); }}

@@ -28,7 +28,7 @@ function posCode(pos) {
 }
 
 // Ligues principales dont on charge les buteurs
-const SCORER_LEAGUES = [39, 61, 140, 135, 78, 2, 3, 848, 88, 94, 144, 179, 203, 197, 207, 218];
+const SCORER_LEAGUES = [1, 39, 61, 140, 135, 78, 2, 3, 848, 88, 94, 144, 179, 203, 197, 207, 218]; // 1 = Coupe du Monde
 
 async function fetchLeagueScorers(leagueId) {
   if (!client) return;
@@ -79,7 +79,23 @@ function getApiScorers(teamId) {
 // ── Données statiques : style de jeu et rôles ────────────────────────────────
 // teamId = ID API-Football (colonne de gauche dans API_FOOTBALL_IDS)
 const TEAM_META = {
-  // Premier League
+  // ── Coupe du Monde 2026 — Sélections nationales ──────────────────────────────
+  2:    { keyPlayer: { name: 'Antoine Griezmann',   role: 'Chef d\'orchestre' },  dangerMan: { name: 'Kylian Mbappé',      note: 'Finisseur de classe mondiale' },  style: 'Pressing haut, domination technique' },
+  6:    { keyPlayer: { name: 'Rodrygo',             role: 'Créateur offensif' },  dangerMan: { name: 'Vinicius Jr.',       note: 'Dribbleur électrique côté gauche' },style: 'Samba football, jeu en triangle' },
+  26:   { keyPlayer: { name: 'Lionel Messi',        role: 'Légende, créateur' },  dangerMan: { name: 'Julián Álvarez',     note: 'Finisseur explosif' },            style: 'Possession, jeu entre les lignes' },
+  9:    { keyPlayer: { name: 'Pedri',               role: 'Meneur technique' },   dangerMan: { name: 'Lamine Yamal',       note: 'Génie précoce, ailier droit' },   style: 'Tiki-taka modernisé, pressing intense' },
+  10:   { keyPlayer: { name: 'Jude Bellingham',     role: 'Box-to-box offensif' },dangerMan: { name: 'Harry Kane',         note: 'Meilleur buteur anglais de l\'histoire' },style: 'Direct, physique, efficacité anglaise' },
+  25:   { keyPlayer: { name: 'Joshua Kimmich',      role: 'Sentinelle moderne' }, dangerMan: { name: 'Florian Wirtz',      note: 'Milieu offensif le plus en forme' },style: 'Gegenpressing, jeu positionnel' },
+  27:   { keyPlayer: { name: 'Bruno Fernandes',     role: 'Capitaine créateur' }, dangerMan: { name: 'Cristiano Ronaldo',  note: 'Buteur insatiable' },             style: 'Efficacité offensive, pressing moyen' },
+  16:   { keyPlayer: { name: 'Hirving Lozano',      role: 'Ailier explosif' },    dangerMan: { name: 'Santiago Giménez',   note: 'Finisseur technique' },           style: 'Bloc médian, transitions rapides' },
+  21:   { keyPlayer: { name: 'Christian Pulisic',   role: 'Meneur polyvalent' },  dangerMan: { name: 'Ricardo Pepi',       note: 'Avant-centre montant' },          style: 'Athletic, direct, pression haute' },
+  1:    { keyPlayer: { name: 'Kevin De Bruyne',     role: 'Maître à jouer' },     dangerMan: { name: 'Romelu Lukaku',      note: 'Pivot physique dominant' },       style: 'Contre-attaque rapide, qualité individuelle' },
+  34:   { keyPlayer: { name: 'Virgil van Dijk',     role: 'Leader défensif' },    dangerMan: { name: 'Cody Gakpo',         note: 'Ailier gauche décisif' },         style: 'Bloc compact, transition directe' },
+  1569: { keyPlayer: { name: 'Hakim Ziyech',        role: 'Meneur technique' },   dangerMan: { name: 'Youssef En-Nesyri',  note: 'Finisseur aérien' },              style: 'Bloc bas, organisation défensive' },
+  24:   { keyPlayer: { name: 'Luka Modrić',         role: 'Légende du milieu' },  dangerMan: { name: 'Ivan Perišić',       note: 'Ailier gauche expérimenté' },     style: 'Technique, possession, efficacité' },
+  30:   { keyPlayer: { name: 'Federico Valverde',   role: 'Box-to-box intense' }, dangerMan: { name: 'Darwin Núñez',       note: 'Avant-centre athlétique' },       style: 'Pressing intense, solidité défensive' },
+  46:   { keyPlayer: { name: 'Wataru Endō',         role: 'Récupérateur' },       dangerMan: { name: 'Takumi Minamino',    note: 'Finisseur technique' },           style: 'Organisation rigoureuse, transitions rapides' },
+  // ── Premier League
   42:  { keyPlayer: { name: 'Martin Ødegaard',     role: 'Meneur de jeu' },     dangerMan: { name: 'Bukayo Saka',          note: 'Dribbleur droit décisif' },    style: 'Possession haute, pressing intensif' },
   50:  { keyPlayer: { name: 'Bernardo Silva',      role: 'Meneur technique' },   dangerMan: { name: 'Erling Haaland',       note: 'Finisseur implacable' },       style: 'Monopole du ballon, transitions rapides' },
   40:  { keyPlayer: { name: 'Alexis Mac Allister', role: 'Box-to-box' },         dangerMan: { name: 'Mohamed Salah',        note: 'Ailier prolifique côté droit' },style: 'Pressing haut, transitions verticales' },
@@ -135,6 +151,25 @@ function getTeamMeta(apiId) {
 
 /** Lookup par nom d'équipe (partiel, insensible à la casse) */
 const NAME_TO_ID = [
+  // Sélections nationales — Coupe du Monde 2026
+  ['france', 2], ['équipe de france', 2],
+  ['brazil', 6], ['brasil', 6], ['brésil', 6],
+  ['argentina', 26], ['argentine', 26],
+  ['spain', 9], ['espagne', 9], ['españa', 9],
+  ['england', 10], ['angleterre', 10],
+  ['germany', 25], ['allemagne', 25], ['deutschland', 25],
+  ['portugal', 27],
+  ['mexico', 16], ['mexique', 16], ['méxico', 16],
+  ['usa', 21], ['united states', 21], ['états-unis', 21],
+  ['belgium', 1], ['belgique', 1],
+  ['netherlands', 34], ['pays-bas', 34], ['holland', 34],
+  ['morocco', 1569], ['maroc', 1569],
+  ['croatia', 24], ['croatie', 24],
+  ['senegal', 32], ['sénégal', 32],
+  ['japan', 46], ['japon', 46],
+  ['uruguay', 30],
+  ['colombia', 7], ['colombie', 7],
+  // Clubs — Premier League
   ['arsenal', 42], ['manchester city', 50], ['man city', 50],
   ['liverpool', 40], ['manchester united', 33], ['man united', 33],
   ['aston villa', 66], ['chelsea', 49], ['brighton', 51],
@@ -245,6 +280,24 @@ function buildTeamPlayers(apiId, name) {
 
 // Fallback statique pour les buteurs (si API pas encore chargée ou quota atteint)
 const STATIC_SCORERS = {
+  // ── Coupe du Monde 2026 — Buteurs des sélections (éliminatoires + LDN) ───────
+  2:    { topScorer: { name: 'Kylian Mbappé',        goals: 9,  pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Antoine Griezmann', goals: 6, pos: 'AT', matchesPlayed: 12 }, scorer3: { name: 'Marcus Thuram',     goals: 4, pos: 'AT', matchesPlayed: 11 } },
+  6:    { topScorer: { name: 'Vinicius Jr.',          goals: 10, pos: 'AG', matchesPlayed: 12 }, scorer2: { name: 'Rodrygo',           goals: 7, pos: 'AT', matchesPlayed: 12 }, scorer3: { name: 'Endrick',            goals: 5, pos: 'BU', matchesPlayed: 10 } },
+  26:   { topScorer: { name: 'Lionel Messi',          goals: 8,  pos: 'AT', matchesPlayed: 11 }, scorer2: { name: 'Julián Álvarez',    goals: 7, pos: 'BU', matchesPlayed: 12 }, scorer3: { name: 'Lautaro Martínez',   goals: 6, pos: 'BU', matchesPlayed: 12 } },
+  9:    { topScorer: { name: 'Álvaro Morata',         goals: 8,  pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Lamine Yamal',      goals: 6, pos: 'AD', matchesPlayed: 11 }, scorer3: { name: 'Pedri',              goals: 4, pos: 'MO', matchesPlayed: 12 } },
+  10:   { topScorer: { name: 'Harry Kane',            goals: 9,  pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Jude Bellingham',   goals: 5, pos: 'MO', matchesPlayed: 12 }, scorer3: { name: 'Phil Foden',         goals: 4, pos: 'AT', matchesPlayed: 11 } },
+  25:   { topScorer: { name: 'Florian Wirtz',         goals: 7,  pos: 'MO', matchesPlayed: 12 }, scorer2: { name: 'Kai Havertz',       goals: 5, pos: 'BU', matchesPlayed: 12 }, scorer3: { name: 'Serge Gnabry',       goals: 4, pos: 'AD', matchesPlayed: 10 } },
+  27:   { topScorer: { name: 'Cristiano Ronaldo',     goals: 9,  pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Bruno Fernandes',   goals: 5, pos: 'MO', matchesPlayed: 12 }, scorer3: { name: 'Pedro Neto',         goals: 4, pos: 'AD', matchesPlayed: 11 } },
+  16:   { topScorer: { name: 'Santiago Giménez',      goals: 8,  pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Hirving Lozano',    goals: 5, pos: 'AD', matchesPlayed: 11 }, scorer3: { name: 'Edson Álvarez',      goals: 3, pos: 'MO', matchesPlayed: 12 } },
+  21:   { topScorer: { name: 'Christian Pulisic',     goals: 7,  pos: 'AT', matchesPlayed: 12 }, scorer2: { name: 'Ricardo Pepi',      goals: 6, pos: 'BU', matchesPlayed: 11 }, scorer3: { name: 'Josh Sargent',       goals: 4, pos: 'BU', matchesPlayed: 10 } },
+  1:    { topScorer: { name: 'Romelu Lukaku',         goals: 9,  pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Kevin De Bruyne',   goals: 6, pos: 'MO', matchesPlayed: 10 }, scorer3: { name: 'Dodi Lukébakio',     goals: 4, pos: 'AD', matchesPlayed: 11 } },
+  34:   { topScorer: { name: 'Cody Gakpo',            goals: 8,  pos: 'AG', matchesPlayed: 12 }, scorer2: { name: 'Memphis Depay',     goals: 5, pos: 'BU', matchesPlayed: 10 }, scorer3: { name: 'Donyell Malen',      goals: 4, pos: 'AD', matchesPlayed: 11 } },
+  1569: { topScorer: { name: 'Youssef En-Nesyri',     goals: 7,  pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Hakim Ziyech',      goals: 4, pos: 'AT', matchesPlayed: 11 }, scorer3: { name: 'Sofiane Boufal',     goals: 3, pos: 'AG', matchesPlayed: 10 } },
+  24:   { topScorer: { name: 'Andrej Kramarić',       goals: 7,  pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Ivan Perišić',      goals: 4, pos: 'AG', matchesPlayed: 11 }, scorer3: { name: 'Bruno Petković',     goals: 3, pos: 'BU', matchesPlayed: 10 } },
+  30:   { topScorer: { name: 'Darwin Núñez',          goals: 8,  pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Federico Valverde', goals: 4, pos: 'MO', matchesPlayed: 12 }, scorer3: { name: 'Facundo Pellistri',  goals: 3, pos: 'AD', matchesPlayed: 10 } },
+  46:   { topScorer: { name: 'Takumi Minamino',       goals: 6,  pos: 'AT', matchesPlayed: 12 }, scorer2: { name: 'Kaoru Mitoma',      goals: 5, pos: 'AG', matchesPlayed: 11 }, scorer3: { name: 'Ritsu Doan',         goals: 4, pos: 'AD', matchesPlayed: 12 } },
+  7:    { topScorer: { name: 'Luis Díaz',             goals: 8,  pos: 'AG', matchesPlayed: 12 }, scorer2: { name: 'Falcao García',     goals: 4, pos: 'BU', matchesPlayed: 8  }, scorer3: { name: 'Jhon Durán',         goals: 5, pos: 'BU', matchesPlayed: 11 } },
+  // ── Clubs — Premier League
   42:  { topScorer: { name: 'Bukayo Saka',         goals: 14, pos: 'AD', matchesPlayed: 30 }, scorer2: { name: 'Kai Havertz',      goals: 11, pos: 'BU', matchesPlayed: 32 }, scorer3: { name: 'Leandro Trossard',  goals:  8, pos: 'AG', matchesPlayed: 28 } },
   50:  { topScorer: { name: 'Erling Haaland',      goals: 22, pos: 'BU', matchesPlayed: 29 }, scorer2: { name: 'Phil Foden',        goals: 11, pos: 'MO', matchesPlayed: 31 }, scorer3: { name: 'Bernardo Silva',     goals:  7, pos: 'MO', matchesPlayed: 33 } },
   40:  { topScorer: { name: 'Mohamed Salah',        goals: 19, pos: 'AD', matchesPlayed: 32 }, scorer2: { name: 'Diogo Jota',       goals: 12, pos: 'AT', matchesPlayed: 26 }, scorer3: { name: 'Luis Díaz',          goals:  9, pos: 'AG', matchesPlayed: 30 } },

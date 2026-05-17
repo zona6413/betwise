@@ -1,0 +1,310 @@
+/* ═══════════════════════════════════════════════════
+   LegalPage.css — Pages légales BetWise
+   ═══════════════════════════════════════════════════ */
+
+.legal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(6px);
+  z-index: 950;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.legal-page {
+  background: #111318;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  width: 100%;
+  max-width: 760px;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  animation: legalIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+@keyframes legalIn {
+  from { transform: translateY(16px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+/* ── Header ─────────────────────────────────────────────── */
+.legal-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  flex-shrink: 0;
+}
+
+.legal-page-brand {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(240, 242, 248, 0.5);
+  letter-spacing: 0.2px;
+}
+
+.legal-page-close {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.35);
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+.legal-page-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* ── Tabs ────────────────────────────────────────────────── */
+.legal-page-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  overflow-x: auto;
+  flex-shrink: 0;
+  scrollbar-width: none;
+}
+.legal-page-tabs::-webkit-scrollbar { display: none; }
+
+.legal-tab-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  color: rgba(240, 242, 248, 0.45);
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 7px 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+.legal-tab-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(240, 242, 248, 0.75);
+}
+.legal-tab-btn.active {
+  background: rgba(91, 110, 245, 0.15);
+  border-color: rgba(91, 110, 245, 0.35);
+  color: #a5b4fc;
+}
+
+/* ── Contenu ─────────────────────────────────────────────── */
+.legal-page-body {
+  padding: 28px 32px 40px;
+  overflow-y: auto;
+  max-height: 70vh;
+}
+
+.legal-content h1 {
+  font-size: 22px;
+  font-weight: 800;
+  color: #f0f2f8;
+  margin: 0 0 6px;
+  letter-spacing: -0.5px;
+}
+
+.legal-date {
+  font-size: 12px;
+  color: rgba(240, 242, 248, 0.35);
+  margin: 0 0 28px;
+  line-height: 1.5;
+}
+
+.legal-content h2 {
+  font-size: 14px;
+  font-weight: 700;
+  color: #f0f2f8;
+  margin: 28px 0 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  letter-spacing: 0.1px;
+}
+
+.legal-content p {
+  font-size: 13.5px;
+  line-height: 1.75;
+  color: rgba(240, 242, 248, 0.6);
+  margin: 0 0 12px;
+}
+
+.legal-content ul {
+  margin: 0 0 12px;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.legal-content li {
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: rgba(240, 242, 248, 0.6);
+}
+
+.legal-content strong {
+  color: rgba(240, 242, 248, 0.9);
+  font-weight: 600;
+}
+
+.legal-content a {
+  color: #818cf8;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.legal-content a:hover {
+  color: #a5b4fc;
+  text-decoration: underline;
+}
+
+/* ── Tableau RGPD ────────────────────────────────────────── */
+.legal-table {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 0 0 12px;
+}
+
+.legal-table-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+
+.legal-table-header {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.legal-table-row span {
+  font-size: 12.5px;
+  padding: 10px 14px;
+  color: rgba(240, 242, 248, 0.55);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  line-height: 1.4;
+}
+
+.legal-table-header span {
+  font-weight: 700;
+  color: rgba(240, 242, 248, 0.8);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.legal-table-row span:first-child {
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.legal-table-row:last-child span {
+  border-bottom: none;
+}
+
+/* ── Encadré avertissement ───────────────────────────────── */
+.legal-warning-box {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin: 0 0 24px;
+}
+
+.legal-warning-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: #fca5a5;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.legal-warning-box p {
+  color: rgba(252, 165, 165, 0.8);
+  margin: 0;
+  font-size: 13px;
+}
+
+/* ── Cartes aide ─────────────────────────────────────────── */
+.legal-help-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin: 0 0 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.legal-help-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(240, 242, 248, 0.9);
+}
+
+.legal-help-num {
+  font-size: 22px;
+  font-weight: 900;
+  color: #818cf8;
+  letter-spacing: -0.5px;
+}
+
+.legal-help-desc {
+  font-size: 12.5px;
+  color: rgba(240, 242, 248, 0.5);
+  line-height: 1.5;
+}
+
+.legal-help-link {
+  font-size: 12.5px;
+  color: #818cf8;
+  text-decoration: none;
+  font-weight: 600;
+  margin-top: 4px;
+}
+.legal-help-link:hover {
+  color: #a5b4fc;
+  text-decoration: underline;
+}
+
+/* ── Responsive ──────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .legal-overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .legal-page {
+    border-radius: 18px 18px 0 0;
+    max-width: 100%;
+    margin: 0;
+  }
+
+  .legal-page-body {
+    padding: 20px 18px 32px;
+    max-height: 75vh;
+  }
+
+  .legal-table-row {
+    grid-template-columns: 1fr;
+  }
+
+  .legal-table-row span:first-child {
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+}
