@@ -593,6 +593,7 @@ export default function App() {
             try { localStorage.setItem('betwise_user_v1', JSON.stringify(updatedUser)); } catch {}
             refreshUser?.();
           }}
+          onOpenPricing={() => { setShowProfile(false); setShowPricing(true); }}
         />
       )}
       <CookieBanner />

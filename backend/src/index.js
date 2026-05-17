@@ -24,7 +24,7 @@ const globalLimiter = rateLimit({
 dotenv.config();
 
 // Nettoie les variables d'env (évite les \n invisibles copiés-collés)
-const ENV_TRIM = ['ODDS_API_KEY', 'API_FOOTBALL_KEY', 'STRIPE_SECRET_KEY', 'STRIPE_PRICE_MONTHLY', 'STRIPE_PRICE_YEARLY', 'STRIPE_WEBHOOK_SECRET', 'MONGODB_URI', 'JWT_SECRET', 'ADMIN_EMAIL'];
+const ENV_TRIM = ['ODDS_API_KEY', 'API_FOOTBALL_KEY', 'STRIPE_SECRET_KEY', 'STRIPE_PRICE_MONTHLY', 'STRIPE_PRICE_YEARLY', 'STRIPE_WEBHOOK_SECRET', 'MONGODB_URI', 'JWT_SECRET', 'ADMIN_EMAIL', 'RESEND_API_KEY', 'FRONTEND_URL', 'FROM_EMAIL'];
 for (const key of ENV_TRIM) {
   if (process.env[key]) process.env[key] = process.env[key].trim();
 }
@@ -60,11 +60,13 @@ app.use((req, _res, next) => {
 app.get('/api/health', (_req, res) => {
   res.json({
     status: 'ok',
-    version: '1.1.0',
+    version: '1.2.0',
     timestamp: new Date().toISOString(),
     apis: {
       football: process.env.API_FOOTBALL_KEY ? 'configured' : 'mock',
-      odds: process.env.ODDS_API_KEY ? 'configured' : 'mock',
+      odds:     process.env.ODDS_API_KEY     ? 'configured' : 'mock',
+      email:    process.env.RESEND_API_KEY   ? 'configured' : 'dev-mode',
+      stripe:   process.env.STRIPE_SECRET_KEY ? 'configured' : 'missing',
     },
   });
 });

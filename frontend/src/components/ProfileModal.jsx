@@ -3,7 +3,7 @@ import './ProfileModal.css';
 
 const API = import.meta.env.VITE_API_URL ?? '';
 
-export default function ProfileModal({ user, onClose, onLogout, onUpdate, authFetch }) {
+export default function ProfileModal({ user, onClose, onLogout, onUpdate, authFetch, onOpenPricing }) {
   const [tab, setTab] = useState('account'); // account | security | subscription
 
   // ── Account tab state ──
@@ -333,7 +333,11 @@ export default function ProfileModal({ user, onClose, onLogout, onUpdate, authFe
               )}
 
               {user?.role === 'free' && (
-                <button className="profile-btn profile-btn--primary" style={{marginTop:16}} onClick={onClose}>
+                <button
+                  className="profile-btn profile-btn--primary"
+                  style={{marginTop:16}}
+                  onClick={() => { onClose(); onOpenPricing?.(); }}
+                >
                   Voir les offres Pro →
                 </button>
               )}
