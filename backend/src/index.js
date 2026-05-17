@@ -9,6 +9,7 @@ import authRouter     from './routes/auth.js';
 import betsRouter     from './routes/bets.js';
 import stripeRouter   from './routes/stripe.js';
 import leadsRouter    from './routes/leads.js';
+import adminRouter    from './routes/admin.js';
 
 // Limiteur global — protection basique contre le scraping
 const globalLimiter = rateLimit({
@@ -74,6 +75,7 @@ app.use('/api/auth',     authRouter);
 app.use('/api/bets',     betsRouter);
 app.use('/api/stripe',   stripeRouter);
 app.use('/api/leads',    leadsRouter);
+app.use('/api/admin',    adminRouter);
 
 // Debug key
 app.get('/api/debug/key', (_req, res) => {

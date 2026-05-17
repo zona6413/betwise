@@ -152,6 +152,26 @@
 .btn-refresh:disabled { opacity: 0.3; cursor: not-allowed; }
 .btn-refresh.spinning { animation: spin 0.7s linear infinite; }
 
+/* ── Bouton admin ─────────────────────────────────────────── */
+.btn-admin {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  background: rgba(168, 85, 247, 0.08);
+  color: #d8b4fe;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.btn-admin:hover {
+  background: rgba(168, 85, 247, 0.18);
+  border-color: rgba(168, 85, 247, 0.5);
+}
+
 /* ── Bouton profil ────────────────────────────────────────── */
 .btn-profile {
   width: 34px;

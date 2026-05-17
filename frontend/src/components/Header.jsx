@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import './Header.css';
 
-export default function Header({ lastUpdated, fromCache, onRefresh, loading, activeLeague, onLeagueChange, leagues, user, isLoggedIn, onOpenProfile }) {
+export default function Header({ lastUpdated, fromCache, onRefresh, loading, activeLeague, onLeagueChange, leagues, user, isLoggedIn, onOpenProfile, onOpenAdmin }) {
   const [spinning, setSpinning] = useState(false);
 
   function handleRefresh() {
@@ -69,6 +69,20 @@ export default function Header({ lastUpdated, fromCache, onRefresh, loading, act
           >
             ↻
           </button>
+
+          {/* Bouton admin */}
+          {onOpenAdmin && (
+            <button
+              className="btn-admin"
+              onClick={onOpenAdmin}
+              aria-label="Panel admin"
+              title="Panel admin"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+              </svg>
+            </button>
+          )}
 
           {/* Bouton profil / connexion */}
           <button

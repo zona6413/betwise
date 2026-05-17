@@ -21,6 +21,7 @@ import LandingPage       from './components/LandingPage.jsx';
 import LegalPage         from './components/LegalPage.jsx';
 import CookieBanner      from './components/CookieBanner.jsx';
 import ProfileModal      from './components/ProfileModal.jsx';
+import AdminPanel        from './components/AdminPanel.jsx';
 import './App.css';
 
 const FINISHED_STATUSES = new Set(['FT', 'AET', 'PEN', 'AWD', 'WO']);
@@ -119,6 +120,7 @@ export default function App() {
   const [toast,         setToast]         = useState({ visible: false, message: '', type: 'value' });
   const [showWarning,   setShowWarning]   = useState(shouldShowWarning);
   const [showProfile,   setShowProfile]   = useState(false);
+  const [showAdmin,     setShowAdmin]     = useState(false);
   const prevValueCount = useRef(0);
 
   // Retour depuis Stripe Checkout
@@ -389,6 +391,7 @@ export default function App() {
         user={user}
         isLoggedIn={isLoggedIn}
         onOpenProfile={() => isLoggedIn ? setShowProfile(true) : setShowAuth(true)}
+        onOpenAdmin={isAdmin ? () => setShowAdmin(true) : null}
       />
 
       <main className="main">
@@ -576,6 +579,9 @@ export default function App() {
       <BottomNav activeTab={activeTab} onTabChange={setActiveTab} liveCount={liveMatches.length} valueCount={valueCount} pendingBets={betStats.pending} />
       {showWarning && <GamblingWarning onClose={() => setShowWarning(false)} />}
       {legalTab && <LegalPage initialTab={legalTab} onClose={() => setLegalTab(null)} />}
+      {showAdmin && isAdmin && (
+        <AdminPanel authFetch={authFetch} onClose={() => setShowAdmin(false)} />
+      )}
       {showProfile && isLoggedIn && (
         <ProfileModal
           user={user}
