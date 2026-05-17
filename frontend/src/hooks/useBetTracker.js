@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo, useEffect } from 'react';
 
 const KEY     = 'betwise_bets_v1';
-const API_URL = 'https://betwise-suh4.onrender.com';
+const API_URL = import.meta.env.VITE_API_URL ?? 'https://betwise-suh4.onrender.com';
 
 function load() {
   try { return JSON.parse(localStorage.getItem(KEY) || '[]'); }

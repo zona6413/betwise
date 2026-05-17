@@ -150,7 +150,7 @@ export default function App() {
   // Portail Stripe — gérer / annuler l'abonnement
   async function handleManageSubscription() {
     try {
-      const res  = await authFetch(`https://betwise-suh4.onrender.com/api/stripe/portal`, { method: 'POST' });
+      const res  = await authFetch(`${import.meta.env.VITE_API_URL ?? 'https://betwise-suh4.onrender.com'}/api/stripe/portal`, { method: 'POST' });
       const data = await res.json();
       if (data.url) window.location.href = data.url;
       else setToast({ visible: true, message: data.error ?? 'Erreur portail', type: 'lock' });

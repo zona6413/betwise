@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
-const API_BASE     = 'https://betwise-suh4.onrender.com/api';
+const API_BASE     = `${import.meta.env.VITE_API_URL ?? 'https://betwise-suh4.onrender.com'}/api`;
 const REPORTED_KEY = 'betwise_reported_ids';
 
 function loadReported() {

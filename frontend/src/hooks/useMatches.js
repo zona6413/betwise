@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 
-const API_BASE = 'https://betwise-suh4.onrender.com/api';
+const API_BASE = `${import.meta.env.VITE_API_URL ?? 'https://betwise-suh4.onrender.com'}/api`;
 
 // Données mock — utilisées si le backend n'est pas disponible
 const MOCK_MATCHES = [

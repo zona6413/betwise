@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 
-const API   = 'https://betwise-suh4.onrender.com';
+const API   = import.meta.env.VITE_API_URL ?? 'https://betwise-suh4.onrender.com';
 const TOKEN_KEY = 'betwise_token_v1';
 const USER_KEY  = 'betwise_user_v1';
 

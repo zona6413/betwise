@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import './PricingModal.css';
 
-const API = 'https://betwise-suh4.onrender.com';
+const API = import.meta.env.VITE_API_URL ?? 'https://betwise-suh4.onrender.com';
 
 export default function PricingModal({ onClose, authFetch, isLoggedIn, onOpenAuth, user }) {
   const [loading, setLoading] = useState(null); // 'monthly' | 'yearly' | 'portal'
