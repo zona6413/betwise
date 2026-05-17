@@ -56,6 +56,7 @@ const TABS = [
   { id: 'today',    label: "Aujourd'hui" },
   { id: 'tomorrow', label: 'Demain' },
   { id: 'cdm',      label: 'Coupe du Monde' },
+  { id: 'cups',     label: 'Coupes' },
   { id: 'ucl',      label: 'Champions League' },
   { id: 'taux',     label: 'Taux' },
   { id: 'paris',    label: 'Mes paris' },
@@ -151,9 +152,9 @@ export default function App() {
 
   // Tabs accessibles selon le rôle
   const accessibleTabs = useMemo(() => {
-    if (isAdmin)      return new Set(['all','live','value','today','tomorrow','cdm','ucl','taux','paris']);
-    if (isProOrAdmin) return new Set(['all','live','value','today','tomorrow','cdm','ucl','paris']);
-    return new Set(['today', 'cdm']); // Coupe du Monde accessible à tous — levier de conversion
+    if (isAdmin)      return new Set(['all','live','value','today','tomorrow','cdm','cups','ucl','taux','paris']);
+    if (isProOrAdmin) return new Set(['all','live','value','today','tomorrow','cdm','cups','ucl','paris']);
+    return new Set(['today', 'cdm', 'cups']); // Coupes & CdM visibles sans abonnement
   }, [isAdmin, isProOrAdmin]);
 
   // Reset l'onglet si le rôle change et que l'onglet n'est plus accessible
@@ -280,11 +281,20 @@ export default function App() {
     }
     if (activeTab === 'cdm') {
       list = list.filter(m =>
+        m.league === 'Coupe du Monde FIFA' ||
         m.league === 'Coupe du Monde' ||
         m.leagueCountry === 'World' ||
         m.league?.toLowerCase().includes('world cup') ||
-        m.league?.toLowerCase().includes('fifa')
+        m.league?.toLowerCase().includes('coupe du monde')
       );
+    }
+    if (activeTab === 'cups') {
+      // Détection automatique par nom : FA Cup, DFB-Pokal, Copa del Rey, Coppa Italia, etc.
+      const CUP_KEYWORDS = ['cup', 'coupe', 'copa', 'pokal', 'coppa', 'taça', 'beker', 'trofeo', 'shield', 'trophy', 'supercup', 'supercoupe', 'supercoppa', 'supercopa', 'trophée', 'libertadores', 'sudamericana'];
+      list = list.filter(m => {
+        const name = m.league?.toLowerCase() ?? '';
+        return CUP_KEYWORDS.some(kw => name.includes(kw));
+      });
     }
     // Sur l'onglet "Tous", exclure les matchs déjà dans aiPicks + importantMatches
     if (activeTab === 'all' && !searchQuery && activeLeague === 'all') {
