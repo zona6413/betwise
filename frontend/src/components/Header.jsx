@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import './Header.css';
 
-export default function Header({ lastUpdated, fromCache, onRefresh, loading, activeLeague, onLeagueChange, leagues }) {
+export default function Header({ lastUpdated, fromCache, onRefresh, loading, activeLeague, onLeagueChange, leagues, user, isLoggedIn, onOpenProfile }) {
   const [spinning, setSpinning] = useState(false);
 
   function handleRefresh() {
@@ -68,6 +68,26 @@ export default function Header({ lastUpdated, fromCache, onRefresh, loading, act
             title="Rafraîchir les matchs"
           >
             ↻
+          </button>
+
+          {/* Bouton profil / connexion */}
+          <button
+            className={`btn-profile ${isLoggedIn ? 'btn-profile--logged' : ''}`}
+            onClick={onOpenProfile}
+            aria-label={isLoggedIn ? 'Mon profil' : 'Se connecter'}
+            title={isLoggedIn ? (user?.username || user?.email || 'Mon profil') : 'Se connecter'}
+          >
+            {isLoggedIn ? (
+              <span className="btn-profile-initials">
+                {(user?.username || user?.email || '?')
+                  .replace(/[^a-zA-Z]/g, '')[0]?.toUpperCase() ?? '?'}
+              </span>
+            ) : (
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            )}
           </button>
         </div>
       </div>

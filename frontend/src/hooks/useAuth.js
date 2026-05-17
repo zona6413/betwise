@@ -63,7 +63,13 @@ export function useAuth() {
     finally { setLoading(false); }
   }, []);
 
-  const login = useCallback(async (email, password) => {
+  const login = useCallback(async (email, password, directData = null) => {
+    // directData : token + user déjà fournis (ex: après reset password)
+    if (directData) {
+      saveSession(directData.token, directData.user);
+      setToken(directData.token); setUser(directData.user);
+      return directData;
+    }
     setLoading(true); setError(null);
     try {
       const r = await fetch(`${API}/api/auth/login`, {

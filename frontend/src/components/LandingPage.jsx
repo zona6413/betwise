@@ -1,4 +1,7 @@
+import { useState } from 'react';
 import './LandingPage.css';
+
+const API = import.meta.env.VITE_API_URL ?? '';
 
 const FEATURES = [
   {
@@ -41,6 +44,25 @@ const STATS = [
 ];
 
 export default function LandingPage({ onStart, onLogin, onPricing }) {
+  const [leadEmail,   setLeadEmail]   = useState('');
+  const [leadStatus,  setLeadStatus]  = useState('idle'); // idle | loading | done | error
+
+  async function handleLeadSubmit(e) {
+    e.preventDefault();
+    if (!leadEmail) return;
+    setLeadStatus('loading');
+    try {
+      await fetch(`${API}/api/leads`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ email: leadEmail, source: 'landing' }),
+      });
+      setLeadStatus('done');
+    } catch {
+      setLeadStatus('error');
+    }
+  }
+
   return (
     <div className="landing">
 
@@ -73,6 +95,44 @@ export default function LandingPage({ onStart, onLogin, onPricing }) {
           </button>
         </div>
         <p className="landing-hero-hint">Gratuit · Sans carte bancaire · Accès immédiat</p>
+
+        {/* ── Capture email ── */}
+        <div className="landing-email-capture">
+          {leadStatus !== 'done' ? (
+            <>
+              <p className="landing-email-caption">
+                Notifié en avant-première pour la Coupe du Monde 2026
+              </p>
+              <form className="landing-email-form" onSubmit={handleLeadSubmit}>
+                <input
+                  type="email"
+                  className="landing-email-input"
+                  placeholder="ton@email.com"
+                  value={leadEmail}
+                  onChange={e => setLeadEmail(e.target.value)}
+                  required
+                />
+                <button
+                  type="submit"
+                  className="landing-email-btn"
+                  disabled={leadStatus === 'loading'}
+                >
+                  {leadStatus === 'loading' ? '...' : 'Me notifier'}
+                </button>
+              </form>
+              {leadStatus === 'error' && (
+                <p className="landing-email-error">Erreur — réessaie dans un instant</p>
+              )}
+            </>
+          ) : (
+            <div className="landing-email-done">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              <span>Parfait ! On te prévient dès que la CdM 2026 commence.</span>
+            </div>
+          )}
+        </div>
       </section>
 
       {/* ── Stats ── */}

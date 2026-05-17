@@ -2,6 +2,7 @@ import { Router }     from 'express';
 import Stripe          from 'stripe';
 import User            from '../models/User.js';
 import { requireAuth } from '../middleware/auth.js';
+import { sendReceiptEmail } from '../services/emailService.js';
 
 const stripe       = new Stripe(process.env.STRIPE_SECRET_KEY ?? 'sk_test_placeholder');
 const router       = Router();
@@ -121,12 +122,24 @@ router.post('/webhook', async (req, res) => {
 
           const expiry     = new Date(sub.current_period_end * 1000);
           const customerId = sub.customer;
-          await User.findByIdAndUpdate(userId, {
+          const updatedUser = await User.findByIdAndUpdate(userId, {
             role: 'pro',
             subscriptionExpiry: expiry,
             stripeCustomerId:   customerId,
-          });
+          }, { new: true });
           console.log(`[stripe] ✅ Pro activé — userId=${userId} expire=${expiry.toISOString()}`);
+
+          // Reçu email (non-bloquant)
+          if (updatedUser && invoice.billing_reason === 'subscription_create') {
+            const plan = sub.items?.data?.[0]?.price?.recurring?.interval === 'year' ? 'yearly' : 'monthly';
+            sendReceiptEmail({
+              to:       updatedUser.email,
+              username: updatedUser.username,
+              plan,
+              amount:   invoice.amount_paid,
+              date:     invoice.created * 1000,
+            }).catch(() => {});
+          }
         }
         break;
       }

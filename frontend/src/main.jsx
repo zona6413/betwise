@@ -44,3 +44,12 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     </ErrorBoundary>
   </React.StrictMode>
 );
+
+// Enregistrement du Service Worker (PWA)
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => console.log('[SW] Enregistré — scope:', reg.scope))
+      .catch(err => console.warn('[SW] Erreur:', err.message));
+  });
+}

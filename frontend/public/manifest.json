@@ -1,0 +1,23 @@
+{
+  "name": "BetWise — Paris sportifs IA",
+  "short_name": "BetWise",
+  "description": "Analysez chaque match avec l'IA : value bets, cotes Poisson, combos optimisés.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b0d12",
+  "theme_color": "#0b0d12",
+  "orientation": "portrait-primary",
+  "lang": "fr",
+  "categories": ["sports", "finance"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "related_applications": [],
+  "prefer_related_applications": false
+}

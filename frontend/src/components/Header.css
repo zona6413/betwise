@@ -152,6 +152,40 @@
 .btn-refresh:disabled { opacity: 0.3; cursor: not-allowed; }
 .btn-refresh.spinning { animation: spin 0.7s linear infinite; }
 
+/* ── Bouton profil ────────────────────────────────────────── */
+.btn-profile {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--border-mid);
+  background: var(--glass);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.btn-profile:hover {
+  border-color: rgba(91, 110, 245, 0.4);
+  background: rgba(91, 110, 245, 0.1);
+  color: #9ba3f8;
+}
+.btn-profile--logged {
+  border-color: rgba(91, 110, 245, 0.35);
+  background: linear-gradient(135deg, rgba(91, 110, 245, 0.2), rgba(168, 85, 247, 0.2));
+}
+.btn-profile--logged:hover {
+  background: linear-gradient(135deg, rgba(91, 110, 245, 0.3), rgba(168, 85, 247, 0.3));
+}
+.btn-profile-initials {
+  font-size: 13px;
+  font-weight: 800;
+  color: #a5b4fc;
+  letter-spacing: -0.3px;
+}
+
 @media (max-width: 640px) {
   .header-inner { padding: 0 12px; gap: 8px; height: 54px; }
   .logo-text    { display: none; }
@@ -159,4 +193,5 @@
   .header-time  { display: none; }
   .nav-pill     { padding: 5px 10px; font-size: 12px; }
   .btn-refresh  { width: 30px; height: 30px; font-size: 15px; }
+  .btn-profile  { width: 30px; height: 30px; }
 }

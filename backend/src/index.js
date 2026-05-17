@@ -2,11 +2,23 @@ import express   from 'express';
 import cors      from 'cors';
 import dotenv    from 'dotenv';
 import mongoose  from 'mongoose';
+import rateLimit      from 'express-rate-limit';
 import matchesRouter  from './routes/matches.js';
 import learningRouter from './routes/learning.js';
 import authRouter     from './routes/auth.js';
 import betsRouter     from './routes/bets.js';
 import stripeRouter   from './routes/stripe.js';
+import leadsRouter    from './routes/leads.js';
+
+// Limiteur global — protection basique contre le scraping
+const globalLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 min
+  max: 120,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Trop de requêtes — réessaie dans une minute' },
+  skip: (req) => req.path === '/api/stripe/webhook', // ne pas limiter les webhooks Stripe
+});
 
 dotenv.config();
 
@@ -30,6 +42,7 @@ if (process.env.MONGODB_URI) {
 
 // ── Middleware ──────────────────────────────────────────────────────────────────
 app.use(cors({ origin: '*' }));
+app.use(globalLimiter);
 
 // ⚠️ Webhook Stripe doit recevoir le raw body — monté AVANT express.json()
 app.use('/api/stripe/webhook', express.raw({ type: 'application/json' }));
@@ -60,6 +73,7 @@ app.use('/api/learning', learningRouter);
 app.use('/api/auth',     authRouter);
 app.use('/api/bets',     betsRouter);
 app.use('/api/stripe',   stripeRouter);
+app.use('/api/leads',    leadsRouter);
 
 // Debug key
 app.get('/api/debug/key', (_req, res) => {

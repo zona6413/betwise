@@ -3,13 +3,85 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BetWise — Analyse Sportive</title>
-    <meta name="description" content="Analyse intelligente des matchs du jour : cotes, value bets, probabilités." />
+
+    <!-- ── SEO de base ── -->
+    <title>BetWise — Paris sportifs assistés par IA</title>
+    <meta name="description" content="Analysez chaque match avec l'IA : value bets, cotes Poisson, combos optimisés, suivi de paris. Coupe du Monde 2026, Champions League et toutes les coupes." />
+    <meta name="keywords" content="paris sportifs, value bets, analyse football, IA paris, cotes, pronostics, Coupe du Monde 2026" />
+    <meta name="robots" content="index, follow" />
+    <meta name="author" content="BetWise" />
+    <link rel="canonical" href="https://betwise.netlify.app/" />
+
+    <!-- ── Open Graph (Facebook, LinkedIn, WhatsApp…) ── -->
+    <meta property="og:type"        content="website" />
+    <meta property="og:site_name"   content="BetWise" />
+    <meta property="og:title"       content="BetWise — Paris sportifs assistés par IA" />
+    <meta property="og:description" content="Value bets, cotes Poisson, combos IA. L'outil d'analyse qui te donne un edge sur les bookmakers." />
+    <meta property="og:url"         content="https://betwise.netlify.app/" />
+    <meta property="og:image"       content="https://betwise.netlify.app/og-image.png" />
+    <meta property="og:image:width"  content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale"      content="fr_FR" />
+
+    <!-- ── Twitter Card ── -->
+    <meta name="twitter:card"        content="summary_large_image" />
+    <meta name="twitter:title"       content="BetWise — Paris sportifs assistés par IA" />
+    <meta name="twitter:description" content="Value bets, cotes Poisson, combos IA. L'outil d'analyse qui te donne un edge sur les bookmakers." />
+    <meta name="twitter:image"       content="https://betwise.netlify.app/og-image.png" />
+
+    <!-- ── PWA / mobile ── -->
+    <meta name="theme-color" content="#0b0d12" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="BetWise" />
+
+    <!-- ── Favicon & PWA ── -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- ── Polices ── -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-    <script type="module" crossorigin src="/assets/index-CUSQ1Xns.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-Ql0AlDjL.css">
+
+    <!-- ── JSON-LD (données structurées) ── -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "BetWise",
+      "description": "Outil d'analyse statistique des matchs de football : value bets, cotes Poisson, combos IA.",
+      "url": "https://betwise.netlify.app/",
+      "applicationCategory": "SportsApplication",
+      "operatingSystem": "Any",
+      "offers": [
+        {
+          "@type": "Offer",
+          "name": "Gratuit",
+          "price": "0",
+          "priceCurrency": "EUR"
+        },
+        {
+          "@type": "Offer",
+          "name": "Pro Mensuel",
+          "price": "4.99",
+          "priceCurrency": "EUR",
+          "billingIncrement": "P1M"
+        },
+        {
+          "@type": "Offer",
+          "name": "Pro Annuel",
+          "price": "39",
+          "priceCurrency": "EUR",
+          "billingIncrement": "P1Y"
+        }
+      ]
+    }
+    </script>
+    <script type="module" crossorigin src="/assets/index-DbLHbg0l.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BN8UMeKV.css">
   </head>
   <body>
     <div id="root"></div>

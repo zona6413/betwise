@@ -19,6 +19,8 @@ import AuthModal         from './components/AuthModal.jsx';
 import PricingModal      from './components/PricingModal.jsx';
 import LandingPage       from './components/LandingPage.jsx';
 import LegalPage         from './components/LegalPage.jsx';
+import CookieBanner      from './components/CookieBanner.jsx';
+import ProfileModal      from './components/ProfileModal.jsx';
 import './App.css';
 
 const FINISHED_STATUSES = new Set(['FT', 'AET', 'PEN', 'AWD', 'WO']);
@@ -93,9 +95,19 @@ export default function App() {
   const [legalTab,    setLegalTab]    = useState(null); // null = fermé, sinon 'mentions'|'cgu'|'confidentialite'|'jeu'
   const [showLanding, setShowLanding] = useState(() => {
     if (typeof window === 'undefined') return false;
+    // Ne pas afficher la landing si un token de reset est dans l'URL
+    if (new URLSearchParams(window.location.search).get('reset')) return false;
     return !localStorage.getItem('bw_visited') && !localStorage.getItem('betwise_token_v1');
   });
-  const [showAuth,    setShowAuth]    = useState(false);
+  // Token de réinitialisation de mot de passe (depuis URL ?reset=xxx)
+  const [resetToken,  setResetToken]  = useState(() => {
+    if (typeof window === 'undefined') return null;
+    return new URLSearchParams(window.location.search).get('reset') ?? null;
+  });
+  const [showAuth,    setShowAuth]    = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return !!new URLSearchParams(window.location.search).get('reset');
+  });
   const [showPricing, setShowPricing] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState(null);
   const [betMatch,      setBetMatch]      = useState(null);
@@ -106,6 +118,7 @@ export default function App() {
   const [searchQuery,   setSearchQuery]   = useState('');
   const [toast,         setToast]         = useState({ visible: false, message: '', type: 'value' });
   const [showWarning,   setShowWarning]   = useState(shouldShowWarning);
+  const [showProfile,   setShowProfile]   = useState(false);
   const prevValueCount = useRef(0);
 
   // Retour depuis Stripe Checkout
@@ -338,12 +351,16 @@ export default function App() {
         />
         {showAuth && (
           <AuthModal
-            onLogin={async (email, pwd) => { const ok = await login(email, pwd); if (ok) setShowAuth(false); }}
+            onLogin={async (email, pwd, directData) => {
+              if (directData) { login(null, null, directData); setShowAuth(false); setResetToken(null); window.history.replaceState({}, '', window.location.pathname); return; }
+              const ok = await login(email, pwd); if (ok) setShowAuth(false);
+            }}
             onRegister={async (email, pwd, username) => { const ok = await register(email, pwd, username); if (ok) setShowAuth(false); }}
-            onClose={() => { setShowAuth(false); setAuthError(null); }}
+            onClose={() => { setShowAuth(false); setAuthError(null); setResetToken(null); window.history.replaceState({}, '', window.location.pathname); }}
             loading={authLoading}
             error={authError}
             setError={setAuthError}
+            resetToken={resetToken}
           />
         )}
         {showPricing && (
@@ -355,6 +372,7 @@ export default function App() {
             onOpenAuth={() => { setShowPricing(false); setShowAuth(true); }}
           />
         )}
+        <CookieBanner />
       </>
     );
   }
@@ -368,6 +386,9 @@ export default function App() {
         activeLeague={activeLeague}
         onLeagueChange={setActiveLeague}
         leagues={leagues}
+        user={user}
+        isLoggedIn={isLoggedIn}
+        onOpenProfile={() => isLoggedIn ? setShowProfile(true) : setShowAuth(true)}
       />
 
       <main className="main">
@@ -555,14 +576,32 @@ export default function App() {
       <BottomNav activeTab={activeTab} onTabChange={setActiveTab} liveCount={liveMatches.length} valueCount={valueCount} pendingBets={betStats.pending} />
       {showWarning && <GamblingWarning onClose={() => setShowWarning(false)} />}
       {legalTab && <LegalPage initialTab={legalTab} onClose={() => setLegalTab(null)} />}
+      {showProfile && isLoggedIn && (
+        <ProfileModal
+          user={user}
+          authFetch={authFetch}
+          onClose={() => setShowProfile(false)}
+          onLogout={() => { logout(); setShowProfile(false); }}
+          onUpdate={(updatedUser) => {
+            // Mettre à jour le user dans le localStorage + state via refreshUser
+            try { localStorage.setItem('betwise_user_v1', JSON.stringify(updatedUser)); } catch {}
+            refreshUser?.();
+          }}
+        />
+      )}
+      <CookieBanner />
       {showAuth && (
         <AuthModal
-          onLogin={async (email, pwd) => { const ok = await login(email, pwd); if (ok) setShowAuth(false); }}
+          onLogin={async (email, pwd, directData) => {
+            if (directData) { login(null, null, directData); setShowAuth(false); setResetToken(null); window.history.replaceState({}, '', window.location.pathname); return; }
+            const ok = await login(email, pwd); if (ok) setShowAuth(false);
+          }}
           onRegister={async (email, pwd, username) => { const ok = await register(email, pwd, username); if (ok) setShowAuth(false); }}
-          onClose={() => { setShowAuth(false); setAuthError(null); }}
+          onClose={() => { setShowAuth(false); setAuthError(null); setResetToken(null); window.history.replaceState({}, '', window.location.pathname); }}
           loading={authLoading}
           error={authError}
           setError={setAuthError}
+          resetToken={resetToken}
         />
       )}
       {showPricing && (

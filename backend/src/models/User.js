@@ -11,6 +11,9 @@ const userSchema = new mongoose.Schema({
   subscriptionExpiry: { type: Date, default: null },
   stripeCustomerId:   { type: String, default: null },
   createdAt: { type: Date, default: Date.now },
+  // Réinitialisation du mot de passe
+  resetToken:       { type: String, default: null },
+  resetTokenExpiry: { type: Date,   default: null },
 });
 
 // Auto-promouvoir l'admin
