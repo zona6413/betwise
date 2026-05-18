@@ -294,6 +294,24 @@
   padding: 1px 7px; font-weight: 500;
 }
 
+/* ── League groups ── */
+.league-group { margin-bottom: 52px; }
+.league-group-header {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+}
+.league-group-header::after {
+  content: ''; flex: 1; height: 1px; background: var(--border-lite);
+}
+.league-group-label {
+  font-size: 12px; font-weight: 600; color: var(--text-soft);
+  white-space: nowrap; letter-spacing: -0.1px;
+}
+.league-group-count {
+  font-size: 10px; color: var(--text-dim);
+  border: 1px solid var(--border); border-radius: 5px;
+  padding: 1px 6px; font-weight: 500; flex-shrink: 0;
+}
+
 /* ── Grid ── */
 .matches-grid {
   display: grid;

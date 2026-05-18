@@ -319,17 +319,28 @@ export default function App() {
     return list;
   }, [bettableMatches, activeTab, activeLeague, searchQuery, aiPicks, importantMatches]);
 
+  const LEAGUE_ORDER = ['Premier League','Ligue 1','La Liga','Serie A','Bundesliga','Champions League','Europa League','Conference League'];
+
   const groupedGrid = useMemo(() => {
     const map = new Map();
     for (const m of filtered) {
-      const key = new Date(m.date).toDateString();
-      if (!map.has(key)) map.set(key, { label: dateLabel(m.date), matches: [] });
+      const key = m.league || 'Autre';
+      if (!map.has(key)) map.set(key, { label: key, matches: [] });
       map.get(key).matches.push(m);
     }
-    return [...map.values()];
+    return [...map.entries()]
+      .sort(([a], [b]) => {
+        const ai = LEAGUE_ORDER.findIndex(l => a.includes(l));
+        const bi = LEAGUE_ORDER.findIndex(l => b.includes(l));
+        if (ai !== -1 && bi !== -1) return ai - bi;
+        if (ai !== -1) return -1;
+        if (bi !== -1) return 1;
+        return a.localeCompare(b, 'fr');
+      })
+      .map(([, v]) => v);
   }, [filtered]);
 
-  const showHomeSections = activeTab === 'all' && !searchQuery && activeLeague === 'all';
+  const showHomeSections = (activeTab === 'all' || activeTab === 'today') && !searchQuery && activeLeague === 'all';
 
   // ── Landing page pour les visiteurs non connectés ────────
   if (showLanding && !isLoggedIn) {
@@ -439,12 +450,12 @@ export default function App() {
             </div>
           )}
 
-          {/* ── 3 recommandations IA ─────────────────────────────── */}
+          {/* ── Picks du jour ────────────────────────────────────── */}
           {showHomeSections && !loading && aiPicks.length > 0 && isProOrAdmin && (
             <section className="home-section">
               <div className="home-section-header">
-                <h2 className="home-section-title">Nos 3 recommandations IA</h2>
-                <span className="home-section-sub">{riskProfile === 'safe' ? 'Paris sûrs' : riskProfile === 'value' ? 'Maximiser les gains' : 'Équilibré'}</span>
+                <h2 className="home-section-title">Picks du jour</h2>
+                <span className="home-section-sub">{riskProfile === 'safe' ? 'Prudent' : riskProfile === 'value' ? 'Audacieux' : 'Standard'} · {aiPicks.length} sélections</span>
               </div>
               <div className="picks-grid">
                 {aiPicks.map((match, i) => (
@@ -531,28 +542,19 @@ export default function App() {
           {/* ── Grille principale ────────────────────────────────── */}
           {activeTab !== 'taux' && activeTab !== 'paris' && (
             <>
-              {showHomeSections && filtered.length > 0 && (
-                <div className="home-section-header" style={{ marginTop: 8, marginBottom: 4 }}>
-                  <h2 className="home-section-title">Tous les matchs</h2>
-                  <span className="home-section-sub">{bettableMatches.length} matchs · {liveMatches.length} en direct</span>
-                </div>
-              )}
-
               {!loading && !error && filtered.length === 0 && (
                 <Empty tab={activeTab} onReset={() => { setActiveTab('all'); setSearchQuery(''); }} />
               )}
 
               {groupedGrid.map((group, gi) => (
-                <div key={group.label} className="date-group">
-                  {(!showHomeSections || groupedGrid.length > 1) && (
-                    <div className="date-group-header">
-                      <span className="date-group-label">{group.label}</span>
-                      <span className="date-group-count">{group.matches.length} match{group.matches.length > 1 ? 's' : ''}</span>
-                    </div>
-                  )}
+                <div key={group.label} className="league-group">
+                  <div className="league-group-header">
+                    <span className="league-group-label">{group.label}</span>
+                    <span className="league-group-count">{group.matches.length}</span>
+                  </div>
                   <div className="matches-grid">
                     {group.matches.map((match, i) => (
-                      <div key={match.id} className="animate-fade" style={{ animationDelay: `${(gi*5+i)*30}ms` }}>
+                      <div key={match.id} className="animate-fade" style={{ animationDelay: `${(gi*3+i)*25}ms` }}>
                         <MatchCard match={match} onAnalyse={setSelectedMatch} onBet={isProOrAdmin ? setBetMatch : null} riskProfile={riskProfile} />
                       </div>
                     ))}
