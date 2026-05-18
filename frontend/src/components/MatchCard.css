@@ -25,7 +25,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px 0;
+  padding: 16px 20px 0;
 }
 .card-league {
   display: flex;
@@ -90,7 +90,7 @@
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   gap: 8px;
-  padding: 16px 16px 14px;
+  padding: 20px 20px 18px;
 }
 
 /* ── Teams ── */
@@ -254,7 +254,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 16px;
+  padding: 11px 20px;
   border-top: 1px solid var(--border-lite);
   cursor: pointer;
   transition: background 0.15s ease;
@@ -387,7 +387,7 @@
 
 /* ── Footer ── */
 .card-footer {
-  padding: 10px 16px;
+  padding: 12px 20px;
   border-top: 1px solid var(--border-lite);
   display: flex;
   align-items: center;

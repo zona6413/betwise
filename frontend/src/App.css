@@ -1,6 +1,6 @@
 .app { min-height: 100vh; }
 .main { padding: 0 0 100px; }
-.container { max-width: 1280px; margin: 0 auto; padding: 0 32px; }
+.container { max-width: 1100px; margin: 0 auto; padding: 0 40px; }
 
 /* ── Top bar ── */
 .top-bar {
@@ -260,7 +260,7 @@
 .tab-badge--green { background: var(--green-dim); color: var(--green); }
 
 /* ── Home sections ── */
-.home-section { margin-bottom: 56px; }
+.home-section { margin-bottom: 72px; }
 .home-section-header {
   display: flex; align-items: baseline; gap: 12px; margin-bottom: 18px;
 }
@@ -272,12 +272,12 @@
 
 .picks-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
 }
 
 /* ── Date groups ── */
-.date-group { margin-bottom: 48px; }
+.date-group { margin-bottom: 64px; }
 .date-group-header {
   display: flex; align-items: center; gap: 12px; margin-bottom: 0;
 }
@@ -297,9 +297,9 @@
 /* ── Grid ── */
 .matches-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-  gap: 10px;
-  margin-top: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(480px, 1fr));
+  gap: 14px;
+  margin-top: 20px;
 }
 
 /* ── Error ── */
