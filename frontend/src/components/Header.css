@@ -2,20 +2,20 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(0,0,0,0.85);
-  backdrop-filter: blur(20px) saturate(160%);
-  -webkit-backdrop-filter: blur(20px) saturate(160%);
-  border-bottom: 1px solid var(--border);
+  background: rgba(5,7,11,0.75);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-bottom: 1px solid var(--border-lite);
 }
 
 .header-inner {
   max-width: 1320px;
   margin: 0 auto;
   padding: 0 28px;
-  height: 58px;
+  height: 54px;
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
 }
 
 /* ── Logo ── */
@@ -27,43 +27,42 @@
 }
 
 .logo-icon-wrap {
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
-  background: #fff;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  background: var(--violet);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.logo-icon-wrap svg polygon { fill: #000; }
+.logo-icon-wrap svg polygon { fill: #fff; }
 
 .logo-text {
-  font-size: 17px;
-  font-weight: 700;
-  letter-spacing: -0.5px;
-  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.4px;
+  color: var(--text);
 }
-.logo-accent { color: #fff; }
 
 .logo-tag {
   font-size: 9px;
-  font-weight: 600;
-  letter-spacing: 0.8px;
-  color: var(--text-muted);
+  font-weight: 500;
+  letter-spacing: 0.6px;
+  color: var(--text-dim);
   background: transparent;
-  border: 1px solid var(--border-mid);
-  border-radius: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
   padding: 2px 5px;
   align-self: flex-start;
-  margin-top: 2px;
+  margin-top: 3px;
 }
 
-/* ── Nav (filtre ligue) ── */
+/* ── Nav ── */
 .header-nav {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 1px;
   flex: 1;
   overflow-x: auto;
   scrollbar-width: none;
@@ -72,21 +71,25 @@
 
 .nav-pill {
   flex-shrink: 0;
-  padding: 5px 12px;
-  border-radius: 20px;
+  padding: 5px 11px;
+  border-radius: 8px;
   border: 1px solid transparent;
   background: transparent;
   color: var(--text-muted);
   font-size: 13px;
   font-weight: 500;
-  transition: all 0.12s;
+  transition: all 0.15s ease;
   white-space: nowrap;
+  letter-spacing: -0.1px;
 }
-.nav-pill:hover { color: var(--text-soft); background: rgba(255,255,255,0.04); }
+.nav-pill:hover {
+  color: var(--text-soft);
+  background: rgba(255,255,255,0.04);
+}
 .nav-pill.active {
-  background: rgba(255,255,255,0.08);
-  border-color: rgba(255,255,255,0.12);
-  color: #fff;
+  background: rgba(139,92,246,0.10);
+  border-color: rgba(139,92,246,0.18);
+  color: var(--text);
   font-weight: 600;
 }
 
@@ -94,7 +97,7 @@
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex-shrink: 0;
 }
 
@@ -110,77 +113,91 @@
 }
 
 .header-status-dot {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
   flex-shrink: 0;
 }
-.header-status-dot--live  { background: var(--green); animation: livePulse 2s ease-in-out infinite; }
+.header-status-dot--live  { background: var(--green); animation: livePulse 2.5s ease-in-out infinite; }
 .header-status-dot--cache { background: var(--text-dim); }
 
 .btn-refresh {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: 1px solid var(--border-mid);
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
   background: transparent;
   color: var(--text-muted);
-  font-size: 16px;
+  font-size: 15px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.15s;
+  transition: all 0.15s ease;
 }
-.btn-refresh:hover:not(:disabled) { border-color: rgba(255,255,255,0.2); color: #fff; }
-.btn-refresh:disabled { opacity: 0.25; cursor: not-allowed; }
+.btn-refresh:hover:not(:disabled) {
+  border-color: var(--border-mid);
+  color: var(--text-soft);
+  background: rgba(255,255,255,0.04);
+}
+.btn-refresh:disabled { opacity: 0.2; cursor: not-allowed; }
 .btn-refresh.spinning { animation: spin 0.7s linear infinite; }
 
-/* ── Bouton admin ── */
 .btn-admin {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: 1px solid var(--border-mid);
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
   background: transparent;
   color: var(--text-muted);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.15s;
+  transition: all 0.15s ease;
 }
-.btn-admin:hover { border-color: rgba(255,255,255,0.2); color: #fff; }
+.btn-admin:hover {
+  border-color: var(--border-mid);
+  color: var(--text-soft);
+  background: rgba(255,255,255,0.04);
+}
 
-/* ── Bouton profil ── */
 .btn-profile {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: 1px solid var(--border-mid);
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
   background: transparent;
   color: var(--text-muted);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.15s;
+  transition: all 0.15s ease;
   flex-shrink: 0;
 }
-.btn-profile:hover { border-color: rgba(255,255,255,0.2); color: #fff; }
-.btn-profile--logged {
-  border-color: rgba(255,255,255,0.15);
-  background: rgba(255,255,255,0.06);
+.btn-profile:hover {
+  border-color: var(--border-mid);
+  color: var(--text-soft);
+  background: rgba(255,255,255,0.04);
 }
-.btn-profile--logged:hover { background: rgba(255,255,255,0.1); }
+.btn-profile--logged {
+  border-color: rgba(139,92,246,0.25);
+  background: rgba(139,92,246,0.08);
+  color: var(--violet);
+}
+.btn-profile--logged:hover {
+  background: rgba(139,92,246,0.14);
+  border-color: rgba(139,92,246,0.35);
+}
 .btn-profile-initials {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
-  color: #fff;
+  color: var(--violet);
 }
 
 @media (max-width: 640px) {
-  .header-inner { padding: 0 16px; gap: 8px; height: 52px; }
-  .logo-text    { display: none; }
-  .logo-tag     { display: none; }
-  .header-time  { display: none; }
-  .nav-pill     { padding: 4px 10px; font-size: 12px; }
-  .btn-refresh, .btn-profile, .btn-admin { width: 30px; height: 30px; }
+  .header-inner   { padding: 0 16px; gap: 8px; height: 50px; }
+  .logo-text      { display: none; }
+  .logo-tag       { display: none; }
+  .header-time    { display: none; }
+  .nav-pill       { padding: 4px 9px; font-size: 12px; }
+  .btn-refresh, .btn-profile, .btn-admin { width: 28px; height: 28px; }
 }
