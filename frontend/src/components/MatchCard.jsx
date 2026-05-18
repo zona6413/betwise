@@ -177,6 +177,8 @@ export default function MatchCard({ match, onAnalyse, onBet, riskProfile = 'medi
   const isEnded    = match.status === 'FT';
   const isUpcoming = match.status === 'NS';
 
+  const [expanded, setExpanded] = useState(false);
+
   const bestBet        = bets?.filter(b => b.isValue).sort((a,b) => b.ev - a.ev)[0] ?? null;
   const predictedScore = tieredBets?.stats
     ? `${Math.round(Math.max(0, tieredBets.stats.homeExpG))}-${Math.round(Math.max(0, tieredBets.stats.awayExpG))}`
@@ -187,7 +189,8 @@ export default function MatchCard({ match, onAnalyse, onBet, riskProfile = 'medi
 
   const minsUntil = isUpcoming ? (new Date(match.date) - Date.now()) / 60000 : Infinity;
   const isUrgent  = minsUntil > 0 && minsUntil < 60;
-  const viewers   = 80 + (match.id % 180);
+
+  const hasInsights = !!(tieredBets?.stats && aiProbs);
 
   return (
     <article className={[
@@ -266,15 +269,35 @@ export default function MatchCard({ match, onAnalyse, onBet, riskProfile = 'medi
         </div>
       )}
 
-      <QuickInsights match={match} />
+      {hasInsights && (
+        <button
+          className="card-analyse-toggle"
+          onClick={() => setExpanded(e => !e)}
+        >
+          <div className="toggle-left">
+            <span className={`toggle-label ${expanded ? 'toggle-label--active' : ''}`}>
+              Analyse IA
+            </span>
+            {hasValueBet && !expanded && (
+              <span className="toggle-value-hint">Value</span>
+            )}
+          </div>
+          <span className={`toggle-arrow ${expanded ? 'toggle-arrow--open' : ''}`}>›</span>
+        </button>
+      )}
+
+      {expanded && hasInsights && (
+        <div className="card-analysis-panel">
+          <QuickInsights match={match} />
+        </div>
+      )}
 
       <div className="card-footer">
-        <span className="card-viewers">{viewers} personnes regardent</span>
         <div className="card-footer-actions">
           {onBet && (
             <button className="btn-bet" onClick={() => onBet(match)}>Parier</button>
           )}
-          <button className="btn-analyse" onClick={() => onAnalyse(match)}>Analyse →</button>
+          <button className="btn-analyse" onClick={() => onAnalyse(match)}>Analyse complète</button>
         </div>
       </div>
     </article>
