@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { GetStartedButton } from '@/components/ui/get-started-button';
 import './LandingPage.css';
 
 const API = import.meta.env.VITE_API_URL ?? '';
@@ -87,9 +88,7 @@ export default function LandingPage({ onStart, onLogin, onPricing }) {
           Value bets, combos optimisés, suivi de paris — tout au même endroit.
         </p>
         <div className="landing-hero-ctas">
-          <button className="landing-cta-main" onClick={onStart}>
-            Commencer gratuitement →
-          </button>
+          <GetStartedButton onClick={onStart} label="Commencer gratuitement" />
           <button className="landing-cta-ghost" onClick={onPricing}>
             Voir les offres Pro
           </button>
@@ -181,9 +180,7 @@ export default function LandingPage({ onStart, onLogin, onPricing }) {
               <li>❌ Combos IA</li>
               <li>❌ Suivi de paris cloud</li>
             </ul>
-            <button className="landing-plan-btn" onClick={onStart}>
-              Commencer gratuitement
-            </button>
+            <GetStartedButton onClick={onStart} label="Commencer gratuitement" />
           </div>
 
           {/* Pro */}
@@ -215,9 +212,7 @@ export default function LandingPage({ onStart, onLogin, onPricing }) {
       <section className="landing-final">
         <h2>Prêt à parier plus intelligemment ?</h2>
         <p>Rejoins les parieurs qui utilisent l'IA pour avoir un edge sur les bookmakers.</p>
-        <button className="landing-cta-main" onClick={onStart}>
-          Accéder à BetWise gratuitement →
-        </button>
+        <GetStartedButton onClick={onStart} label="Accéder à BetWise gratuitement" />
       </section>
 
       {/* ── Footer ── */}

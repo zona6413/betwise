@@ -15,6 +15,7 @@ import SearchBar         from './components/SearchBar.jsx';
 import { useLearning }   from './hooks/useLearning.js';
 import GamblingWarning, { shouldShowWarning } from './components/GamblingWarning.jsx';
 import FooterSection     from './components/ui/footer.jsx';
+import { GetStartedButton } from './components/ui/get-started-button.jsx';
 import AuthModal         from './components/ui/sign-in-card.jsx';
 import PricingModal      from './components/PricingModal.jsx';
 import LandingPage       from './components/LandingPage.jsx';
@@ -434,7 +435,7 @@ export default function App() {
                   <button className="user-logout" onClick={logout} title="Se déconnecter">✕</button>
                 </div>
               ) : (
-                <button className="btn-login" onClick={() => setShowAuth(true)}>Connexion</button>
+                <GetStartedButton onClick={() => setShowAuth(true)} label="Connexion" />
               )}
             </div>
           </div>
