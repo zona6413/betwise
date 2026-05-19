@@ -15,7 +15,7 @@ import SearchBar         from './components/SearchBar.jsx';
 import { useLearning }   from './hooks/useLearning.js';
 import GamblingWarning, { shouldShowWarning } from './components/GamblingWarning.jsx';
 import FooterSection     from './components/ui/footer.jsx';
-import AuthModal         from './components/AuthModal.jsx';
+import AuthModal         from './components/ui/sign-in-card.jsx';
 import PricingModal      from './components/PricingModal.jsx';
 import LandingPage       from './components/LandingPage.jsx';
 import LegalPage         from './components/LegalPage.jsx';
