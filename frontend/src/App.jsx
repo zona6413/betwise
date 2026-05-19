@@ -16,6 +16,7 @@ import { useLearning }   from './hooks/useLearning.js';
 import GamblingWarning, { shouldShowWarning } from './components/GamblingWarning.jsx';
 import FooterSection     from './components/ui/footer.jsx';
 import { GetStartedButton } from './components/ui/get-started-button.jsx';
+import AppBackground from './components/ui/app-background.jsx';
 import AuthModal         from './components/ui/sign-in-card.jsx';
 import PricingModal      from './components/PricingModal.jsx';
 import LandingPage       from './components/LandingPage.jsx';
@@ -393,6 +394,7 @@ export default function App() {
 
   return (
     <div className="app">
+      <AppBackground />
       <Header
         lastUpdated={lastUpdated}
         onRefresh={refresh}
