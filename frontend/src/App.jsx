@@ -14,7 +14,7 @@ import BottomNav         from './components/BottomNav.jsx';
 import SearchBar         from './components/SearchBar.jsx';
 import { useLearning }   from './hooks/useLearning.js';
 import GamblingWarning, { shouldShowWarning } from './components/GamblingWarning.jsx';
-import LegalFooter       from './components/LegalFooter.jsx';
+import FooterSection     from './components/ui/footer.jsx';
 import AuthModal         from './components/AuthModal.jsx';
 import PricingModal      from './components/PricingModal.jsx';
 import LandingPage       from './components/LandingPage.jsx';
@@ -576,7 +576,7 @@ export default function App() {
       {betMatch && (
         <BetModal match={betMatch} onAdd={addBet} onClose={() => setBetMatch(null)} />
       )}
-      <LegalFooter onOpenLegal={setLegalTab} />
+      <FooterSection onOpenLegal={setLegalTab} />
       <Toast message={toast.message} visible={toast.visible} type={toast.type} />
       <BottomNav activeTab={activeTab} onTabChange={setActiveTab} liveCount={liveMatches.length} valueCount={valueCount} pendingBets={betStats.pending} />
       {showWarning && <GamblingWarning onClose={() => setShowWarning(false)} />}
