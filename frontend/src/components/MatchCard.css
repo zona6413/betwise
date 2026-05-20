@@ -1,17 +1,19 @@
 /* ── Card ── */
 .match-card {
   background: var(--card);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   border: 1px solid var(--border);
   box-shadow: var(--shadow-card);
   position: relative;
-  transition: box-shadow 0.2s ease, border-color 0.2s ease, background 0.15s ease;
+  transition: box-shadow 0.25s ease, border-color 0.25s ease, background 0.2s ease, transform 0.2s ease;
   overflow: hidden;
+  animation: fadeIn 0.35s cubic-bezier(.4,0,.2,1) both;
 }
 .match-card:hover {
   background: var(--card-hover);
-  border-color: var(--border-mid);
-  box-shadow: var(--shadow-hover);
+  border-color: rgba(139,92,246,0.16);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.55), 0 0 0 1px rgba(139,92,246,0.10), 0 0 24px rgba(139,92,246,0.06);
+  transform: translateY(-1px);
 }
 
 /* Indicateur value — fine ligne gauche subtile */
@@ -50,6 +52,17 @@
   border: 1px solid var(--border);
   border-radius: 4px;
   padding: 1px 5px;
+}
+.league-round {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--violet);
+  background: var(--violet-dim);
+  border: 1px solid rgba(139,92,246,0.18);
+  border-radius: 4px;
+  padding: 1px 6px;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
 }
 .card-badges { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
 
@@ -99,21 +112,28 @@
 .team--away { align-items: flex-start; text-align: left; }
 
 .team-logo-wrap {
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid var(--border-lite);
+  width: 58px;
+  height: 58px;
+  border-radius: 14px;
+  background: #0d0d1a;
+  background-image: radial-gradient(circle 80px at 50% 50%, rgba(139,92,246,0.30), transparent);
+  border: 1px solid rgba(139,92,246,0.18);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 4px;
+  padding: 6px;
+  box-shadow: 0 0 18px rgba(139,92,246,0.14), inset 0 1px 0 rgba(255,255,255,0.05);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.team-logo-wrap:hover {
+  border-color: rgba(139,92,246,0.35);
+  box-shadow: 0 0 28px rgba(139,92,246,0.25), inset 0 1px 0 rgba(255,255,255,0.07);
 }
 .team-logo {
-  width: 26px;
-  height: 26px;
+  width: 40px;
+  height: 40px;
   object-fit: contain;
-  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.5));
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.6));
 }
 .team-logo-fallback {
   width: 26px;
@@ -129,11 +149,11 @@
 }
 
 .team-name {
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 700;
   color: var(--text);
   line-height: 1.2;
-  letter-spacing: -0.2px;
+  letter-spacing: -0.3px;
 }
 .team-meta { display: flex; align-items: center; gap: 4px; }
 .team--home .team-meta { flex-direction: row-reverse; }
@@ -164,14 +184,14 @@
 }
 .score { display: flex; align-items: center; justify-content: center; gap: 2px; }
 .score-n {
-  font-size: 30px;
-  font-weight: 700;
+  font-size: 34px;
+  font-weight: 800;
   color: var(--text);
-  min-width: 20px;
+  min-width: 22px;
   text-align: center;
   font-variant-numeric: tabular-nums;
   line-height: 1;
-  letter-spacing: -1px;
+  letter-spacing: -1.5px;
 }
 .score-sep { font-size: 16px; font-weight: 300; color: var(--text-dim); margin: 0 2px; }
 
@@ -228,26 +248,26 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
-  padding: 10px 6px;
+  gap: 3px;
+  padding: 13px 6px;
   background: var(--card);
   position: relative;
   transition: background 0.15s ease;
   cursor: default;
 }
 .match-card:hover .odd-pill { background: var(--card-hover); }
-.odd-pill--value { background: rgba(139,92,246,0.04); }
-.match-card:hover .odd-pill--value { background: rgba(139,92,246,0.07); }
+.odd-pill--value { background: rgba(139,92,246,0.06); }
+.match-card:hover .odd-pill--value { background: rgba(139,92,246,0.09); }
 .odd-pill-label {
   font-size: 9px; font-weight: 500; color: var(--text-dim);
   text-transform: uppercase; letter-spacing: 0.4px;
 }
 .odd-pill-val {
-  font-size: 16px; font-weight: 600; color: var(--text);
-  font-variant-numeric: tabular-nums; letter-spacing: -0.3px; line-height: 1;
+  font-size: 18px; font-weight: 700; color: var(--text);
+  font-variant-numeric: tabular-nums; letter-spacing: -0.5px; line-height: 1;
 }
 .odd-pill--value .odd-pill-val { color: var(--violet); }
-.odd-pill-tag { font-size: 8px; font-weight: 600; color: var(--violet); text-transform: uppercase; letter-spacing: 0.3px; }
+.odd-pill-tag { font-size: 8px; font-weight: 700; color: var(--violet); text-transform: uppercase; letter-spacing: 0.4px; }
 
 /* ── Toggle analyse ── */
 .card-analyse-toggle {

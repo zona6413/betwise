@@ -33,7 +33,14 @@
     position: relative;
   }
 
-  .bnav-item--active { color: var(--violet); }
+  .bnav-item--active {
+    color: var(--violet);
+  }
+  .bnav-item--active .bnav-icon {
+    background: rgba(139,92,246,0.12);
+    border-radius: 10px;
+    box-shadow: 0 0 12px rgba(139,92,246,0.15);
+  }
 
   .bnav-icon {
     width: 22px;

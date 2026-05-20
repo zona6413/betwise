@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { GetStartedButton } from '@/components/ui/get-started-button';
+import { ContainerScroll } from '@/components/ui/container-scroll-animation';
 import './LandingPage.css';
 
 const API = import.meta.env.VITE_API_URL ?? '';
@@ -133,6 +134,67 @@ export default function LandingPage({ onStart, onLogin, onPricing }) {
           )}
         </div>
       </section>
+
+      {/* ── Scroll Animation ── */}
+      <ContainerScroll
+        titleComponent={
+          <div style={{ marginBottom: "2rem" }}>
+            <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--violet)", letterSpacing: "0.08em", textTransform: "uppercase" }}>
+              Aperçu de l'app
+            </span>
+            <h2 style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)", fontWeight: 700, color: "var(--text)", marginTop: "0.5rem", lineHeight: 1.15, letterSpacing: "-0.03em" }}>
+              Tout ce qu'il te faut<br />
+              <span style={{ background: "linear-gradient(135deg, #8B5CF6, #C4B5FD)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                en un seul endroit
+              </span>
+            </h2>
+          </div>
+        }
+      >
+        {/* Mockup UI de l'app */}
+        <div style={{ height: "100%", display: "flex", flexDirection: "column", background: "#05070B", borderRadius: "18px", overflow: "hidden" }}>
+          {/* Barre nav simulée */}
+          <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "12px 20px", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "#080B12" }}>
+            <div style={{ width: "28px", height: "28px", borderRadius: "8px", background: "#8B5CF6", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px" }}>⚡</div>
+            <span style={{ fontWeight: 700, fontSize: "14px", color: "#E8EAF2" }}>BetWise</span>
+            <div style={{ marginLeft: "auto", display: "flex", gap: "6px" }}>
+              {["Tous", "Aujourd'hui", "Value bets"].map((t, i) => (
+                <span key={t} style={{ fontSize: "11px", padding: "3px 10px", borderRadius: "20px", background: i === 1 ? "rgba(139,92,246,0.15)" : "transparent", color: i === 1 ? "#C4B5FD" : "rgba(232,234,242,0.4)", border: i === 1 ? "1px solid rgba(139,92,246,0.3)" : "1px solid transparent" }}>{t}</span>
+              ))}
+            </div>
+          </div>
+          {/* Cards simulées */}
+          <div style={{ flex: 1, padding: "16px 20px", display: "flex", flexDirection: "column", gap: "10px", overflowY: "hidden" }}>
+            {[
+              { home: "Chelsea", away: "Arsenal", h: "2.10", n: "3.40", a: "3.20", live: true,  score: "1–0" },
+              { home: "PSG",     away: "Lyon",    h: "1.75", n: "3.80", a: "4.50", live: false, score: null },
+              { home: "Madrid",  away: "Barça",   h: "2.40", n: "3.20", a: "2.90", live: false, score: null, value: true },
+            ].map((m) => (
+              <div key={m.home} style={{ background: "#0C0F18", borderRadius: "14px", border: "1px solid rgba(255,255,255,0.06)", padding: "12px 16px", display: "flex", alignItems: "center", gap: "12px" }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "6px" }}>
+                    {m.live && <span style={{ fontSize: "9px", fontWeight: 700, color: "#F43F5E", background: "rgba(244,63,94,0.1)", border: "1px solid rgba(244,63,94,0.2)", borderRadius: "4px", padding: "1px 5px" }}>EN DIRECT</span>}
+                    {m.value && <span style={{ fontSize: "9px", fontWeight: 700, color: "#8B5CF6", background: "rgba(139,92,246,0.1)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: "4px", padding: "1px 5px" }}>VALUE</span>}
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <span style={{ fontSize: "13px", fontWeight: 600, color: "#E8EAF2" }}>{m.home}</span>
+                    <span style={{ fontSize: "15px", fontWeight: 700, color: "#C4B5FD", minWidth: "40px", textAlign: "center" }}>{m.score ?? "vs"}</span>
+                    <span style={{ fontSize: "13px", fontWeight: 600, color: "#E8EAF2" }}>{m.away}</span>
+                  </div>
+                </div>
+                <div style={{ display: "flex", gap: "6px" }}>
+                  {[m.h, m.n, m.a].map((odd, i) => (
+                    <div key={i} style={{ background: i === 0 && m.value ? "rgba(139,92,246,0.15)" : "rgba(255,255,255,0.04)", border: `1px solid ${i === 0 && m.value ? "rgba(139,92,246,0.3)" : "rgba(255,255,255,0.06)"}`, borderRadius: "8px", padding: "4px 10px", textAlign: "center" }}>
+                      <div style={{ fontSize: "11px", color: "rgba(232,234,242,0.4)" }}>{["1", "N", "2"][i]}</div>
+                      <div style={{ fontSize: "13px", fontWeight: 700, color: i === 0 && m.value ? "#C4B5FD" : "#E8EAF2" }}>{odd}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </ContainerScroll>
 
       {/* ── Stats ── */}
       <section className="landing-stats">

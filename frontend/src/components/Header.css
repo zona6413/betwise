@@ -29,19 +29,20 @@
 .logo-icon-wrap {
   width: 28px;
   height: 28px;
-  border-radius: 7px;
-  background: var(--violet);
+  border-radius: 8px;
+  background: linear-gradient(135deg, #8B5CF6, #6d28d9);
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 0 12px rgba(139,92,246,0.35);
 }
 
 .logo-icon-wrap svg polygon { fill: #fff; }
 
 .logo-text {
   font-size: 16px;
-  font-weight: 600;
-  letter-spacing: -0.4px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
   color: var(--text);
 }
 
@@ -87,10 +88,11 @@
   background: rgba(255,255,255,0.04);
 }
 .nav-pill.active {
-  background: rgba(139,92,246,0.10);
-  border-color: rgba(139,92,246,0.18);
+  background: rgba(139,92,246,0.12);
+  border-color: rgba(139,92,246,0.25);
   color: var(--text);
   font-weight: 600;
+  box-shadow: 0 0 12px rgba(139,92,246,0.10);
 }
 
 /* ── Actions ── */

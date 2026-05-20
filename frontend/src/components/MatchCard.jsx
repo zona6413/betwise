@@ -202,6 +202,9 @@ export default function MatchCard({ match, onAnalyse, onBet, riskProfile = 'medi
       <div className="card-header">
         <div className="card-league">
           <span className="league-name">{normalizeLeague(match.league)}</span>
+          {match.leagueRound && (
+            <span className="league-round">{formatRound(match.leagueRound)}</span>
+          )}
           {!match.hasRealOdds && <span className="badge-estimated">Cotes estimées</span>}
         </div>
         <div className="card-badges">
@@ -328,4 +331,24 @@ function normalizeLeague(name) {
     'German Bundesliga': 'Bundesliga',
   };
   return map[name] ?? name;
+}
+
+function formatRound(round) {
+  if (!round) return null;
+  // "Group Stage - 1" → "Phase de groupes · J1"
+  // "Round of 16" → "Huitièmes de finale"
+  // "Quarter-finals" → "Quarts de finale"
+  const map = {
+    'Round of 16':    '1/8 de finale',
+    'Quarter-finals': 'Quarts de finale',
+    'Semi-finals':    'Demi-finales',
+    'Final':          'Finale',
+    '3rd Place Final':'Petite finale',
+  };
+  if (map[round]) return map[round];
+  const groupMatch = round.match(/Group Stage\s*[-–]\s*(\d+)/i);
+  if (groupMatch) return `Groupes · J${groupMatch[1]}`;
+  const regularMatch = round.match(/Regular Season\s*[-–]\s*(\d+)/i);
+  if (regularMatch) return `J${regularMatch[1]}`;
+  return round;
 }

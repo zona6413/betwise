@@ -179,6 +179,8 @@ function mapFixture(item) {
       name:    LEAGUE_MAP_DISPLAY.get(l.id)?.displayName ?? l.name,
       country: l.country,
       logo:    l.logo ?? '',
+      round:   l.round ?? null,   // ex: "Group Stage - 1", "Round of 16"
+      season:  l.season ?? null,
     },
     teams: {
       home: { id: t.home.id, name: t.home.name, logo: t.home.logo ?? '' },

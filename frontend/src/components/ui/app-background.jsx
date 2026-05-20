@@ -1,21 +1,24 @@
+import ShaderBackground from '@/components/ui/shader-background';
+
+/**
+ * AppBackground — fond global animé BetWise
+ * Utilise un shader WebGL avec lignes plasma violettes.
+ * Fallback automatique si WebGL non supporté (canvas caché, fond CSS).
+ */
 export default function AppBackground() {
   return (
-    <div className="fixed inset-0 -z-10" style={{ background: '#05070B' }}>
-      {/* Glow violet subtil en haut de page */}
+    <>
+      {/* Fond CSS de secours (visible si WebGL indisponible) */}
       <div
-        className="absolute inset-0"
         style={{
-          background: 'radial-gradient(circle 700px at 50% -60px, rgba(139,92,246,0.10), transparent)',
+          position: 'fixed',
+          inset: 0,
+          zIndex: -11,
+          background: '#05070B',
         }}
       />
-      {/* Grille de points très discrets */}
-      <div
-        className="absolute inset-0"
-        style={{
-          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.035) 1px, transparent 1px)',
-          backgroundSize: '40px 40px',
-        }}
-      />
-    </div>
+      {/* Shader animé WebGL */}
+      <ShaderBackground />
+    </>
   );
 }

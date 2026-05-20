@@ -16,6 +16,7 @@ import { useLearning }   from './hooks/useLearning.js';
 import GamblingWarning, { shouldShowWarning } from './components/GamblingWarning.jsx';
 import FooterSection     from './components/ui/footer.jsx';
 import { GetStartedButton } from './components/ui/get-started-button.jsx';
+import { HoverButton } from './components/ui/hover-button.jsx';
 import AppBackground from './components/ui/app-background.jsx';
 import AuthModal         from './components/ui/sign-in-card.jsx';
 import PricingModal      from './components/PricingModal.jsx';
@@ -437,7 +438,12 @@ export default function App() {
                   <button className="user-logout" onClick={logout} title="Se déconnecter">✕</button>
                 </div>
               ) : (
-                <GetStartedButton onClick={() => setShowAuth(true)} label="Connexion" />
+                <HoverButton
+                  onClick={() => setShowAuth(true)}
+                  className="btn-login-hover"
+                >
+                  Se connecter
+                </HoverButton>
               )}
             </div>
           </div>

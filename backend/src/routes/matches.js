@@ -174,6 +174,8 @@ function buildMatch(fixture, teamStats, realOddsMap, h2h = null, injuries = []) 
     league:        fixture.league.name,
     leagueCountry: fixture.league.country,
     leagueLogo:    fixture.league.logo ?? null,
+    leagueRound:   fixture.league.round ?? null,   // "Group Stage - 1", "Round of 16"…
+    leagueId:      fixture.league.id ?? null,
     homeTeam: {
       id:       Number(homeId),
       name:     fixture.teams.home.name,

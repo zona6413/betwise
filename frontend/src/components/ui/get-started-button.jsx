@@ -1,19 +1,57 @@
-import { Button } from "@/components/ui/button";
 import { ChevronRight } from "lucide-react";
+import { useState } from "react";
 
-export function GetStartedButton({ onClick, label = "Commencer" }) {
+export function GetStartedButton({ onClick, label = "Commencer", size = "lg" }) {
+  const [hovered, setHovered] = useState(false);
+  const isSmall = size === "sm";
+
   return (
-    <Button
+    <button
       onClick={onClick}
-      className="group relative overflow-hidden bg-violet-500 hover:bg-violet-500 text-white border-0"
-      size="lg"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        position: 'relative',
+        display: 'inline-flex',
+        alignItems: 'center',
+        overflow: 'hidden',
+        background: '#8B5CF6',
+        color: '#fff',
+        border: 'none',
+        borderRadius: '8px',
+        padding: isSmall ? '6px 12px 6px 12px' : '10px 18px',
+        fontSize: isSmall ? '13px' : '15px',
+        fontWeight: 500,
+        fontFamily: 'inherit',
+        cursor: 'pointer',
+        whiteSpace: 'nowrap',
+        gap: '8px',
+        transition: 'background 0.2s ease',
+      }}
     >
-      <span className="mr-8 transition-opacity duration-500 group-hover:opacity-0">
+      {/* Texte — visible seulement au hover */}
+      <span style={{
+        maxWidth: hovered ? '160px' : '0px',
+        overflow: 'hidden',
+        opacity: hovered ? 1 : 0,
+        transition: 'max-width 0.35s ease, opacity 0.25s ease',
+        whiteSpace: 'nowrap',
+      }}>
         {label}
       </span>
-      <i className="absolute right-1 top-1 bottom-1 rounded-sm z-10 grid w-1/4 place-items-center transition-all duration-500 bg-white/15 group-hover:w-[calc(100%-0.5rem)] group-active:scale-95 text-white not-italic">
-        <ChevronRight size={16} strokeWidth={2} aria-hidden="true" />
-      </i>
-    </Button>
+
+      {/* Chevron — visible seulement au repos */}
+      <span style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        maxWidth: hovered ? '0px' : '20px',
+        overflow: 'hidden',
+        opacity: hovered ? 0 : 1,
+        transition: 'max-width 0.35s ease, opacity 0.25s ease',
+      }}>
+        <ChevronRight size={isSmall ? 14 : 16} strokeWidth={2.5} />
+      </span>
+    </button>
   );
 }
