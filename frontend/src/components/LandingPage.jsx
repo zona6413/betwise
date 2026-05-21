@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { GetStartedButton } from '@/components/ui/get-started-button';
 import { ContainerScroll } from '@/components/ui/container-scroll-animation';
+import { GoldGlow } from '@/components/ui/glow-background';
 import './LandingPage.css';
 
 const API = import.meta.env.VITE_API_URL ?? '';
@@ -246,7 +247,7 @@ export default function LandingPage({ onStart, onLogin, onPricing }) {
           </div>
 
           {/* Pro */}
-          <div className="landing-plan landing-plan--pro">
+          <GoldGlow className="landing-plan landing-plan--pro" size={400} x="50%" y="0px">
             <div className="landing-plan-badge">Le plus populaire</div>
             <div className="landing-plan-name">Pro</div>
             <div className="landing-plan-price">
@@ -265,7 +266,7 @@ export default function LandingPage({ onStart, onLogin, onPricing }) {
             <button className="landing-plan-btn landing-plan-btn--pro" onClick={onPricing}>
               Essayer Pro →
             </button>
-          </div>
+          </GoldGlow>
 
         </div>
       </section>
