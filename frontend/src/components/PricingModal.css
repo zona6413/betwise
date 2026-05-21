@@ -26,7 +26,7 @@
   margin: 0;
 }
 .pro-badge {
-  background: linear-gradient(135deg, #5b6ef5, #a855f7);
+  background: linear-gradient(135deg, #15803d, #16a34a);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -62,7 +62,7 @@
   top: -12px;
   left: 50%;
   transform: translateX(-50%);
-  background: linear-gradient(135deg, #5b6ef5, #a855f7);
+  background: linear-gradient(135deg, #15803d, #16a34a);
   color: #fff;
   font-size: 11px;
   font-weight: 700;
@@ -133,7 +133,7 @@
   background: rgba(255,255,255,0.14);
 }
 .btn-subscribe--best {
-  background: linear-gradient(135deg, #5b6ef5, #a855f7);
+  background: linear-gradient(135deg, #15803d, #16a34a);
 }
 .btn-subscribe--best:hover:not(:disabled) {
   opacity: 0.9;

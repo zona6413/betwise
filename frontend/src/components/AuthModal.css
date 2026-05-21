@@ -68,7 +68,7 @@
 .auth-brand-mark {
   width: 36px;
   height: 36px;
-  background: linear-gradient(135deg, #5b6ef5, #a855f7);
+  background: linear-gradient(135deg, #15803d, #16a34a);
   border-radius: 10px;
   display: flex;
   align-items: center;
@@ -197,7 +197,7 @@
 
 /* ── Bouton principal ───────────────────────────── */
 .auth-submit {
-  background: linear-gradient(135deg, #5b6ef5, #a855f7);
+  background: linear-gradient(135deg, #15803d, #16a34a);
   border: none;
   border-radius: 11px;
   color: #fff;
@@ -268,7 +268,7 @@
 .auth-switch button {
   background: none;
   border: none;
-  color: #818cf8;
+  color: #16a34a;
   font-size: 13.5px;
   font-weight: 600;
   cursor: pointer;

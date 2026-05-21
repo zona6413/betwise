@@ -9,7 +9,7 @@ const LEVELS = {
 function PickScoreBar({ score }) {
   if (score == null) return null;
   const pct = Math.min(100, Math.round(score * 100));
-  const color = pct >= 70 ? '#22c55e' : pct >= 50 ? '#f59e0b' : '#ef4444';
+  const color = pct >= 70 ? '#22c55e' : pct >= 50 ? '#16a34a' : '#ef4444';
   return (
     <div className="pick-score-bar-wrap" title={`Score qualité : ${pct}/100`}>
       <div className="pick-score-bar-track">

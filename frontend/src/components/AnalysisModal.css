@@ -105,7 +105,7 @@
   background: rgba(91,110,245,0.11); border: 1px solid rgba(91,110,245,0.22);
   border-radius: 10px; padding: 6px 12px;
 }
-.modal-predicted-label { font-size: 9px; font-weight: 700; color: #818cf8; text-transform: uppercase; letter-spacing: 0.6px; }
+.modal-predicted-label { font-size: 9px; font-weight: 700; color: #16a34a; text-transform: uppercase; letter-spacing: 0.6px; }
 .modal-predicted-score { font-size: 20px; font-weight: 900; color: #fff; letter-spacing: -0.5px; }
 
 .modal-live-tag {
@@ -171,7 +171,7 @@
 }
 .modal-summary-dot {
   width: 6px; height: 6px; border-radius: 50%;
-  background: #5b6ef5; flex-shrink: 0;
+  background: #15803d; flex-shrink: 0;
 }
 
 /* ── 3. Tendances ────────────────────────────────────────────────── */
@@ -239,11 +239,11 @@
   border-radius: 3px; overflow: hidden;
 }
 .modal-market-bar-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
-.modal-market-bar-fill--blue   { background: linear-gradient(90deg, #5b6ef5, #818cf8); }
+.modal-market-bar-fill--blue   { background: linear-gradient(90deg, #15803d, #16a34a); }
 .modal-market-bar-fill--grey   { background: rgba(255,255,255,0.25); }
-.modal-market-bar-fill--purple { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+.modal-market-bar-fill--purple { background: linear-gradient(90deg, #16a34a, #a78bfa); }
 .modal-market-bar-fill--green  { background: linear-gradient(90deg, #00d68f, #00b4d8); }
-.modal-market-bar-fill--orange { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+.modal-market-bar-fill--orange { background: linear-gradient(90deg, #16a34a, #fbbf24); }
 .modal-market-bar-fill--teal   { background: linear-gradient(90deg, #06b6d4, #22d3ee); }
 
 .modal-market-pct {
@@ -320,7 +320,7 @@
 .modal-bet-conf-track { flex: 1; height: 3px; background: rgba(255,255,255,0.07); border-radius: 2px; overflow: hidden; }
 .modal-bet-conf-fill { height: 100%; border-radius: 2px; transition: width 0.6s ease; }
 .modal-bet--safe   .modal-bet-conf-fill { background: #00d68f; }
-.modal-bet--medium .modal-bet-conf-fill { background: #818cf8; }
+.modal-bet--medium .modal-bet-conf-fill { background: #16a34a; }
 .modal-bet--value  .modal-bet-conf-fill { background: #f5a623; }
 
 /* ── Disclaimer ──────────────────────────────────────────────────── */
@@ -454,7 +454,7 @@
 .modal-scorer-pos--striker  { background: rgba(239,68,68,0.18);  color: #f87171; }
 .modal-scorer-pos--attacker { background: rgba(249,115,22,0.18); color: #fb923c; }
 .modal-scorer-pos--winger   { background: rgba(59,130,246,0.18); color: #60a5fa; }
-.modal-scorer-pos--midfield { background: rgba(139,92,246,0.18); color: #a78bfa; }
+.modal-scorer-pos--midfield { background: rgba(22,163,74,0.18); color: #a78bfa; }
 
 .modal-scorer-goals {
   font-size: 10px;
@@ -509,7 +509,7 @@
 .modal-scorer-odd-val {
   font-size: 13px;
   font-weight: 800;
-  color: #f59e0b;
+  color: #16a34a;
 }
 .modal-scorer-odd-pct {
   font-size: 10px;
@@ -532,8 +532,8 @@
 /* ── Top scores ───────────────────────────────────────────────────── */
 .modal-top-scores { display: flex; gap: 8px; margin: 6px 0 4px; }
 .modal-top-score { display: flex; flex-direction: column; align-items: center; background: rgba(255,255,255,0.05); border-radius: 8px; padding: 6px 14px; border: 1px solid rgba(255,255,255,0.07); }
-.modal-top-score--best { background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.35); }
-.modal-top-score-val { font-size: 18px; font-weight: 800; color: #f59e0b; }
+.modal-top-score--best { background: rgba(22,163,74,0.12); border-color: rgba(22,163,74,0.35); }
+.modal-top-score-val { font-size: 18px; font-weight: 800; color: #16a34a; }
 .modal-top-score--best .modal-top-score-val { font-size: 22px; }
 .modal-top-score-pct { font-size: 10px; color: #6b7280; margin-top: 2px; }
 
@@ -547,7 +547,7 @@
 .modal-h2h-bar-away { background: #ef4444; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #fff; transition: width 0.4s ease; }
 
 .modal-h2h-labels { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; font-size: 11px; color: #6b7280; }
-.modal-h2h-avg { color: #f59e0b; font-weight: 600; font-size: 11px; }
+.modal-h2h-avg { color: #16a34a; font-weight: 600; font-size: 11px; }
 
 .modal-h2h-recent { margin-top: 12px; display: flex; flex-direction: column; gap: 4px; }
 .modal-h2h-row { display: grid; grid-template-columns: 56px 1fr 48px 1fr; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 7px; background: rgba(255,255,255,0.03); border-left: 3px solid transparent; font-size: 12px; }
@@ -557,7 +557,7 @@
 .modal-h2h-date { color: #6b7280; font-size: 10px; }
 .modal-h2h-teams { color: #e2e8f0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .modal-h2h-teams--away { text-align: right; }
-.modal-h2h-score { font-weight: 800; color: #f59e0b; text-align: center; font-size: 13px; }
+.modal-h2h-score { font-weight: 800; color: #16a34a; text-align: center; font-size: 13px; }
 
 @media (max-width: 600px) {
   .modal-players { grid-template-columns: 1fr; }

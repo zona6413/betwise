@@ -69,6 +69,17 @@ export default function LandingPage({ onStart, onLogin, onPricing }) {
   return (
     <div className="landing">
 
+      {/* ── Fond sunrise doré — full screen ── */}
+      <div
+        style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 0,
+          pointerEvents: 'none',
+          backgroundImage: `radial-gradient(circle 800px at 50% 0px, rgba(234,179,8,0.10), transparent)`,
+        }}
+      />
+
       {/* ── Nav ── */}
       <nav className="landing-nav">
         <div className="landing-logo">⚡ BetWise</div>
@@ -247,7 +258,7 @@ export default function LandingPage({ onStart, onLogin, onPricing }) {
           </div>
 
           {/* Pro */}
-          <GoldGlow className="landing-plan landing-plan--pro" size={400} x="50%" y="0px">
+          <div className="landing-plan landing-plan--pro">
             <div className="landing-plan-badge">Le plus populaire</div>
             <div className="landing-plan-name">Pro</div>
             <div className="landing-plan-price">
@@ -266,7 +277,7 @@ export default function LandingPage({ onStart, onLogin, onPricing }) {
             <button className="landing-plan-btn landing-plan-btn--pro" onClick={onPricing}>
               Essayer Pro →
             </button>
-          </GoldGlow>
+          </div>
 
         </div>
       </section>

@@ -13,7 +13,7 @@ function normalizeLeague(name) {
 
 function ConfidenceBar({ score }) {
   const pct   = Math.round(score * 100);
-  const color = pct >= 85 ? '#22c55e' : pct >= 75 ? '#f59e0b' : '#6b7fa3';
+  const color = pct >= 85 ? '#22c55e' : pct >= 75 ? '#16a34a' : '#6b7fa3';
   return (
     <div className="tp-bar-wrap">
       <div className="tp-bar-track">

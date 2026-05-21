@@ -20,7 +20,7 @@
   inset: 0;
   background:
     radial-gradient(ellipse 80% 60% at 20% 0%, rgba(91,110,245,0.1) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 50% at 80% 100%, rgba(139,92,246,0.06) 0%, transparent 55%);
+    radial-gradient(ellipse 60% 50% at 80% 100%, rgba(22,163,74,0.06) 0%, transparent 55%);
   pointer-events: none;
 }
 
@@ -29,7 +29,7 @@
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 2px;
-  background: linear-gradient(90deg, #5b6ef5, #8b5cf6, #fbbf24);
+  background: linear-gradient(90deg, #15803d, #16a34a, #fbbf24);
 }
 
 /* ── Top ──────────────────────────────────────────────────────── */
@@ -63,7 +63,7 @@
 }
 
 .hero-badge--pick {
-  background: linear-gradient(135deg, rgba(91,110,245,0.15), rgba(139,92,246,0.15));
+  background: linear-gradient(135deg, rgba(91,110,245,0.15), rgba(22,163,74,0.15));
   color: #9ba3f8;
   border: 1px solid rgba(91,110,245,0.3);
 }

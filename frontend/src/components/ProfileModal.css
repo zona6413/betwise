@@ -71,7 +71,7 @@
   width: 54px;
   height: 54px;
   border-radius: 16px;
-  background: linear-gradient(135deg, #5b6ef5, #a855f7);
+  background: linear-gradient(135deg, #15803d, #16a34a);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -252,7 +252,7 @@
 .profile-btn:disabled { opacity: 0.45; cursor: default; }
 
 .profile-btn--primary {
-  background: linear-gradient(135deg, #5b6ef5, #a855f7);
+  background: linear-gradient(135deg, #15803d, #16a34a);
   color: #fff;
 }
 
