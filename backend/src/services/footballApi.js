@@ -190,8 +190,11 @@ function mapFixture(item) {
   };
 }
 
-// Map id → displayName pour l'affichage. Toutes les autres ligues utilisent le nom de l'API.
+// Map id → displayName pour l'affichage.
 const LEAGUE_MAP_DISPLAY = new Map(LEAGUES.map(l => [l.id, l]));
+
+// Set des IDs autorisés — seuls ces championnats sont affichés (filtre anti-U19/D4/réserves)
+const ALLOWED_LEAGUE_IDS = new Set(LEAGUES.map(l => l.id));
 
 async function fetchAllFixturesForDate(date) {
   // Une seule requête pour toutes les ligues — timezone Paris pour coller aux dates
@@ -229,8 +232,8 @@ export async function getTodayFixtures() {
       if (seen.has(item.fixture.id)) continue;
       seen.add(item.fixture.id);
 
-      // Aucun filtre de ligue — on affiche TOUT ce que l'API renvoie
-      // (championnats, coupes nationales, coupes européennes, amicaux, CdM, etc.)
+      // Filtre ligue — on n'affiche que les compétitions référencées dans LEAGUES
+      if (!ALLOWED_LEAGUE_IDS.has(item.league.id)) continue;
 
       const status = item.fixture.status.short;
 
@@ -252,7 +255,7 @@ export async function getTodayFixtures() {
       return [];
     }
 
-    console.log(`[footballApi] ${fixtures.length} matchs récupérés (toutes compétitions confondues)`);
+    console.log(`[footballApi] ${fixtures.length} matchs pros retenus (U19/D4/réserves filtrés)`);
     return fixtures;
 
   } catch (err) {
