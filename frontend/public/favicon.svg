@@ -1,11 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">
-  <defs>
-    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#6c7ff8"/>
-      <stop offset="100%" stop-color="#8b5cf6"/>
-    </linearGradient>
-  </defs>
-  <rect width="40" height="40" rx="10" fill="url(#g)"/>
-  <polyline points="7,28 14,16 20,22 26,11 33,28" stroke="white" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-  <circle cx="26" cy="11" r="3.5" fill="#fbbf24"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Fond sombre arrondi -->
+  <rect width="32" height="32" rx="8" fill="#05070B"/>
+  <!-- Ballon cercle -->
+  <circle cx="16" cy="16" r="11" fill="#0C0F18" stroke="#16A34A" stroke-width="1.2"/>
+  <!-- Pentagone central -->
+  <polygon points="16,9 20.8,12.5 19,17.8 13,17.8 11.2,12.5" fill="#05070B" stroke="#FCBF49" stroke-width="0.9"/>
+  <!-- Coutures latérales -->
+  <line x1="16" y1="5" x2="16" y2="9" stroke="#DC2626" stroke-width="1" stroke-linecap="round"/>
+  <line x1="25" y1="11" x2="20.8" y2="12.5" stroke="#16A34A" stroke-width="1" stroke-linecap="round"/>
+  <line x1="22.5" y1="23" x2="19" y2="17.8" stroke="#16A34A" stroke-width="1" stroke-linecap="round"/>
+  <line x1="9.5" y1="23" x2="13" y2="17.8" stroke="#16A34A" stroke-width="1" stroke-linecap="round"/>
+  <line x1="7" y1="11" x2="11.2" y2="12.5" stroke="#DC2626" stroke-width="1" stroke-linecap="round"/>
 </svg>
