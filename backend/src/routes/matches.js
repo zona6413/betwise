@@ -260,10 +260,14 @@ router.get('/', async (req, res) => {
       })),
     ]);
 
-    // On ne garde que les fixtures avec de vraies cotes bookmakers
-    const fixturesWithOdds = fixtures.filter(f => realOddsMap.has(f.fixture.id));
-    const fixturesWithoutOdds = fixtures.filter(f => !realOddsMap.has(f.fixture.id));
-    console.log(`[matches] ${fixturesWithOdds.length} avec cotes réelles, ${fixturesWithoutOdds.length} sans cotes (exclus)`);
+    // On ne garde que les fixtures avec de vraies cotes bookmakers ET équilibrées (max cote ≤ 8)
+    const fixturesWithOdds = fixtures.filter(f => {
+      const o = realOddsMap.get(f.fixture.id);
+      if (!o) return false;
+      const maxOdd = Math.max(o.homeOdd, o.drawOdd, o.awayOdd);
+      return maxOdd <= 8; // exclut les matchs trop déséquilibrés
+    });
+    console.log(`[matches] ${fixturesWithOdds.length} matchs équilibrés avec cotes réelles`);
 
     const h2hFiltered     = fixturesWithOdds.map((f, i) => h2hResults[fixtures.indexOf(f)]);
     const injuryFiltered  = fixturesWithOdds.map((f, i) => injuryResults[fixtures.indexOf(f)]);
