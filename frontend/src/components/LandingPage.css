@@ -583,6 +583,69 @@
   line-height: 1.5;
 }
 
+/* ── World Cup Countdown ─────────────────────────────────── */
+.wc-countdown {
+  margin: 28px auto 32px;
+  max-width: 480px;
+  background: linear-gradient(135deg, rgba(22,163,74,0.08), rgba(252,191,73,0.08));
+  border: 1px solid rgba(252,191,73,0.25);
+  border-radius: 16px;
+  padding: 20px 24px 16px;
+  text-align: center;
+  backdrop-filter: blur(8px);
+}
+
+.wc-countdown-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #FCBF49;
+  margin-bottom: 14px;
+}
+
+.wc-countdown-blocks {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.wc-countdown-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(5,7,11,0.6);
+  border: 1px solid rgba(252,191,73,0.2);
+  border-radius: 10px;
+  padding: 10px 14px 8px;
+  min-width: 64px;
+}
+
+.wc-countdown-num {
+  font-size: 1.9rem;
+  font-weight: 800;
+  line-height: 1;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -1px;
+}
+
+.wc-countdown-unit {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(240,242,248,0.45);
+  margin-top: 4px;
+}
+
+.wc-countdown-sub {
+  margin-top: 12px;
+  font-size: 0.75rem;
+  color: rgba(240,242,248,0.4);
+  letter-spacing: 0.02em;
+}
+
 /* ── Responsive ───────────────────────────────────────────── */
 @media (max-width: 600px) {
   .landing-nav {

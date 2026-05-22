@@ -1,10 +1,31 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { GetStartedButton } from '@/components/ui/get-started-button';
 import { ContainerScroll } from '@/components/ui/container-scroll-animation';
 import { GoldGlow } from '@/components/ui/glow-background';
 import './LandingPage.css';
 
 const API = import.meta.env.VITE_API_URL ?? '';
+
+const WC_DATE = new Date('2026-06-11T18:00:00Z'); // coup d'envoi CdM 2026
+
+function useCountdown() {
+  const calc = () => {
+    const diff = WC_DATE - Date.now();
+    if (diff <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+    return {
+      days:    Math.floor(diff / 86400000),
+      hours:   Math.floor((diff % 86400000) / 3600000),
+      minutes: Math.floor((diff % 3600000)  / 60000),
+      seconds: Math.floor((diff % 60000)    / 1000),
+    };
+  };
+  const [time, setTime] = useState(calc);
+  useEffect(() => {
+    const id = setInterval(() => setTime(calc()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  return time;
+}
 
 const FEATURES = [
   {
@@ -45,6 +66,24 @@ const STATS = [
   { value: '3',    label: 'Niveaux de paris IA' },
   { value: '24/7', label: 'Mises à jour en temps réel' },
 ];
+
+function WorldCupCountdown() {
+  const { days, hours, minutes, seconds } = useCountdown();
+  return (
+    <div className="wc-countdown">
+      <div className="wc-countdown-label">⚽ Coupe du Monde 2026</div>
+      <div className="wc-countdown-blocks">
+        {[{ v: days, l: 'Jours' }, { v: hours, l: 'Heures' }, { v: minutes, l: 'Min' }, { v: seconds, l: 'Sec' }].map(({ v, l }) => (
+          <div key={l} className="wc-countdown-block">
+            <span className="wc-countdown-num">{String(v).padStart(2, '0')}</span>
+            <span className="wc-countdown-unit">{l}</span>
+          </div>
+        ))}
+      </div>
+      <div className="wc-countdown-sub">Coup d'envoi le 11 juin 2026 · Mexico City</div>
+    </div>
+  );
+}
 
 export default function LandingPage({ onStart, onLogin, onPricing }) {
   const [leadEmail,   setLeadEmail]   = useState('');
@@ -100,6 +139,9 @@ export default function LandingPage({ onStart, onLogin, onPricing }) {
           DoddBet analyse chaque match avec l'IA pour te donner les meilleures chances de gagner.
           Value bets, combos optimisés, suivi de paris — tout au même endroit.
         </p>
+        {/* ── Countdown CdM 2026 ── */}
+        <WorldCupCountdown />
+
         <div className="landing-hero-ctas">
           <GetStartedButton onClick={onStart} label="Commencer gratuitement" />
           <button className="landing-cta-ghost" onClick={onPricing}>
@@ -156,7 +198,7 @@ export default function LandingPage({ onStart, onLogin, onPricing }) {
             </span>
             <h2 style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)", fontWeight: 700, color: "var(--text)", marginTop: "0.5rem", lineHeight: 1.15, letterSpacing: "-0.03em" }}>
               Tout ce qu'il te faut<br />
-              <span style={{ background: "linear-gradient(135deg, #8B5CF6, #C4B5FD)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+              <span style={{ background: "linear-gradient(135deg, #DC2626, #16A34A, #FCBF49)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
                 en un seul endroit
               </span>
             </h2>
@@ -167,11 +209,11 @@ export default function LandingPage({ onStart, onLogin, onPricing }) {
         <div style={{ height: "100%", display: "flex", flexDirection: "column", background: "#05070B", borderRadius: "18px", overflow: "hidden" }}>
           {/* Barre nav simulée */}
           <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "12px 20px", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "#080B12" }}>
-            <div style={{ width: "28px", height: "28px", borderRadius: "8px", background: "#8B5CF6", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px" }}>⚡</div>
+            <div style={{ width: "28px", height: "28px", borderRadius: "8px", background: "linear-gradient(135deg, #DC2626, #16A34A, #FCBF49)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px" }}>⚽</div>
             <span style={{ fontWeight: 700, fontSize: "14px", color: "#E8EAF2" }}>DoddBet</span>
             <div style={{ marginLeft: "auto", display: "flex", gap: "6px" }}>
               {["Tous", "Aujourd'hui", "Value bets"].map((t, i) => (
-                <span key={t} style={{ fontSize: "11px", padding: "3px 10px", borderRadius: "20px", background: i === 1 ? "rgba(139,92,246,0.15)" : "transparent", color: i === 1 ? "#C4B5FD" : "rgba(232,234,242,0.4)", border: i === 1 ? "1px solid rgba(139,92,246,0.3)" : "1px solid transparent" }}>{t}</span>
+                <span key={t} style={{ fontSize: "11px", padding: "3px 10px", borderRadius: "20px", background: i === 1 ? "rgba(22,163,74,0.15)" : "transparent", color: i === 1 ? "#16A34A" : "rgba(232,234,242,0.4)", border: i === 1 ? "1px solid rgba(22,163,74,0.3)" : "1px solid transparent" }}>{t}</span>
               ))}
             </div>
           </div>
@@ -186,19 +228,19 @@ export default function LandingPage({ onStart, onLogin, onPricing }) {
                 <div style={{ flex: 1 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "6px" }}>
                     {m.live && <span style={{ fontSize: "9px", fontWeight: 700, color: "#F43F5E", background: "rgba(244,63,94,0.1)", border: "1px solid rgba(244,63,94,0.2)", borderRadius: "4px", padding: "1px 5px" }}>EN DIRECT</span>}
-                    {m.value && <span style={{ fontSize: "9px", fontWeight: 700, color: "#8B5CF6", background: "rgba(139,92,246,0.1)", border: "1px solid rgba(139,92,246,0.2)", borderRadius: "4px", padding: "1px 5px" }}>VALUE</span>}
+                    {m.value && <span style={{ fontSize: "9px", fontWeight: 700, color: "#FCBF49", background: "rgba(252,191,73,0.1)", border: "1px solid rgba(252,191,73,0.25)", borderRadius: "4px", padding: "1px 5px" }}>VALUE</span>}
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                     <span style={{ fontSize: "13px", fontWeight: 600, color: "#E8EAF2" }}>{m.home}</span>
-                    <span style={{ fontSize: "15px", fontWeight: 700, color: "#C4B5FD", minWidth: "40px", textAlign: "center" }}>{m.score ?? "vs"}</span>
+                    <span style={{ fontSize: "15px", fontWeight: 700, color: "#FCBF49", minWidth: "40px", textAlign: "center" }}>{m.score ?? "vs"}</span>
                     <span style={{ fontSize: "13px", fontWeight: 600, color: "#E8EAF2" }}>{m.away}</span>
                   </div>
                 </div>
                 <div style={{ display: "flex", gap: "6px" }}>
                   {[m.h, m.n, m.a].map((odd, i) => (
-                    <div key={i} style={{ background: i === 0 && m.value ? "rgba(139,92,246,0.15)" : "rgba(255,255,255,0.04)", border: `1px solid ${i === 0 && m.value ? "rgba(139,92,246,0.3)" : "rgba(255,255,255,0.06)"}`, borderRadius: "8px", padding: "4px 10px", textAlign: "center" }}>
+                    <div key={i} style={{ background: i === 0 && m.value ? "rgba(252,191,73,0.12)" : "rgba(255,255,255,0.04)", border: `1px solid ${i === 0 && m.value ? "rgba(252,191,73,0.3)" : "rgba(255,255,255,0.06)"}`, borderRadius: "8px", padding: "4px 10px", textAlign: "center" }}>
                       <div style={{ fontSize: "11px", color: "rgba(232,234,242,0.4)" }}>{["1", "N", "2"][i]}</div>
-                      <div style={{ fontSize: "13px", fontWeight: 700, color: i === 0 && m.value ? "#C4B5FD" : "#E8EAF2" }}>{odd}</div>
+                      <div style={{ fontSize: "13px", fontWeight: 700, color: i === 0 && m.value ? "#FCBF49" : "#E8EAF2" }}>{odd}</div>
                     </div>
                   ))}
                 </div>
