@@ -260,7 +260,15 @@ router.get('/', async (req, res) => {
       })),
     ]);
 
-    const matches = fixtures.map((f, i) => buildMatch(f, teamStats, realOddsMap, h2hResults[i], injuryResults[i]));
+    // On ne garde que les fixtures avec de vraies cotes bookmakers
+    const fixturesWithOdds = fixtures.filter(f => realOddsMap.has(f.fixture.id));
+    const fixturesWithoutOdds = fixtures.filter(f => !realOddsMap.has(f.fixture.id));
+    console.log(`[matches] ${fixturesWithOdds.length} avec cotes réelles, ${fixturesWithoutOdds.length} sans cotes (exclus)`);
+
+    const h2hFiltered     = fixturesWithOdds.map((f, i) => h2hResults[fixtures.indexOf(f)]);
+    const injuryFiltered  = fixturesWithOdds.map((f, i) => injuryResults[fixtures.indexOf(f)]);
+
+    const matches = fixturesWithOdds.map((f, i) => buildMatch(f, teamStats, realOddsMap, h2hFiltered[i], injuryFiltered[i]));
     cache.set('matches', matches);
 
     return res.json({ data: matches, cached: false, count: matches.length });
