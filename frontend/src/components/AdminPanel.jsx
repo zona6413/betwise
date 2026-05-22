@@ -79,7 +79,7 @@ export default function AdminPanel({ authFetch, onClose }) {
         <div className="admin-header">
           <div className="admin-title">
             <span className="admin-badge">ADMIN</span>
-            <span>Panel BetWise</span>
+            <span>Panel DoddBet</span>
           </div>
           <button className="admin-close" onClick={onClose} aria-label="Fermer">
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none">

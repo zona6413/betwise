@@ -71,7 +71,7 @@ export default function PricingModal({ onClose, authFetch, isLoggedIn, onOpenAut
         ) : (
           <>
             <div className="pricing-header">
-              <h2>Passe à BetWise <span className="pro-badge">PRO</span></h2>
+              <h2>Passe à DoddBet <span className="pro-badge">PRO</span></h2>
               <p>Accède à toutes les analyses, value bets, combos et statistiques avancées</p>
             </div>
 

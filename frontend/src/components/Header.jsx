@@ -31,7 +31,7 @@ export default function Header({ lastUpdated, fromCache, onRefresh, loading, act
               </defs>
             </svg>
           </div>
-          <span className="logo-text">Bet<span className="logo-accent">Wise</span></span>
+          <span className="logo-text">Dodd<span className="logo-accent">Bet</span></span>
           <span className="logo-tag">BETA</span>
         </div>
 

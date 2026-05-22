@@ -16,7 +16,7 @@ export default function LegalPage({ initialTab = 'mentions', onClose }) {
       <div className="legal-page">
 
         <div className="legal-page-header">
-          <div className="legal-page-brand">BetWise — Informations légales</div>
+          <div className="legal-page-brand">DoddBet — Informations légales</div>
           <button className="legal-page-close" onClick={onClose} aria-label="Fermer">
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
               <path d="M1 1l10 10M11 1L1 11" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
@@ -44,12 +44,12 @@ export default function LegalPage({ initialTab = 'mentions', onClose }) {
 
               <h2>1. Éditeur du site</h2>
               <p>
-                Le site <strong>BetWise</strong> (accessible à l'adresse <strong>betwise.vercel.app</strong>)
+                Le site <strong>DoddBet</strong> (accessible à l'adresse <strong>doddbet.com</strong>)
                 est édité par :<br/><br/>
                 <strong>Noah — Entrepreneur individuel</strong><br/>
                 Statut : Auto-entrepreneur<br/>
                 Activité : Édition de logiciels et services numériques<br/>
-                Contact : <a href="mailto:contact@betwise.app">contact@betwise.app</a>
+                Contact : <a href="mailto:contact@doddbet.com">contact@doddbet.com</a>
               </p>
 
               <h2>2. Directeur de la publication</h2>
@@ -76,13 +76,13 @@ export default function LegalPage({ initialTab = 'mentions', onClose }) {
               <p>
                 Les paiements sont traités par <strong>Stripe, Inc.</strong><br/>
                 510 Townsend Street, San Francisco, CA 94103, USA<br/>
-                Certifié PCI DSS niveau 1 — BetWise ne stocke aucune donnée bancaire.<br/>
+                Certifié PCI DSS niveau 1 — DoddBet ne stocke aucune donnée bancaire.<br/>
                 <a href="https://stripe.com/fr" target="_blank" rel="noreferrer">stripe.com/fr</a>
               </p>
 
               <h2>5. Propriété intellectuelle</h2>
               <p>
-                L'ensemble du contenu du site (textes, analyses, algorithmes, interface graphique, marque « BetWise »)
+                L'ensemble du contenu du site (textes, analyses, algorithmes, interface graphique, marque « DoddBet »)
                 est la propriété exclusive de l'éditeur et est protégé par les lois françaises et
                 internationales relatives au droit d'auteur et à la propriété intellectuelle.
                 Toute reproduction partielle ou totale est interdite sans autorisation écrite préalable.
@@ -92,13 +92,13 @@ export default function LegalPage({ initialTab = 'mentions', onClose }) {
               <p>
                 Les données sportives (cotes, statistiques, résultats) sont fournies par
                 des tiers (API-Football, The Odds API) à titre indicatif.
-                BetWise ne garantit pas leur exactitude en temps réel.
+                DoddBet ne garantit pas leur exactitude en temps réel.
               </p>
 
               <h2>7. Contact</h2>
               <p>
                 Pour toute question relative aux mentions légales :<br/>
-                <a href="mailto:contact@betwise.app">contact@betwise.app</a>
+                <a href="mailto:contact@doddbet.com">contact@doddbet.com</a>
               </p>
             </div>
           )}
@@ -112,13 +112,13 @@ export default function LegalPage({ initialTab = 'mentions', onClose }) {
               <h2>1. Objet</h2>
               <p>
                 Les présentes Conditions Générales d'Utilisation (CGU) régissent l'accès et
-                l'utilisation du service BetWise, plateforme d'analyse statistique de paris sportifs.
+                l'utilisation du service DoddBet, plateforme d'analyse statistique de paris sportifs.
                 Toute utilisation du service implique l'acceptation pleine et entière des présentes CGU.
               </p>
 
               <h2>2. Description du service</h2>
               <p>
-                BetWise est un <strong>outil d'aide à la décision</strong> qui fournit :
+                DoddBet est un <strong>outil d'aide à la décision</strong> qui fournit :
               </p>
               <ul>
                 <li>Des analyses statistiques de matchs de football basées sur des modèles mathématiques (Poisson, Dixon-Coles)</li>
@@ -127,7 +127,7 @@ export default function LegalPage({ initialTab = 'mentions', onClose }) {
                 <li>Un outil de suivi personnel de paris</li>
               </ul>
               <p>
-                <strong>BetWise n'est pas un opérateur de paris agréé.</strong> Le service ne prend
+                <strong>DoddBet n'est pas un opérateur de paris agréé.</strong> Le service ne prend
                 aucun pari et ne gère aucune mise financière. Aucune des informations fournies
                 ne constitue un conseil financier, fiscal ou d'investissement.
               </p>
@@ -141,7 +141,7 @@ export default function LegalPage({ initialTab = 'mentions', onClose }) {
               </p>
               <p>
                 En créant un compte, l'utilisateur certifie sur l'honneur avoir 18 ans ou plus.
-                BetWise se réserve le droit de suspendre tout compte dont l'utilisateur
+                DoddBet se réserve le droit de suspendre tout compte dont l'utilisateur
                 serait mineur.
               </p>
 
@@ -149,18 +149,18 @@ export default function LegalPage({ initialTab = 'mentions', onClose }) {
               <p>
                 L'utilisateur est responsable de la confidentialité de ses identifiants.
                 Toute utilisation du compte est réputée effectuée par son titulaire.
-                En cas de compromission, l'utilisateur doit contacter immédiatement BetWise
-                à <a href="mailto:contact@betwise.app">contact@betwise.app</a>.
+                En cas de compromission, l'utilisateur doit contacter immédiatement DoddBet
+                à <a href="mailto:contact@doddbet.com">contact@doddbet.com</a>.
               </p>
               <p>
-                BetWise se réserve le droit de suspendre ou supprimer tout compte en cas de :
+                DoddBet se réserve le droit de suspendre ou supprimer tout compte en cas de :
                 violation des CGU, usage abusif, tentative de contournement des restrictions d'accès,
                 fraude ou impersonation.
               </p>
 
               <h2>5. Offres et tarifs</h2>
               <p>
-                BetWise propose deux niveaux d'accès :
+                DoddBet propose deux niveaux d'accès :
               </p>
               <ul>
                 <li><strong>Gratuit</strong> : accès aux matchs du jour et aux analyses de base</li>
@@ -168,7 +168,7 @@ export default function LegalPage({ initialTab = 'mentions', onClose }) {
                   (value bets, combos IA, suivi de paris synchronisé, toutes les ligues)</li>
               </ul>
               <p>
-                Les tarifs sont affichés TTC. BetWise se réserve le droit de modifier ses tarifs
+                Les tarifs sont affichés TTC. DoddBet se réserve le droit de modifier ses tarifs
                 avec un préavis de <strong>30 jours</strong> par email. Les abonnements en cours
                 ne sont pas affectés jusqu'à leur renouvellement.
               </p>
@@ -185,30 +185,30 @@ export default function LegalPage({ initialTab = 'mentions', onClose }) {
                 Conformément à l'article L.221-18 du Code de la consommation, l'utilisateur dispose
                 d'un <strong>droit de rétractation de 14 jours</strong> à compter de la souscription
                 pour les nouvelles souscriptions. Ce droit ne s'applique pas aux renouvellements.
-                Pour exercer ce droit : <a href="mailto:contact@betwise.app">contact@betwise.app</a>.
+                Pour exercer ce droit : <a href="mailto:contact@doddbet.com">contact@doddbet.com</a>.
               </p>
 
               <h2>7. Absence de garantie de gains</h2>
               <p>
-                <strong>Les analyses fournies par BetWise ne garantissent aucun gain.</strong>
+                <strong>Les analyses fournies par DoddBet ne garantissent aucun gain.</strong>
                 Les performances passées du modèle ne préjugent pas des résultats futurs.
                 Les paris sportifs comportent un risque de perte en capital. L'utilisateur
                 assume seul la responsabilité de ses décisions de jeu.
               </p>
               <p>
-                BetWise ne saurait être tenu responsable des pertes financières résultant
+                DoddBet ne saurait être tenu responsable des pertes financières résultant
                 de l'utilisation de ses analyses, quelle que soit leur nature.
               </p>
 
               <h2>8. Limitation de responsabilité</h2>
               <p>
-                BetWise ne garantit pas la disponibilité continue du service (maintenance,
+                DoddBet ne garantit pas la disponibilité continue du service (maintenance,
                 pannes, mises à jour). En cas d'indisponibilité prolongée (supérieure à 72h
                 consécutives), l'abonnement pourra être prolongé d'autant, sur demande.
               </p>
               <p>
                 L'exactitude des données sportives dépend de fournisseurs tiers.
-                BetWise n'est pas responsable des erreurs ou retards de ces fournisseurs.
+                DoddBet n'est pas responsable des erreurs ou retards de ces fournisseurs.
               </p>
 
               <h2>9. Propriété intellectuelle</h2>
@@ -220,7 +220,7 @@ export default function LegalPage({ initialTab = 'mentions', onClose }) {
 
               <h2>10. Modification des CGU</h2>
               <p>
-                BetWise se réserve le droit de modifier les présentes CGU à tout moment.
+                DoddBet se réserve le droit de modifier les présentes CGU à tout moment.
                 Les utilisateurs seront informés par email au moins <strong>15 jours avant</strong>
                 l'entrée en vigueur des nouvelles CGU. La poursuite de l'utilisation du service
                 vaut acceptation des nouvelles CGU.
@@ -229,7 +229,7 @@ export default function LegalPage({ initialTab = 'mentions', onClose }) {
               <h2>11. Résiliation</h2>
               <p>
                 L'utilisateur peut supprimer son compte à tout moment en contactant
-                <a href="mailto:contact@betwise.app"> contact@betwise.app</a>.
+                <a href="mailto:contact@doddbet.com"> contact@doddbet.com</a>.
                 La suppression entraîne la perte de toutes les données associées (historique de paris,
                 paramètres) dans un délai de 30 jours.
               </p>
@@ -258,15 +258,15 @@ export default function LegalPage({ initialTab = 'mentions', onClose }) {
               <h2>1. Responsable du traitement</h2>
               <p>
                 Le responsable du traitement des données personnelles est :<br/><br/>
-                <strong>Noah — BetWise</strong><br/>
-                Contact : <a href="mailto:contact@betwise.app">contact@betwise.app</a>
+                <strong>Noah — DoddBet</strong><br/>
+                Contact : <a href="mailto:contact@doddbet.com">contact@doddbet.com</a>
               </p>
 
               <h2>2. Données collectées</h2>
-              <p>BetWise collecte uniquement les données strictement nécessaires au fonctionnement du service :</p>
+              <p>DoddBet collecte uniquement les données strictement nécessaires au fonctionnement du service :</p>
               <ul>
                 <li><strong>À l'inscription</strong> : adresse email, mot de passe (hashé en bcrypt — jamais stocké en clair), pseudo (optionnel)</li>
-                <li><strong>À l'abonnement</strong> : les données de paiement sont gérées exclusivement par Stripe — BetWise ne voit ni ne stocke vos numéros de carte</li>
+                <li><strong>À l'abonnement</strong> : les données de paiement sont gérées exclusivement par Stripe — DoddBet ne voit ni ne stocke vos numéros de carte</li>
                 <li><strong>En cours d'utilisation</strong> : historique de paris enregistrés volontairement, rôle et statut d'abonnement</li>
                 <li><strong>Techniques</strong> : logs serveur (adresse IP, date/heure des requêtes, user-agent) conservés 30 jours à des fins de sécurité</li>
               </ul>
@@ -315,7 +315,7 @@ export default function LegalPage({ initialTab = 'mentions', onClose }) {
                 <li><strong>Render.com</strong> — hébergement du serveur applicatif (USA — Privacy Shield)</li>
                 <li><strong>Netlify</strong> — hébergement du frontend (USA — Privacy Shield)</li>
               </ul>
-              <p>BetWise ne vend, ne loue et ne cède jamais vos données à des tiers à des fins commerciales.</p>
+              <p>DoddBet ne vend, ne loue et ne cède jamais vos données à des tiers à des fins commerciales.</p>
 
               <h2>6. Vos droits (RGPD)</h2>
               <p>Conformément au RGPD, vous disposez des droits suivants :</p>
@@ -328,7 +328,7 @@ export default function LegalPage({ initialTab = 'mentions', onClose }) {
                 <li><strong>Droit à la limitation</strong> : limiter temporairement le traitement</li>
               </ul>
               <p>
-                Pour exercer ces droits : <a href="mailto:contact@betwise.app">contact@betwise.app</a><br/>
+                Pour exercer ces droits : <a href="mailto:contact@doddbet.com">contact@doddbet.com</a><br/>
                 Délai de réponse : 30 jours maximum.<br/>
                 En cas de réponse insatisfaisante, vous pouvez saisir la <strong>CNIL</strong> :
                 <a href="https://www.cnil.fr" target="_blank" rel="noreferrer"> cnil.fr</a>
@@ -336,7 +336,7 @@ export default function LegalPage({ initialTab = 'mentions', onClose }) {
 
               <h2>7. Cookies</h2>
               <p>
-                BetWise utilise uniquement des cookies <strong>strictement nécessaires</strong>
+                DoddBet utilise uniquement des cookies <strong>strictement nécessaires</strong>
                 au fonctionnement du service (token de session en localStorage). Aucun cookie
                 publicitaire, de tracking tiers ou d'analyse comportementale n'est utilisé.
                 Aucun consentement supplémentaire n'est requis pour ces cookies essentiels
@@ -345,7 +345,7 @@ export default function LegalPage({ initialTab = 'mentions', onClose }) {
 
               <h2>8. Sécurité</h2>
               <p>
-                BetWise met en œuvre les mesures techniques suivantes pour protéger vos données :
+                DoddBet met en œuvre les mesures techniques suivantes pour protéger vos données :
               </p>
               <ul>
                 <li>Mots de passe hashés avec <strong>bcrypt</strong> (facteur de coût 10)</li>
@@ -364,7 +364,7 @@ export default function LegalPage({ initialTab = 'mentions', onClose }) {
               <h2>10. Contact</h2>
               <p>
                 Pour toute question relative à la protection de vos données :<br/>
-                <a href="mailto:contact@betwise.app">contact@betwise.app</a><br/>
+                <a href="mailto:contact@doddbet.com">contact@doddbet.com</a><br/>
                 Objet : « Protection des données — [votre demande] »
               </p>
             </div>
@@ -379,7 +379,7 @@ export default function LegalPage({ initialTab = 'mentions', onClose }) {
                 <div className="legal-warning-title">Avertissement important</div>
                 <p>
                   Les paris sportifs comportent des risques de dépendance et de pertes financières.
-                  BetWise est un outil d'aide à la décision — <strong>les analyses ne garantissent aucun gain.</strong>
+                  DoddBet est un outil d'aide à la décision — <strong>les analyses ne garantissent aucun gain.</strong>
                   Ne misez jamais plus que ce que vous pouvez vous permettre de perdre.
                 </p>
               </div>
@@ -418,7 +418,7 @@ export default function LegalPage({ initialTab = 'mentions', onClose }) {
 
               <h2>Nos engagements</h2>
               <ul>
-                <li>BetWise est strictement <strong>interdit aux mineurs de moins de 18 ans</strong></li>
+                <li>DoddBet est strictement <strong>interdit aux mineurs de moins de 18 ans</strong></li>
                 <li>Aucune publicité ciblant les populations vulnérables</li>
                 <li>Rappel systématique des risques dans l'interface</li>
                 <li>Les analyses sont présentées comme des <strong>probabilités, jamais des certitudes</strong></li>
@@ -428,7 +428,7 @@ export default function LegalPage({ initialTab = 'mentions', onClose }) {
               <p>
                 En France, les paris sportifs en ligne sont régulés par l'<strong>Autorité Nationale des Jeux (ANJ)</strong>.
                 Seuls les opérateurs agréés par l'ANJ sont autorisés à prendre des paris.
-                BetWise n'est pas un opérateur de paris — nous fournissons uniquement des analyses statistiques.
+                DoddBet n'est pas un opérateur de paris — nous fournissons uniquement des analyses statistiques.
               </p>
               <p>
                 Pour connaître les opérateurs légaux agréés en France :

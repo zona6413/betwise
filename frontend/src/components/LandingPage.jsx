@@ -82,7 +82,7 @@ export default function LandingPage({ onStart, onLogin, onPricing }) {
 
       {/* ── Nav ── */}
       <nav className="landing-nav">
-        <div className="landing-logo">⚡ BetWise</div>
+        <div className="landing-logo">⚡ DoddBet</div>
         <div className="landing-nav-actions">
           <button className="landing-btn-ghost" onClick={onLogin}>Se connecter</button>
           <button className="landing-btn-primary" onClick={onPricing}>Voir les offres</button>
@@ -97,7 +97,7 @@ export default function LandingPage({ onStart, onLogin, onPricing }) {
           <span className="landing-gradient">intelligemment</span>
         </h1>
         <p className="landing-hero-sub">
-          BetWise analyse chaque match avec l'IA pour te donner les meilleures chances de gagner.
+          DoddBet analyse chaque match avec l'IA pour te donner les meilleures chances de gagner.
           Value bets, combos optimisés, suivi de paris — tout au même endroit.
         </p>
         <div className="landing-hero-ctas">
@@ -168,7 +168,7 @@ export default function LandingPage({ onStart, onLogin, onPricing }) {
           {/* Barre nav simulée */}
           <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "12px 20px", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "#080B12" }}>
             <div style={{ width: "28px", height: "28px", borderRadius: "8px", background: "#8B5CF6", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px" }}>⚡</div>
-            <span style={{ fontWeight: 700, fontSize: "14px", color: "#E8EAF2" }}>BetWise</span>
+            <span style={{ fontWeight: 700, fontSize: "14px", color: "#E8EAF2" }}>DoddBet</span>
             <div style={{ marginLeft: "auto", display: "flex", gap: "6px" }}>
               {["Tous", "Aujourd'hui", "Value bets"].map((t, i) => (
                 <span key={t} style={{ fontSize: "11px", padding: "3px 10px", borderRadius: "20px", background: i === 1 ? "rgba(139,92,246,0.15)" : "transparent", color: i === 1 ? "#C4B5FD" : "rgba(232,234,242,0.4)", border: i === 1 ? "1px solid rgba(139,92,246,0.3)" : "1px solid transparent" }}>{t}</span>
@@ -286,14 +286,14 @@ export default function LandingPage({ onStart, onLogin, onPricing }) {
       <section className="landing-final">
         <h2>Prêt à parier plus intelligemment ?</h2>
         <p>Rejoins les parieurs qui utilisent l'IA pour avoir un edge sur les bookmakers.</p>
-        <GetStartedButton onClick={onStart} label="Accéder à BetWise gratuitement" />
+        <GetStartedButton onClick={onStart} label="Accéder à DoddBet gratuitement" />
       </section>
 
       {/* ── Footer ── */}
       <footer className="landing-footer">
-        <p>⚡ BetWise — Paris sportifs assistés par IA</p>
+        <p>⚡ DoddBet — Paris sportifs assistés par IA</p>
         <p className="landing-footer-legal">
-          BetWise est un outil d'aide à la décision. Les paris comportent des risques. Jouez de manière responsable. 18+
+          DoddBet est un outil d'aide à la décision. Les paris comportent des risques. Jouez de manière responsable. 18+
         </p>
       </footer>
 
