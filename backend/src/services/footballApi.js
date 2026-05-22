@@ -119,6 +119,8 @@ const LEAGUES = [
   { id: 253, displayName: 'MLS',                      country: 'USA'           },
   { id: 262, displayName: 'Liga MX',                  country: 'Mexico'        },
   { id: 239, displayName: 'Liga BetPlay',             country: 'Colombia'      },
+  { id: 265, displayName: 'Primera División',         country: 'Chile'         },
+  { id: 240, displayName: 'LigaPro',                  country: 'Ecuador'       },
 ];
 
 const LIVE_STATUSES    = new Set(['1H', '2H', 'HT', 'ET', 'P', 'BT']);
