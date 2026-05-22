@@ -211,6 +211,34 @@
 }
 .btn-upgrade:hover { opacity: 0.85; }
 
+/* ── Free lock wall ── */
+.free-lock-wall {
+  text-align: center;
+  padding: 48px 24px;
+  background: rgba(22,163,74,0.03);
+  border: 1px dashed rgba(22,163,74,0.2);
+  border-radius: var(--radius);
+  margin: 8px 0 32px;
+}
+.free-lock-icon { font-size: 2rem; margin-bottom: 14px; }
+.free-lock-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.free-lock-sub {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  max-width: 420px;
+  margin: 0 auto 20px;
+  line-height: 1.5;
+}
+.free-lock-wall .btn-upgrade {
+  font-size: 13px;
+  padding: 10px 22px;
+}
+
 /* ── Live banner ── */
 .live-banner {
   display: flex;

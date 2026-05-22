@@ -56,6 +56,18 @@
   border-color: rgba(91,110,245,0.5);
   background: rgba(91,110,245,0.08);
 }
+.pricing-card--free {
+  opacity: 0.75;
+}
+.pricing-card--free li {
+  color: var(--text-muted);
+}
+.btn-subscribe--free {
+  background: rgba(255,255,255,0.06) !important;
+  color: var(--text-muted) !important;
+  cursor: default !important;
+  border: 1px solid rgba(255,255,255,0.1);
+}
 
 .pricing-best-badge {
   position: absolute;

@@ -76,6 +76,28 @@ export default function PricingModal({ onClose, authFetch, isLoggedIn, onOpenAut
             </div>
 
             <div className="pricing-cards">
+              {/* Gratuit */}
+              <div className="pricing-card pricing-card--free">
+                <div className="pricing-card-top">
+                  <span className="pricing-period">Gratuit</span>
+                  <div className="pricing-price">
+                    <span className="price-amount">0€</span>
+                    <span className="price-period">/toujours</span>
+                  </div>
+                </div>
+                <ul className="pricing-features">
+                  <li>✅ 3 picks du jour sélectionnés par l'IA</li>
+                  <li>❌ Accès à tous les matchs</li>
+                  <li>❌ Analyses IA détaillées</li>
+                  <li>❌ Value bets en temps réel</li>
+                  <li>❌ Générateur de combos</li>
+                  <li>❌ Suivi de paris</li>
+                </ul>
+                <button className="btn-subscribe btn-subscribe--free" disabled>
+                  Plan actuel
+                </button>
+              </div>
+
               {/* Mensuel */}
               <div className="pricing-card">
                 <div className="pricing-card-top">

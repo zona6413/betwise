@@ -452,19 +452,19 @@ export default function App() {
           {error && <ErrorBanner message={error} onRetry={refresh} />}
 
           {/* ── Banner upgrade pour les gratuits ─────────────────── */}
-          {isFree && (
+          {isFree && !loading && bettableMatches.length > 0 && (
             <div className="upgrade-banner">
-              <span>⚡ Débloquez toutes les analyses, value bets, combos et stats</span>
+              <span>⚡ Accédez à tous les matchs, value bets, analyses et combos</span>
               <button className="btn-upgrade" onClick={() => isLoggedIn ? setShowPricing(true) : setShowAuth(true)}>Passer Pro</button>
             </div>
           )}
 
-          {/* ── Picks du jour ────────────────────────────────────── */}
-          {showHomeSections && !loading && aiPicks.length > 0 && isProOrAdmin && (
+          {/* ── Picks du jour (visible par tous, gratuit = 3 picks only) ── */}
+          {showHomeSections && !loading && aiPicks.length > 0 && (
             <section className="home-section">
               <div className="home-section-header">
                 <h2 className="home-section-title">Picks du jour</h2>
-                <span className="home-section-sub">{riskProfile === 'safe' ? 'Prudent' : riskProfile === 'value' ? 'Audacieux' : 'Standard'} · {aiPicks.length} sélections</span>
+                <span className="home-section-sub">{isFree ? 'Gratuit · 3 sélections' : `${riskProfile === 'safe' ? 'Prudent' : riskProfile === 'value' ? 'Audacieux' : 'Standard'} · ${aiPicks.length} sélections`}</span>
               </div>
               <div className="picks-grid">
                 {aiPicks.map((match, i) => (
@@ -551,11 +551,23 @@ export default function App() {
           {/* ── Grille principale ────────────────────────────────── */}
           {activeTab !== 'taux' && activeTab !== 'paris' && (
             <>
-              {!loading && !error && filtered.length === 0 && (
+              {/* Gratuits : teaser lock à la place de la grille */}
+              {isFree && !loading && bettableMatches.length > 0 && (
+                <div className="free-lock-wall">
+                  <div className="free-lock-icon">🔒</div>
+                  <p className="free-lock-title">{bettableMatches.length} matchs disponibles aujourd'hui</p>
+                  <p className="free-lock-sub">Passez Pro pour accéder à tous les matchs, value bets, analyses IA et combos optimisés.</p>
+                  <button className="btn-upgrade" onClick={() => isLoggedIn ? setShowPricing(true) : setShowAuth(true)}>
+                    Débloquer — à partir de 4,99€/mois
+                  </button>
+                </div>
+              )}
+
+              {!isFree && !loading && !error && filtered.length === 0 && (
                 <Empty tab={activeTab} onReset={() => { setActiveTab('all'); setSearchQuery(''); }} />
               )}
 
-              {groupedGrid.map((group, gi) => (
+              {!isFree && groupedGrid.map((group, gi) => (
                 <div key={group.label} className="league-group">
                   <div className="league-group-header">
                     <span className="league-group-label">{group.label}</span>
