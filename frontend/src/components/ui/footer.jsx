@@ -26,7 +26,7 @@ export default function FooterSection({ onOpenLegal }) {
         {/* Logo */}
         <div className="flex justify-center mb-8">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-violet-500 flex items-center justify-center">
+            <div className="w-7 h-7 rounded-lg bg-green-700 flex items-center justify-center">
               <BarChart2 className="w-4 h-4 text-white" />
             </div>
             <span className="text-white font-semibold text-base tracking-tight">BetWise</span>

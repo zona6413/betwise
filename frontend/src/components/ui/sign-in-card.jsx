@@ -203,7 +203,7 @@ export default function SignInCard({ onLogin, onRegister, onClose, loading, erro
             </div>
             <p className="text-white/55 text-sm">Envoyé à <span className="text-white">{email}</span></p>
             <button type="button" onClick={() => switchMode('login')}
-              className="mt-4 text-xs text-violet-400 hover:text-violet-300 bg-transparent border-none cursor-pointer transition-colors">
+              className="mt-4 text-xs text-green-400 hover:text-green-300 bg-transparent border-none cursor-pointer transition-colors">
               Retour à la connexion
             </button>
           </div>
@@ -232,7 +232,7 @@ export default function SignInCard({ onLogin, onRegister, onClose, loading, erro
           </form>
         ) : (
           <div className="flex justify-center py-6">
-            <div className="w-5 h-5 border-2 border-violet-400/60 border-t-white rounded-full animate-spin" />
+            <div className="w-5 h-5 border-2 border-green-400/60 border-t-white rounded-full animate-spin" />
           </div>
         )}
       </motion.div>
@@ -287,7 +287,7 @@ export default function SignInCard({ onLogin, onRegister, onClose, loading, erro
           <p className="text-xs text-white/35">
             {mode === 'login' ? "Pas encore de compte ? " : "Déjà un compte ? "}
             <button type="button" onClick={() => switchMode(mode === 'login' ? 'register' : 'login')}
-              className="text-violet-400 hover:text-violet-300 font-medium bg-transparent border-none cursor-pointer transition-colors">
+              className="text-green-400 hover:text-green-300 font-medium bg-transparent border-none cursor-pointer transition-colors">
               {mode === 'login' ? "S'inscrire" : 'Se connecter'}
             </button>
           </p>

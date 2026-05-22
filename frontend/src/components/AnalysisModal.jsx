@@ -499,7 +499,7 @@ export default function AnalysisModal({ match, onClose, riskProfile = 'medium' }
               <div className="modal-markets">
                 <MarketRow label="Victoire domicile" value={aiProbs?.home} color="blue" />
                 <MarketRow label="Match nul"          value={aiProbs?.draw} color="grey" />
-                <MarketRow label="Victoire extérieur" value={aiProbs?.away} color="purple" />
+                <MarketRow label="Victoire extérieur" value={aiProbs?.away} color="green" />
                 <div className="modal-market-divider" />
                 <MarketRow label="Over 1.5 buts"  value={tieredBets.stats.over15}  color="green" />
                 <MarketRow label="Over 2.5 buts"  value={tieredBets.stats.over25}  color="green" />
