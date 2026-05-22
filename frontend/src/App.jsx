@@ -640,7 +640,7 @@ function ErrorBanner({ message, onRetry }) {
   return (
     <div className="error-banner">
       <div className="error-banner-content">
-        <span className="error-banner-icon">⚡</span>
+        <span className="error-banner-icon"></span>
         <div>
           <p className="error-banner-title">
             {isServerDown ? 'Serveur en cours de démarrage…' : 'Erreur de connexion'}
