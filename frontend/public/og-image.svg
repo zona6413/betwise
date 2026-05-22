@@ -1,0 +1,63 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="glow1" cx="50%" cy="25%" r="60%">
+      <stop offset="0%" stop-color="#eab308" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#05070B" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow2" cx="85%" cy="80%" r="45%">
+      <stop offset="0%" stop-color="#fcbf49" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#05070B" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow3" cx="15%" cy="75%" r="35%">
+      <stop offset="0%" stop-color="#b45309" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#05070B" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="logoBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#b45309"/>
+      <stop offset="100%" stop-color="#eab308"/>
+    </linearGradient>
+    <linearGradient id="tagBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#b45309"/>
+      <stop offset="100%" stop-color="#eab308"/>
+    </linearGradient>
+    <filter id="logoGlow">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="#05070B"/>
+
+  <!-- Glows -->
+  <rect width="1200" height="630" fill="url(#glow1)"/>
+  <rect width="1200" height="630" fill="url(#glow2)"/>
+  <rect width="1200" height="630" fill="url(#glow3)"/>
+
+  <!-- Subtle grid lines -->
+  <line x1="0" y1="315" x2="1200" y2="315" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+  <line x1="600" y1="0" x2="600" y2="630" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+
+  <!-- Logo pill -->
+  <rect x="536" y="168" width="128" height="128" rx="28" fill="url(#logoBg)" filter="url(#logoGlow)"/>
+  <text x="600" y="252" text-anchor="middle" font-size="64" dominant-baseline="middle">⚽</text>
+
+  <!-- DoddBet name -->
+  <text x="600" y="342" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="72" font-weight="900" fill="#FFFFFF" letter-spacing="-2">DoddBet</text>
+
+  <!-- Subtitle -->
+  <text x="600" y="400" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="26" fill="rgba(255,255,255,0.5)" letter-spacing="2">ANALYSE IA · PARIS SPORTIFS · CdM 2026</text>
+
+  <!-- Tags -->
+  <rect x="318" y="438" width="148" height="40" rx="20" fill="rgba(234,179,8,0.15)" stroke="rgba(234,179,8,0.4)" stroke-width="1.5"/>
+  <text x="392" y="463" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="16" font-weight="700" fill="#eab308" letter-spacing="1">VALUE BETS</text>
+
+  <rect x="488" y="438" width="136" height="40" rx="20" fill="rgba(234,179,8,0.15)" stroke="rgba(234,179,8,0.4)" stroke-width="1.5"/>
+  <text x="556" y="463" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="16" font-weight="700" fill="#eab308" letter-spacing="1">IA PICKS</text>
+
+  <rect x="646" y="438" width="138" height="40" rx="20" fill="rgba(234,179,8,0.15)" stroke="rgba(234,179,8,0.4)" stroke-width="1.5"/>
+  <text x="715" y="463" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="16" font-weight="700" fill="#eab308" letter-spacing="1">CdM 2026</text>
+
+  <!-- Bottom URL -->
+  <text x="600" y="570" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="20" fill="rgba(255,255,255,0.25)" letter-spacing="1">doddbet.com</text>
+</svg>
