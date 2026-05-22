@@ -260,19 +260,38 @@ router.get('/', async (req, res) => {
       })),
     ]);
 
-    // On ne garde que les fixtures avec de vraies cotes bookmakers ET équilibrées (max cote ≤ 8)
-    const fixturesWithOdds = fixtures.filter(f => {
+    // Tous les matchs pro — cotes réelles si dispo, sinon Poisson en fallback
+    // On exclut seulement les matchs avec cotes réelles > 8 (gros déséquilibre confirmé par bookmaker)
+    const filteredFixtures = fixtures.filter(f => {
       const o = realOddsMap.get(f.fixture.id);
-      if (!o) return false;
+      if (!o) return true; // pas de cotes réelles → on garde, fallback Poisson
       const maxOdd = Math.max(o.homeOdd, o.drawOdd, o.awayOdd);
-      return maxOdd <= 8; // exclut les matchs trop déséquilibrés
+      return maxOdd <= 8; // cotes réelles trop déséquilibrées → on exclut
     });
-    console.log(`[matches] ${fixturesWithOdds.length} matchs équilibrés avec cotes réelles`);
 
-    const h2hFiltered     = fixturesWithOdds.map((f, i) => h2hResults[fixtures.indexOf(f)]);
-    const injuryFiltered  = fixturesWithOdds.map((f, i) => injuryResults[fixtures.indexOf(f)]);
+    // Injecter les cotes Poisson pour les matchs sans cotes bookmakers
+    for (const f of filteredFixtures) {
+      if (!realOddsMap.has(f.fixture.id)) {
+        const hStats = teamStats.get(f.teams.home.id);
+        const aStats = teamStats.get(f.teams.away.id);
+        const synth  = generateSyntheticOdds(hStats, aStats);
+        realOddsMap.set(f.fixture.id, {
+          homeOdd:   synth.homeOdd,
+          drawOdd:   synth.drawOdd,
+          awayOdd:   synth.awayOdd,
+          bookmaker: null, // indique que ce sont des cotes calculées
+        });
+      }
+    }
 
-    const matches = fixturesWithOdds.map((f, i) => buildMatch(f, teamStats, realOddsMap, h2hFiltered[i], injuryFiltered[i]));
+    const withReal = filteredFixtures.filter(f => realOddsMap.get(f.fixture.id)?.bookmaker !== null).length;
+    const withCalc = filteredFixtures.length - withReal;
+    console.log(`[matches] ${filteredFixtures.length} matchs (${withReal} cotes réelles, ${withCalc} Poisson)`);
+
+    const h2hFiltered    = filteredFixtures.map(f => h2hResults[fixtures.indexOf(f)]);
+    const injuryFiltered = filteredFixtures.map(f => injuryResults[fixtures.indexOf(f)]);
+
+    const matches = filteredFixtures.map((f, i) => buildMatch(f, teamStats, realOddsMap, h2hFiltered[i], injuryFiltered[i]));
     cache.set('matches', matches);
 
     return res.json({ data: matches, cached: false, count: matches.length });
