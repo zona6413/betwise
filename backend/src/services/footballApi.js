@@ -257,7 +257,7 @@ export async function getTodayFixtures() {
 
   } catch (err) {
     console.error('[footballApi] Erreur:', err.message);
-    return getMockFixtures();
+    return []; // pas de données mock — on retourne vide pour que l'UI affiche "aucun match"
   }
 }
 
