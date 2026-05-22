@@ -2,11 +2,10 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "betwise-frontend",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
-      "port": 5173,
-      "autoPort": true
+      "name": "font-preview",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["/tmp/fontpreview/server.js"],
+      "port": 4455
     }
   ]
 }

@@ -63,7 +63,7 @@ export default function CookieBanner() {
                 <span className="cookie-cat-name">Cookies essentiels</span>
                 <span className="cookie-toggle cookie-toggle--on">Toujours actif</span>
               </div>
-              <p className="cookie-cat-desc">Authentification, session utilisateur, préférences d'affichage. Indispensables au fonctionnement de BetWise.</p>
+              <p className="cookie-cat-desc">Authentification, session utilisateur, préférences d'affichage. Indispensables au fonctionnement de DoddBet.</p>
             </div>
 
             <div className="cookie-category">
@@ -71,7 +71,7 @@ export default function CookieBanner() {
                 <span className="cookie-cat-name">Analytics (désactivé)</span>
                 <span className="cookie-toggle cookie-toggle--off">Inactif</span>
               </div>
-              <p className="cookie-cat-desc">BetWise ne collecte pas de données analytiques tierces. Aucun Google Analytics, Meta Pixel ou tracker publicitaire.</p>
+              <p className="cookie-cat-desc">DoddBet ne collecte pas de données analytiques tierces. Aucun Google Analytics, Meta Pixel ou tracker publicitaire.</p>
             </div>
 
             <div className="cookie-actions">

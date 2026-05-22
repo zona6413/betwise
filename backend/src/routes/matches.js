@@ -267,8 +267,8 @@ router.get('/', async (req, res) => {
     // Injecter les cotes Poisson pour les matchs sans cotes bookmakers
     for (const f of filteredFixtures) {
       if (!realOddsMap.has(f.fixture.id)) {
-        const hStats = teamStats.get(f.teams.home.id);
-        const aStats = teamStats.get(f.teams.away.id);
+        const hStats = teamStats[f.teams.home.id];
+        const aStats = teamStats[f.teams.away.id];
         const synth  = generateSyntheticOdds(hStats, aStats);
         realOddsMap.set(f.fixture.id, {
           homeOdd:   synth.homeOdd,

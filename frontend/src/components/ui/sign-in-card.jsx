@@ -367,7 +367,7 @@ export default function SignInCard({ onLogin, onRegister, onClose, loading, erro
                 <div style={{ width: 30, height: 30, borderRadius: 9, background: '#8B5CF6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <BarChart2 className="w-4 h-4 text-white" />
                 </div>
-                <span style={{ color: '#fff', fontWeight: 600, fontSize: '14px', letterSpacing: '-0.3px' }}>BetWise</span>
+                <span style={{ color: '#fff', fontWeight: 600, fontSize: '14px', letterSpacing: '-0.3px' }}>DoddBet</span>
               </motion.div>
 
               {/* Contenu dynamique */}

@@ -29,7 +29,7 @@ export default function FooterSection({ onOpenLegal }) {
             <div className="w-7 h-7 rounded-lg bg-green-700 flex items-center justify-center">
               <BarChart2 className="w-4 h-4 text-white" />
             </div>
-            <span className="text-white font-semibold text-base tracking-tight">BetWise</span>
+            <span className="text-white font-semibold text-base tracking-tight">DoddBet</span>
           </div>
         </div>
 
@@ -68,7 +68,7 @@ export default function FooterSection({ onOpenLegal }) {
 
         {/* Copyright */}
         <p className="text-center text-xs text-white/15">
-          © {new Date().getFullYear()} BetWise — Tous droits réservés
+          © {new Date().getFullYear()} DoddBet — Tous droits réservés
         </p>
       </div>
     </footer>

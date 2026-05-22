@@ -33,7 +33,7 @@ export default function GamblingWarning({ onClose }) {
 
         <ul className="gw-list">
           <li>Interdit aux mineurs de moins de 18 ans</li>
-          <li>BetWise est un outil d'aide à la décision, pas un conseil financier</li>
+          <li>DoddBet est un outil d'aide à la décision, pas un conseil financier</li>
           <li>Aucun système ne garantit des gains</li>
         </ul>
 

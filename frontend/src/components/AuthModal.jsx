@@ -97,7 +97,7 @@ export default function AuthModal({ onLogin, onRegister, onClose, loading, error
         {/* ── Brand ── */}
         <div className="auth-brand">
           <div className="auth-brand-mark">BW</div>
-          <span className="auth-brand-name">BetWise</span>
+          <span className="auth-brand-name">DoddBet</span>
         </div>
 
         {/* ══════════════ MODE : LOGIN ══════════════ */}

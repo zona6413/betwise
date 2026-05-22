@@ -16,7 +16,7 @@ export default function LegalFooter({ onOpenLegal }) {
         </div>
 
         <p className="legal-disclaimer">
-          BetWise est un outil d'analyse statistique à titre informatif uniquement.
+          DoddBet est un outil d'analyse statistique à titre informatif uniquement.
           Les probabilités affichées ne constituent pas des conseils financiers.
           Le jeu comporte des risques de dépendance — jouez de manière responsable.
           Interdit aux personnes de moins de 18 ans.
@@ -41,7 +41,7 @@ export default function LegalFooter({ onOpenLegal }) {
         </div>
 
         <p className="legal-disclaimer">
-          © {new Date().getFullYear()} BetWise · Toutes les données sportives sont
+          © {new Date().getFullYear()} DoddBet · Toutes les données sportives sont
           fournies à titre indicatif. Les résultats passés ne préjugent pas des
           résultats futurs.
         </p>
