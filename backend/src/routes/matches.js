@@ -2,8 +2,7 @@ import { Router }    from 'express';
 import NodeCache      from 'node-cache';
 
 import { getTodayFixtures, getHeadToHead, getInjuries } from '../services/footballApi.js';
-import { getOdds }                 from '../services/oddsApi.js';
-import { mergeData }               from '../services/merger.js';
+import { getOddsMap }              from '../services/oddsApi.js';
 import { getTeamStatsMap, randomBookmaker } from '../services/standingsApi.js';
 import { getMatchPlayers, applyInjuryFilter, preloadTopScorers } from '../services/playerStats.js';
 import {
@@ -218,32 +217,28 @@ router.get('/', async (req, res) => {
     const cached = cache.get('matches');
     if (cached) return res.json({ data: cached, cached: true, count: cached.length });
 
-    // Cotes cachées 6h séparément pour préserver le quota The Odds API
-    let oddsData = oddsCache.get('odds');
-    if (!oddsData) {
-      oddsData = await getOdds();
-      oddsCache.set('odds', oddsData);
+    // Cotes via API-Football /odds — même clé, fixture ID exact, pas de fuzzy
+    let realOddsMap = oddsCache.get('oddsMap');
+    if (!realOddsMap) {
+      const raw = await getOddsMap();
+      // Convertir Map<fixtureId, {home,draw,away,bookmaker}> → format interne
+      realOddsMap = new Map();
+      for (const [fixtureId, o] of raw) {
+        realOddsMap.set(fixtureId, {
+          homeOdd:  o.home,
+          drawOdd:  o.draw,
+          awayOdd:  o.away,
+          bookmaker: o.bookmaker,
+        });
+      }
+      oddsCache.set('oddsMap', realOddsMap);
     }
 
     const [fixtures, teamStats] = await Promise.all([
       getTodayFixtures(),
       getTeamStatsMap(),
-      preloadTopScorers(), // charge buteurs réels depuis API, cache 12h
+      preloadTopScorers(),
     ]);
-
-    // Construire un map fixtureId → vraies cotes via fuzzy matching
-    const merged = mergeData(fixtures, oddsData);
-    const realOddsMap = new Map();
-    for (const m of merged) {
-      if (m.hasOdds) {
-        realOddsMap.set(m.fixture.fixture.id, {
-          homeOdd:  m.homeOdd,
-          drawOdd:  m.drawOdd,
-          awayOdd:  m.awayOdd,
-          bookmaker: m.bookmaker,
-        });
-      }
-    }
 
     // H2H + injuries : en parallèle, avec cache
     const [h2hResults, injuryResults] = await Promise.all([

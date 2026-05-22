@@ -1,188 +1,69 @@
 /**
- * Service TheOddsAPI (api.the-odds-api.com/v4)
- * Récupère les cotes bookmakers pour le football.
- * En l'absence de clé API, renvoie des données mock réalistes.
+ * Cotes bookmakers via API-Football v3 /odds
+ * Même clé que footballApi.js → matching parfait par fixture ID.
  */
 import axios from 'axios';
 
-const BASE_URL = 'https://api.the-odds-api.com/v4';
-const getKey = () => process.env.ODDS_API_KEY;
+const BASE_URL = 'https://v3.football.api-sports.io';
+const API_KEY  = process.env.API_FOOTBALL_KEY;
 
-// Sports keys TheOddsAPI — uniquement les ligues bien couvertes Winamax/Betclic/Unibet
-// Limité aux ~20 ligues principales pour préserver le quota mensuel
-const SPORT_KEYS = [
-  // Top 5 européens + coupes
-  'soccer_epl',
-  'soccer_france_ligue_one',
-  'soccer_spain_la_liga',
-  'soccer_italy_serie_a',
-  'soccer_germany_bundesliga',
-  'soccer_uefa_champs_league',
-  'soccer_uefa_europa_league',
-  'soccer_uefa_europa_conference_league',
-  // Divisions 2 populaires
-  'soccer_efl_champ',
-  'soccer_france_ligue_two',
-  'soccer_germany_bundesliga2',
-  // Ligues européennes majeures
-  'soccer_netherlands_eredivisie',
-  'soccer_portugal_primeira_liga',
-  'soccer_belgium_first_div',
-  'soccer_turkey_super_league',
-  'soccer_scotland_premiership',
-  'soccer_norway_eliteserien',
-  'soccer_sweden_allsvenskan',
-  'soccer_poland_ekstraklasa',
-  // Amériques
-  'soccer_usa_mls',
-  'soccer_brazil_campeonato',
-  'soccer_argentina_primera_division',
-];
+const BOOKMAKER_PRIORITY = [8, 7, 6, 3, 1, 4, 2, 16, 5];
+const BOOKMAKER_NAMES = { 8: 'Bet365', 7: 'William Hill', 6: 'Unibet', 3: 'Betclic', 1: '10Bet', 4: 'Bwin', 2: 'Sportingbet', 16: 'Betfair', 5: '1xBet' };
 
-const client = axios.create({ baseURL: BASE_URL, timeout: 10_000 });
+const client = axios.create({
+  baseURL: BASE_URL,
+  timeout: 12_000,
+  headers: { 'x-apisports-key': API_KEY },
+});
 
-// ── Public API ──────────────────────────────────────────────────────────────────
-
-/** Renvoie toutes les cotes disponibles (marché 1X2, bookmakers EU). */
-export async function getOdds() {
-  const API_KEY = getKey();
-  if (!API_KEY || API_KEY === 'xxx') {
-    console.log('  [oddsApi] Mode mock — pas de clé ODDS_API_KEY');
-    return getMockOdds();
-  }
-
-  const results = await Promise.allSettled(
-    SPORT_KEYS.map(sport =>
-      client.get(`/sports/${sport}/odds`, {
-        params: {
-          apiKey:      API_KEY,
-          regions:     'eu',
-          markets:     'h2h',          // 1X2 uniquement
-          oddsFormat:  'decimal',
-          bookmakers:  'unibet,betclic,winamax,bet365,pinnacle',
-        },
-      })
-    )
-  );
-
-  const odds = results
-    .filter(r => r.status === 'fulfilled')
-    .flatMap(r => r.value.data ?? []);
-
-  if (!odds.length) {
-    console.warn('  [oddsApi] API vide — fallback mock');
-    return getMockOdds();
-  }
-
-  return odds;
+function getParisDateStr(offsetDays = 0) {
+  const d = new Date();
+  d.setDate(d.getDate() + offsetDays);
+  return d.toLocaleDateString('fr-CA', { timeZone: 'Europe/Paris' });
 }
 
-// ── Mock data ────────────────────────────────────────────────────────────────────
-function getMockOdds() {
-  return [
-    {
-      id: 'psg-monaco',
-      home_team: 'Paris Saint-Germain',
-      away_team: 'AS Monaco',
-      bookmakers: [{
-        key: 'unibet', title: 'Unibet',
-        markets: [{ key: 'h2h', outcomes: [
-          { name: 'Paris Saint-Germain', price: 1.62 },
-          { name: 'AS Monaco',           price: 5.50 },
-          { name: 'Draw',                price: 3.80 },
-        ]}],
-      }],
-    },
-    {
-      id: 'arsenal-man-utd',
-      home_team: 'Arsenal',
-      away_team: 'Manchester United',
-      bookmakers: [{
-        key: 'betclic', title: 'Betclic',
-        markets: [{ key: 'h2h', outcomes: [
-          { name: 'Arsenal',            price: 1.72 },
-          { name: 'Manchester United',  price: 4.90 },
-          { name: 'Draw',               price: 3.60 },
-        ]}],
-      }],
-    },
-    {
-      id: 'real-barca',
-      home_team: 'Real Madrid',
-      away_team: 'FC Barcelona',
-      bookmakers: [{
-        key: 'winamax', title: 'Winamax',
-        markets: [{ key: 'h2h', outcomes: [
-          { name: 'Real Madrid',   price: 2.10 },
-          { name: 'FC Barcelona',  price: 3.30 },
-          { name: 'Draw',          price: 3.40 },
-        ]}],
-      }],
-    },
-    {
-      id: 'bayern-dortmund',
-      home_team: 'Bayern Munich',
-      away_team: 'Borussia Dortmund',
-      bookmakers: [{
-        key: 'unibet', title: 'Unibet',
-        markets: [{ key: 'h2h', outcomes: [
-          { name: 'Bayern Munich',      price: 1.55 },
-          { name: 'Borussia Dortmund',  price: 6.00 },
-          { name: 'Draw',               price: 4.20 },
-        ]}],
-      }],
-    },
-    {
-      id: 'inter-juve',
-      home_team: 'Inter Milan',
-      away_team: 'Juventus',
-      bookmakers: [{
-        key: 'betclic', title: 'Betclic',
-        markets: [{ key: 'h2h', outcomes: [
-          { name: 'Inter Milan', price: 1.95 },
-          { name: 'Juventus',    price: 3.80 },
-          { name: 'Draw',        price: 3.50 },
-        ]}],
-      }],
-    },
-    {
-      id: 'marseille-nice',
-      home_team: 'Olympique de Marseille',
-      away_team: 'OGC Nice',
-      bookmakers: [{
-        key: 'winamax', title: 'Winamax',
-        markets: [{ key: 'h2h', outcomes: [
-          { name: 'Olympique de Marseille', price: 2.05 },
-          { name: 'OGC Nice',               price: 3.50 },
-          { name: 'Draw',                   price: 3.30 },
-        ]}],
-      }],
-    },
-    {
-      id: 'liverpool-chelsea',
-      home_team: 'Liverpool',
-      away_team: 'Chelsea',
-      bookmakers: [{
-        key: 'bet365', title: 'Bet365',
-        markets: [{ key: 'h2h', outcomes: [
-          { name: 'Liverpool', price: 1.80 },
-          { name: 'Chelsea',   price: 4.50 },
-          { name: 'Draw',      price: 3.60 },
-        ]}],
-      }],
-    },
-    {
-      id: 'atletico-valencia',
-      home_team: 'Atlético de Madrid',
-      away_team: 'Valencia CF',
-      bookmakers: [{
-        key: 'unibet', title: 'Unibet',
-        markets: [{ key: 'h2h', outcomes: [
-          { name: 'Atlético de Madrid', price: 1.70 },
-          { name: 'Valencia CF',         price: 5.20 },
-          { name: 'Draw',                price: 3.70 },
-        ]}],
-      }],
-    },
-  ];
+async function fetchOddsForDate(date) {
+  const map = new Map();
+  if (!API_KEY) return map;
+  try {
+    const { data } = await client.get('/odds', {
+      params: { date, timezone: 'Europe/Paris' },
+    });
+    for (const item of (data?.response ?? [])) {
+      const fixtureId = item.fixture?.id;
+      if (!fixtureId) continue;
+      for (const bmId of BOOKMAKER_PRIORITY) {
+        const bm  = item.bookmakers?.find(b => b.id === bmId);
+        if (!bm) continue;
+        const bet = bm.bets?.find(b => b.name === 'Match Winner');
+        if (!bet?.values?.length) continue;
+        let home = null, draw = null, away = null;
+        for (const v of bet.values) {
+          if (v.value === 'Home') home = parseFloat(v.odd);
+          if (v.value === 'Draw') draw = parseFloat(v.odd);
+          if (v.value === 'Away') away = parseFloat(v.odd);
+        }
+        if (home && draw && away) {
+          map.set(fixtureId, { home, draw, away, bookmaker: BOOKMAKER_NAMES[bmId] ?? bm.name });
+          break;
+        }
+      }
+    }
+  } catch (err) {
+    console.warn(`[oddsApi] /odds ${date}:`, err.message);
+  }
+  return map;
 }
+
+export async function getOddsMap() {
+  if (!API_KEY) return new Map();
+  const [m1, m2] = await Promise.all([
+    fetchOddsForDate(getParisDateStr(0)),
+    fetchOddsForDate(getParisDateStr(1)),
+  ]);
+  for (const [id, odds] of m2) if (!m1.has(id)) m1.set(id, odds);
+  console.log(`[oddsApi] ${m1.size} cotes récupérées (API-Football /odds)`);
+  return m1;
+}
+
+export async function getOdds() { return []; }
