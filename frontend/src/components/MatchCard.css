@@ -112,28 +112,28 @@
 .team--away { align-items: flex-start; text-align: left; }
 
 .team-logo-wrap {
-  width: 58px;
-  height: 58px;
-  border-radius: 14px;
+  width: 72px;
+  height: 72px;
+  border-radius: 16px;
   background: #0d0d1a;
-  background-image: radial-gradient(circle 80px at 50% 50%, rgba(22,163,74,0.30), transparent);
+  background-image: radial-gradient(circle 100px at 50% 50%, rgba(22,163,74,0.30), transparent);
   border: 1px solid rgba(22,163,74,0.18);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 6px;
-  box-shadow: 0 0 18px rgba(22,163,74,0.14), inset 0 1px 0 rgba(255,255,255,0.05);
+  padding: 8px;
+  box-shadow: 0 0 22px rgba(22,163,74,0.14), inset 0 1px 0 rgba(255,255,255,0.05);
   transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 .team-logo-wrap:hover {
   border-color: rgba(22,163,74,0.35);
-  box-shadow: 0 0 28px rgba(22,163,74,0.25), inset 0 1px 0 rgba(255,255,255,0.07);
+  box-shadow: 0 0 32px rgba(22,163,74,0.28), inset 0 1px 0 rgba(255,255,255,0.07);
 }
 .team-logo {
-  width: 40px;
-  height: 40px;
+  width: 52px;
+  height: 52px;
   object-fit: contain;
-  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.6));
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.6));
 }
 .team-logo-fallback {
   width: 26px;
@@ -457,8 +457,8 @@
   .score-box    { min-width: 58px; }
   .score-n      { font-size: 24px; }
   .kick-time    { font-size: 20px; }
-  .team-logo-wrap { width: 32px; height: 32px; }
-  .team-logo    { width: 22px; height: 22px; }
+  .team-logo-wrap { width: 48px; height: 48px; }
+  .team-logo    { width: 32px; height: 32px; }
   .team-name    { font-size: 12px; }
   .odd-pill-val { font-size: 14px; }
   .qi-section   { padding: 10px 12px; }
