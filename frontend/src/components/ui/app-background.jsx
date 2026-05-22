@@ -16,12 +16,12 @@ export default function AppBackground() {
       {/* ── Halo vert pelouse — coin haut droit ── */}
       <div style={{
         position: 'absolute', inset: 0,
-        background: 'radial-gradient(circle 900px at 105% -10%, rgba(22,163,74,0.20), transparent 70%)',
+        background: 'radial-gradient(circle 900px at 105% -10%, rgba(234,179,8,0.20), transparent 70%)',
       }} />
       {/* Halo vert secondaire — renfort gauche bas */}
       <div style={{
         position: 'absolute', inset: 0,
-        background: 'radial-gradient(circle 450px at 85% 85%, rgba(22,163,74,0.06), transparent 70%)',
+        background: 'radial-gradient(circle 450px at 85% 85%, rgba(234,179,8,0.06), transparent 70%)',
       }} />
 
       {/* ── Halo or — centre haut, dominant ── */}

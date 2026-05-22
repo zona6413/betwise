@@ -22,23 +22,23 @@
   --text-dim:    rgba(232,234,242,0.14);
 
   /* ── CdM 2026 : Vert pelouse (accent principal — boutons, reflets) ── */
-  --violet:      #16A34A;
-  --violet-dim:  rgba(22,163,74,0.08);
-  --violet-mid:  rgba(22,163,74,0.15);
-  --violet-glow: rgba(22,163,74,0.22);
+  --violet:      #EAB308;
+  --violet-dim:  rgba(234,179,8,0.08);
+  --violet-mid:  rgba(234,179,8,0.15);
+  --violet-glow: rgba(234,179,8,0.22);
 
   /* ── CdM 2026 : Gradients FIFA ── */
-  --cdm-gradient:      linear-gradient(135deg, #DC2626, #16A34A, #FCBF49);
-  --cdm-gradient-soft: linear-gradient(135deg, rgba(220,38,38,0.8), rgba(22,163,74,0.9), rgba(252,191,73,0.8));
+  --cdm-gradient:      linear-gradient(135deg, #DC2626, #EAB308, #FCBF49);
+  --cdm-gradient-soft: linear-gradient(135deg, rgba(220,38,38,0.8), rgba(234,179,8,0.9), rgba(252,191,73,0.8));
   --cdm-red:     #DC2626;
   --cdm-orange:  #F77F00;
   --cdm-gold:    #FCBF49;
-  --cdm-green:   #16A34A;
+  --cdm-green:   #EAB308;
 
   /* ── Vert (pelouse + valeur positive) ── */
-  --green:       #16A34A;
-  --green-dim:   rgba(22,163,74,0.08);
-  --green-glow:  rgba(22,163,74,0.16);
+  --green:       #EAB308;
+  --green-dim:   rgba(234,179,8,0.08);
+  --green-glow:  rgba(234,179,8,0.16);
 
   /* ── Statuts ── */
   --red:         #F43F5E;
@@ -109,8 +109,8 @@ img { display: block; }
 
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(22,163,74,0.15); border-radius: 2px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(22,163,74,0.25); }
+::-webkit-scrollbar-thumb { background: rgba(234,179,8,0.15); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(234,179,8,0.25); }
 
 /* ── Animations ── */
 @keyframes fadeIn    { from { opacity:0; transform:translateY(8px) } to { opacity:1; transform:translateY(0) } }

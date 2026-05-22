@@ -90,7 +90,7 @@
   font-weight: 600 !important;
   border-radius: 20px !important;
   color: rgba(134,239,172,0.95) !important;
-  background: rgba(22,163,74,0.10) !important;
+  background: rgba(234,179,8,0.10) !important;
 }
 
 .btn-login {
@@ -102,14 +102,14 @@
   font-weight: 600;
   padding: 7px 11px;
   border-radius: 10px;
-  border: 1px solid rgba(22,163,74,0.45);
-  background: linear-gradient(135deg, rgba(22,163,74,0.18) 0%, rgba(252,191,73,0.08) 100%);
+  border: 1px solid rgba(234,179,8,0.45);
+  background: linear-gradient(135deg, rgba(234,179,8,0.18) 0%, rgba(252,191,73,0.08) 100%);
   color: rgba(134,239,172,0.95);
   cursor: pointer;
   transition: all 0.25s ease;
   overflow: hidden;
   min-width: 36px;
-  box-shadow: 0 0 12px rgba(22,163,74,0.15), inset 0 1px 0 rgba(255,255,255,0.07);
+  box-shadow: 0 0 12px rgba(234,179,8,0.15), inset 0 1px 0 rgba(255,255,255,0.07);
   letter-spacing: 0.01em;
 }
 .btn-login-label {
@@ -126,11 +126,11 @@
   max-width: 18px;
 }
 .btn-login:hover {
-  border-color: rgba(22,163,74,0.75);
-  background: linear-gradient(135deg, rgba(22,163,74,0.30) 0%, rgba(252,191,73,0.15) 100%);
+  border-color: rgba(234,179,8,0.75);
+  background: linear-gradient(135deg, rgba(234,179,8,0.30) 0%, rgba(252,191,73,0.15) 100%);
   color: #fff;
   padding: 7px 14px;
-  box-shadow: 0 0 22px rgba(22,163,74,0.30), inset 0 1px 0 rgba(255,255,255,0.10);
+  box-shadow: 0 0 22px rgba(234,179,8,0.30), inset 0 1px 0 rgba(255,255,255,0.10);
 }
 .btn-login:hover .btn-login-label {
   max-width: 130px;
@@ -188,8 +188,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  background: rgba(22,163,74,0.05);
-  border: 1px solid rgba(22,163,74,0.14);
+  background: rgba(234,179,8,0.05);
+  border: 1px solid rgba(234,179,8,0.14);
   border-radius: var(--radius);
   padding: 12px 18px;
   margin-bottom: 24px;
@@ -215,8 +215,8 @@
 .free-lock-wall {
   text-align: center;
   padding: 48px 24px;
-  background: rgba(22,163,74,0.03);
-  border: 1px dashed rgba(22,163,74,0.2);
+  background: rgba(234,179,8,0.03);
+  border: 1px dashed rgba(234,179,8,0.2);
   border-radius: var(--radius);
   margin: 8px 0 32px;
 }
@@ -314,9 +314,9 @@
   position: absolute;
   bottom: 0; left: 10px; right: 10px;
   height: 2px;
-  background: linear-gradient(90deg, #16A34A, #FCBF49);
+  background: linear-gradient(90deg, #EAB308, #FCBF49);
   border-radius: 2px 2px 0 0;
-  box-shadow: 0 0 8px rgba(22,163,74,0.5);
+  box-shadow: 0 0 8px rgba(234,179,8,0.5);
 }
 .tab-btn--locked { opacity: 0.25; cursor: not-allowed; }
 .tab-btn--locked:hover { color: var(--text-muted); }

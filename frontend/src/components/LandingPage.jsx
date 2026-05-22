@@ -198,7 +198,7 @@ export default function LandingPage({ onStart, onLogin, onPricing }) {
             </span>
             <h2 style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)", fontWeight: 700, color: "var(--text)", marginTop: "0.5rem", lineHeight: 1.15, letterSpacing: "-0.03em" }}>
               Tout ce qu'il te faut<br />
-              <span style={{ background: "linear-gradient(135deg, #DC2626, #16A34A, #FCBF49)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+              <span style={{ background: "linear-gradient(135deg, #DC2626, #EAB308, #FCBF49)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
                 en un seul endroit
               </span>
             </h2>
@@ -209,11 +209,11 @@ export default function LandingPage({ onStart, onLogin, onPricing }) {
         <div style={{ height: "100%", display: "flex", flexDirection: "column", background: "#05070B", borderRadius: "18px", overflow: "hidden" }}>
           {/* Barre nav simulée */}
           <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "12px 20px", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "#080B12" }}>
-            <div style={{ width: "28px", height: "28px", borderRadius: "8px", background: "linear-gradient(135deg, #DC2626, #16A34A, #FCBF49)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px" }}>⚽</div>
+            <div style={{ width: "28px", height: "28px", borderRadius: "8px", background: "linear-gradient(135deg, #DC2626, #EAB308, #FCBF49)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px" }}>⚽</div>
             <span style={{ fontWeight: 700, fontSize: "14px", color: "#E8EAF2" }}>DoddBet</span>
             <div style={{ marginLeft: "auto", display: "flex", gap: "6px" }}>
               {["Tous", "Aujourd'hui", "Value bets"].map((t, i) => (
-                <span key={t} style={{ fontSize: "11px", padding: "3px 10px", borderRadius: "20px", background: i === 1 ? "rgba(22,163,74,0.15)" : "transparent", color: i === 1 ? "#16A34A" : "rgba(232,234,242,0.4)", border: i === 1 ? "1px solid rgba(22,163,74,0.3)" : "1px solid transparent" }}>{t}</span>
+                <span key={t} style={{ fontSize: "11px", padding: "3px 10px", borderRadius: "20px", background: i === 1 ? "rgba(234,179,8,0.15)" : "transparent", color: i === 1 ? "#EAB308" : "rgba(232,234,242,0.4)", border: i === 1 ? "1px solid rgba(234,179,8,0.3)" : "1px solid transparent" }}>{t}</span>
               ))}
             </div>
           </div>

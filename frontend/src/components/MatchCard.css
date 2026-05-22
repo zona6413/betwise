@@ -11,16 +11,16 @@
 }
 .match-card:hover {
   background: var(--card-hover);
-  border-color: rgba(22,163,74,0.16);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.55), 0 0 0 1px rgba(22,163,74,0.10), 0 0 24px rgba(22,163,74,0.06);
+  border-color: rgba(234,179,8,0.16);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.55), 0 0 0 1px rgba(234,179,8,0.10), 0 0 24px rgba(234,179,8,0.06);
   transform: translateY(-1px);
 }
 
 /* Indicateur value — fine ligne gauche subtile */
 .match-card--live   { border-top: 1px solid rgba(244,63,94,0.25); }
-.match-card--fire   { border-top: 1px solid rgba(22,163,74,0.35); }
-.match-card--hot    { border-top: 1px solid rgba(22,163,74,0.22); }
-.match-card--value  { border-top: 1px solid rgba(22,163,74,0.14); }
+.match-card--fire   { border-top: 1px solid rgba(234,179,8,0.35); }
+.match-card--hot    { border-top: 1px solid rgba(234,179,8,0.22); }
+.match-card--value  { border-top: 1px solid rgba(234,179,8,0.14); }
 
 /* ── Header ── */
 .card-header {
@@ -58,7 +58,7 @@
   font-weight: 600;
   color: var(--violet);
   background: var(--violet-dim);
-  border: 1px solid rgba(22,163,74,0.18);
+  border: 1px solid rgba(234,179,8,0.18);
   border-radius: 4px;
   padding: 1px 6px;
   letter-spacing: 0.2px;
@@ -76,8 +76,8 @@
   text-transform: uppercase;
   white-space: nowrap;
 }
-.badge--fire  { background: var(--violet-dim); color: var(--violet); border: 1px solid rgba(22,163,74,0.18); }
-.badge--value { background: var(--violet-dim); color: var(--violet); border: 1px solid rgba(22,163,74,0.14); }
+.badge--fire  { background: var(--violet-dim); color: var(--violet); border: 1px solid rgba(234,179,8,0.18); }
+.badge--value { background: var(--violet-dim); color: var(--violet); border: 1px solid rgba(234,179,8,0.14); }
 
 .status-badge {
   font-size: 9px;
@@ -116,18 +116,18 @@
   height: 72px;
   border-radius: 16px;
   background: #0d0d1a;
-  background-image: radial-gradient(circle 100px at 50% 50%, rgba(22,163,74,0.30), transparent);
-  border: 1px solid rgba(22,163,74,0.18);
+  background-image: radial-gradient(circle 100px at 50% 50%, rgba(234,179,8,0.30), transparent);
+  border: 1px solid rgba(234,179,8,0.18);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 8px;
-  box-shadow: 0 0 22px rgba(22,163,74,0.14), inset 0 1px 0 rgba(255,255,255,0.05);
+  box-shadow: 0 0 22px rgba(234,179,8,0.14), inset 0 1px 0 rgba(255,255,255,0.05);
   transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 .team-logo-wrap:hover {
-  border-color: rgba(22,163,74,0.35);
-  box-shadow: 0 0 32px rgba(22,163,74,0.28), inset 0 1px 0 rgba(255,255,255,0.07);
+  border-color: rgba(234,179,8,0.35);
+  box-shadow: 0 0 32px rgba(234,179,8,0.28), inset 0 1px 0 rgba(255,255,255,0.07);
 }
 .team-logo {
   width: 52px;
@@ -256,8 +256,8 @@
   cursor: default;
 }
 .match-card:hover .odd-pill { background: var(--card-hover); }
-.odd-pill--value { background: rgba(22,163,74,0.06); }
-.match-card:hover .odd-pill--value { background: rgba(22,163,74,0.09); }
+.odd-pill--value { background: rgba(234,179,8,0.06); }
+.match-card:hover .odd-pill--value { background: rgba(234,179,8,0.09); }
 .odd-pill-label {
   font-size: 9px; font-weight: 500; color: var(--text-dim);
   text-transform: uppercase; letter-spacing: 0.4px;
@@ -298,7 +298,7 @@
   font-weight: 600;
   color: var(--violet);
   background: var(--violet-dim);
-  border: 1px solid rgba(22,163,74,0.14);
+  border: 1px solid rgba(234,179,8,0.14);
   padding: 1px 6px;
   border-radius: 5px;
   letter-spacing: 0.2px;
@@ -398,7 +398,7 @@
 .qi-scorer-badge {
   display: flex; align-items: center; gap: 6px;
   margin-top: 8px; padding: 7px 10px;
-  background: var(--violet-dim); border: 1px solid rgba(22,163,74,0.14);
+  background: var(--violet-dim); border: 1px solid rgba(234,179,8,0.14);
   border-radius: 8px;
 }
 .qi-scorer-text { font-size: 12px; color: var(--text-muted); }
@@ -422,14 +422,14 @@
   font-size: 12px;
   font-weight: 600;
   background: var(--violet-dim);
-  border: 1px solid rgba(22,163,74,0.18);
+  border: 1px solid rgba(234,179,8,0.18);
   color: var(--violet);
   transition: all 0.15s ease;
   letter-spacing: -0.1px;
 }
 .btn-bet:hover {
   background: var(--violet-mid);
-  border-color: rgba(22,163,74,0.30);
+  border-color: rgba(234,179,8,0.30);
   color: #fff;
 }
 

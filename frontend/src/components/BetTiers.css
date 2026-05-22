@@ -38,7 +38,7 @@
 
 /* Colors per level */
 .bet-row--safe   { border-left: 2px solid var(--green); }
-.bet-row--medium { border-left: 2px solid #16a34a; }
+.bet-row--medium { border-left: 2px solid #eab308; }
 .bet-row--value  { border-left: 2px solid #ffb300; }
 .bet-row--risky  { border-left: 2px solid #ef4444; }
 
@@ -58,7 +58,7 @@
   text-transform: uppercase;
 }
 .bet-level-tag--safe   { background: var(--green-dim);      color: var(--green); border: 1px solid rgba(0,214,143,0.2); }
-.bet-level-tag--medium { background: rgba(129,140,248,0.1); color: #16a34a;    border: 1px solid rgba(129,140,248,0.2); }
+.bet-level-tag--medium { background: rgba(129,140,248,0.1); color: #eab308;    border: 1px solid rgba(129,140,248,0.2); }
 .bet-level-tag--value  { background: var(--gold-dim);       color: var(--gold); border: 1px solid rgba(245,166,35,0.25); }
 .bet-level-tag--risky  { background: rgba(239,68,68,0.12);  color: #ef4444;    border: 1px solid rgba(239,68,68,0.25); }
 
@@ -99,7 +99,7 @@
   transition: width 0.5s ease;
 }
 .bet-row--safe   .tier-conf-fill { background: var(--green); }
-.bet-row--medium .tier-conf-fill { background: #16a34a; }
+.bet-row--medium .tier-conf-fill { background: #eab308; }
 .bet-row--value  .tier-conf-fill { background: var(--gold); }
 .bet-row--risky  .tier-conf-fill { background: #ef4444; }
 
@@ -141,7 +141,7 @@
 .bet-reliability-label { font-size: 8px; color: var(--text-dim); font-weight: 500; text-transform: uppercase; letter-spacing: 0.4px; }
 .bet-reliability-val { font-size: 11px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .bet-reliability-val.high { color: var(--green); }
-.bet-reliability-val.med  { color: #16a34a; }
+.bet-reliability-val.med  { color: #eab308; }
 .bet-reliability-val.low  { color: #ef4444; }
 
 /* ── Right side */

@@ -30,11 +30,11 @@
   width: 28px;
   height: 28px;
   border-radius: 8px;
-  background: linear-gradient(135deg, #DC2626, #16A34A, #FCBF49);
+  background: linear-gradient(135deg, #DC2626, #EAB308, #FCBF49);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 14px rgba(22,163,74,0.40);
+  box-shadow: 0 0 14px rgba(234,179,8,0.40);
 }
 
 .logo-icon-wrap svg polygon { fill: #fff; }
@@ -88,11 +88,11 @@
   background: rgba(255,255,255,0.04);
 }
 .nav-pill.active {
-  background: rgba(22,163,74,0.12);
-  border-color: rgba(22,163,74,0.25);
+  background: rgba(234,179,8,0.12);
+  border-color: rgba(234,179,8,0.25);
   color: var(--text);
   font-weight: 600;
-  box-shadow: 0 0 12px rgba(22,163,74,0.10);
+  box-shadow: 0 0 12px rgba(234,179,8,0.10);
 }
 
 /* ── Actions ── */
@@ -181,13 +181,13 @@
   background: rgba(255,255,255,0.04);
 }
 .btn-profile--logged {
-  border-color: rgba(22,163,74,0.25);
-  background: rgba(22,163,74,0.08);
+  border-color: rgba(234,179,8,0.25);
+  background: rgba(234,179,8,0.08);
   color: var(--violet);
 }
 .btn-profile--logged:hover {
-  background: rgba(22,163,74,0.14);
-  border-color: rgba(22,163,74,0.35);
+  background: rgba(234,179,8,0.14);
+  border-color: rgba(234,179,8,0.35);
 }
 .btn-profile-initials {
   font-size: 11px;

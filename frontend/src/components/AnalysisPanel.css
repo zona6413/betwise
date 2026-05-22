@@ -214,7 +214,7 @@
 
 .probs-outcome { font-weight: 600; color: var(--text); }
 .probs-odd     { font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
-.probs-ai      { color: #16a34a; font-weight: 600; font-variant-numeric: tabular-nums; }
+.probs-ai      { color: #eab308; font-weight: 600; font-variant-numeric: tabular-nums; }
 .probs-edge    { font-weight: 700; font-variant-numeric: tabular-nums; }
 .edge-pos { color: var(--green); }
 .edge-neg { color: var(--text-dim); }

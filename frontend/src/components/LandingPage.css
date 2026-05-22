@@ -30,7 +30,7 @@
   font-size: 1.3rem;
   font-weight: 800;
   letter-spacing: -0.5px;
-  background: linear-gradient(135deg, #DC2626, #16A34A, #FCBF49);
+  background: linear-gradient(135deg, #DC2626, #EAB308, #FCBF49);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -60,7 +60,7 @@
 }
 
 .landing-btn-primary {
-  background: linear-gradient(135deg, #15803d, #16a34a);
+  background: linear-gradient(135deg, #b45309, #eab308);
   border: none;
   color: #fff;
   padding: 8px 18px;
@@ -100,8 +100,8 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: rgba(22,163,74,0.10);
-  border: 1px solid rgba(22,163,74,0.28);
+  background: rgba(234,179,8,0.10);
+  border: 1px solid rgba(234,179,8,0.28);
   color: #fde68a;
   padding: 8px 20px;
   border-radius: 100px;
@@ -112,7 +112,7 @@
   margin-bottom: 36px;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  box-shadow: 0 0 20px rgba(22,163,74,0.12), inset 0 1px 0 rgba(255,255,255,0.07);
+  box-shadow: 0 0 20px rgba(234,179,8,0.12), inset 0 1px 0 rgba(255,255,255,0.07);
 }
 
 .landing-hero-title {
@@ -125,7 +125,7 @@
 }
 
 .landing-gradient {
-  background: linear-gradient(135deg, #DC2626 0%, #16A34A 50%, #FCBF49 100%);
+  background: linear-gradient(135deg, #DC2626 0%, #EAB308 50%, #FCBF49 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -148,7 +148,7 @@
 }
 
 .landing-cta-main {
-  background: linear-gradient(135deg, #15803d, #16a34a);
+  background: linear-gradient(135deg, #b45309, #eab308);
   border: none;
   color: #fff;
   padding: 14px 30px;
@@ -191,13 +191,13 @@
 .landing-email-capture {
   margin-top: 44px;
   padding: 28px 28px 24px;
-  background: linear-gradient(135deg, rgba(22,163,74,0.07) 0%, rgba(255,255,255,0.03) 100%);
-  border: 1px solid rgba(22,163,74,0.20);
+  background: linear-gradient(135deg, rgba(234,179,8,0.07) 0%, rgba(255,255,255,0.03) 100%);
+  border: 1px solid rgba(234,179,8,0.20);
   border-radius: 20px;
   max-width: 500px;
   margin-left: auto;
   margin-right: auto;
-  box-shadow: 0 0 40px rgba(22,163,74,0.08), inset 0 1px 0 rgba(255,255,255,0.06);
+  box-shadow: 0 0 40px rgba(234,179,8,0.08), inset 0 1px 0 rgba(255,255,255,0.06);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
@@ -228,15 +228,15 @@
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 .landing-email-input:focus {
-  border-color: rgba(22,163,74,0.5);
-  box-shadow: 0 0 0 3px rgba(22,163,74,0.10);
+  border-color: rgba(234,179,8,0.5);
+  box-shadow: 0 0 0 3px rgba(234,179,8,0.10);
 }
 .landing-email-input::placeholder {
   color: rgba(240,242,248,0.25);
 }
 
 .landing-email-btn {
-  background: linear-gradient(135deg, #15803d, #16a34a);
+  background: linear-gradient(135deg, #b45309, #eab308);
   border: none;
   border-radius: 12px;
   color: #fff;
@@ -247,12 +247,12 @@
   font-family: inherit;
   white-space: nowrap;
   transition: opacity 0.15s, transform 0.15s, box-shadow 0.15s;
-  box-shadow: 0 4px 16px rgba(22,163,74,0.3);
+  box-shadow: 0 4px 16px rgba(234,179,8,0.3);
 }
 .landing-email-btn:hover:not(:disabled) {
   opacity: 0.9;
   transform: translateY(-1px);
-  box-shadow: 0 6px 24px rgba(22,163,74,0.4);
+  box-shadow: 0 6px 24px rgba(234,179,8,0.4);
 }
 .landing-email-btn:disabled { opacity: 0.5; cursor: default; }
 
@@ -279,7 +279,7 @@
   gap: 0;
   border-top: 1px solid rgba(255,255,255,0.07);
   border-bottom: 1px solid rgba(255,255,255,0.07);
-  background: rgba(22,163,74,0.025);
+  background: rgba(234,179,8,0.025);
   padding: 0;
 }
 
@@ -295,7 +295,7 @@
   position: relative;
 }
 .landing-stat:last-child { border-right: none; }
-.landing-stat:hover { background: rgba(22,163,74,0.05); }
+.landing-stat:hover { background: rgba(234,179,8,0.05); }
 
 .landing-stat-value {
   font-size: 2.6rem;
@@ -360,14 +360,14 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(22,163,74,0.08), rgba(168,85,247,0.05));
+  background: linear-gradient(135deg, rgba(234,179,8,0.08), rgba(168,85,247,0.05));
   opacity: 0;
   transition: opacity 0.3s;
 }
 .landing-feature-card:hover {
-  border-color: rgba(22,163,74,0.32);
+  border-color: rgba(234,179,8,0.32);
   transform: translateY(-5px);
-  box-shadow: 0 16px 48px rgba(0,0,0,0.35), 0 0 0 1px rgba(22,163,74,0.12);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.35), 0 0 0 1px rgba(234,179,8,0.12);
 }
 .landing-feature-card:hover::before { opacity: 1; }
 
@@ -375,15 +375,15 @@
   width: 52px;
   height: 52px;
   border-radius: 14px;
-  background: rgba(22,163,74,0.12);
-  border: 1px solid rgba(22,163,74,0.20);
+  background: rgba(234,179,8,0.12);
+  border: 1px solid rgba(234,179,8,0.20);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.7rem;
   margin-bottom: 18px;
   line-height: 1;
-  box-shadow: 0 4px 16px rgba(22,163,74,0.12);
+  box-shadow: 0 4px 16px rgba(234,179,8,0.12);
 }
 
 .landing-feature-card h3 {
@@ -446,7 +446,7 @@
   top: -12px;
   left: 50%;
   transform: translateX(-50%);
-  background: linear-gradient(135deg, #15803d, #16a34a);
+  background: linear-gradient(135deg, #b45309, #eab308);
   color: #fff;
   font-size: 0.72rem;
   font-weight: 700;
@@ -525,17 +525,17 @@
 }
 
 .landing-plan-btn--pro {
-  background: linear-gradient(135deg, #15803d, #16a34a);
+  background: linear-gradient(135deg, #b45309, #eab308);
   border: none;
   color: #fff;
-  box-shadow: 0 6px 24px rgba(22,163,74,0.35);
+  box-shadow: 0 6px 24px rgba(234,179,8,0.35);
   font-size: 0.95rem;
   padding: 14px;
 }
 .landing-plan-btn--pro:hover {
   opacity: 0.92;
   transform: translateY(-2px);
-  box-shadow: 0 10px 32px rgba(22,163,74,0.5);
+  box-shadow: 0 10px 32px rgba(234,179,8,0.5);
 }
 
 /* ── Final CTA ────────────────────────────────────────────── */
@@ -587,7 +587,7 @@
 .wc-countdown {
   margin: 28px auto 32px;
   max-width: 480px;
-  background: linear-gradient(135deg, rgba(22,163,74,0.08), rgba(252,191,73,0.08));
+  background: linear-gradient(135deg, rgba(234,179,8,0.08), rgba(252,191,73,0.08));
   border: 1px solid rgba(252,191,73,0.25);
   border-radius: 16px;
   padding: 20px 24px 16px;
