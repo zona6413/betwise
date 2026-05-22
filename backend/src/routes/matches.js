@@ -217,28 +217,28 @@ router.get('/', async (req, res) => {
     const cached = cache.get('matches');
     if (cached) return res.json({ data: cached, cached: true, count: cached.length });
 
-    // Cotes via API-Football /odds — même clé, fixture ID exact, pas de fuzzy
-    let realOddsMap = oddsCache.get('oddsMap');
-    if (!realOddsMap) {
-      const raw = await getOddsMap();
-      // Convertir Map<fixtureId, {home,draw,away,bookmaker}> → format interne
-      realOddsMap = new Map();
-      for (const [fixtureId, o] of raw) {
-        realOddsMap.set(fixtureId, {
-          homeOdd:  o.home,
-          drawOdd:  o.draw,
-          awayOdd:  o.away,
-          bookmaker: o.bookmaker,
-        });
-      }
-      oddsCache.set('oddsMap', realOddsMap);
-    }
-
+    // Fixtures d'abord — on en a besoin pour les requêtes individuelles d'odds
     const [fixtures, teamStats] = await Promise.all([
       getTodayFixtures(),
       getTeamStatsMap(),
       preloadTopScorers(),
     ]);
+
+    // Cotes via API-Football /odds — par date + requêtes individuelles fallback
+    let realOddsMap = oddsCache.get('oddsMap');
+    if (!realOddsMap) {
+      const raw = await getOddsMap(fixtures.map(f => f.fixture.id));
+      realOddsMap = new Map();
+      for (const [fixtureId, o] of raw) {
+        realOddsMap.set(fixtureId, {
+          homeOdd:   o.home,
+          drawOdd:   o.draw,
+          awayOdd:   o.away,
+          bookmaker: o.bookmaker,
+        });
+      }
+      oddsCache.set('oddsMap', realOddsMap);
+    }
 
     // H2H + injuries : en parallèle, avec cache
     const [h2hResults, injuryResults] = await Promise.all([
