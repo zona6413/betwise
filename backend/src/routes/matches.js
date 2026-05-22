@@ -261,13 +261,8 @@ router.get('/', async (req, res) => {
     ]);
 
     // Tous les matchs pro — cotes réelles si dispo, sinon Poisson en fallback
-    // On exclut seulement les matchs avec cotes réelles > 8 (gros déséquilibre confirmé par bookmaker)
-    const filteredFixtures = fixtures.filter(f => {
-      const o = realOddsMap.get(f.fixture.id);
-      if (!o) return true; // pas de cotes réelles → on garde, fallback Poisson
-      const maxOdd = Math.max(o.homeOdd, o.drawOdd, o.awayOdd);
-      return maxOdd <= 8; // cotes réelles trop déséquilibrées → on exclut
-    });
+    // Pas de filtre sur les cotes : si la ligue est pro, on affiche
+    const filteredFixtures = fixtures;
 
     // Injecter les cotes Poisson pour les matchs sans cotes bookmakers
     for (const f of filteredFixtures) {
