@@ -90,9 +90,9 @@
   position: absolute;
   top: 0; left: 50%;
   transform: translateX(-50%);
-  width: 700px;
-  height: 400px;
-  background: radial-gradient(ellipse at center top, rgba(22,163,74,0.18) 0%, rgba(91,110,245,0.08) 45%, transparent 75%);
+  width: 900px;
+  height: 550px;
+  background: radial-gradient(ellipse at center top, rgba(22,163,74,0.38) 0%, rgba(252,191,73,0.16) 50%, transparent 75%);
   pointer-events: none;
 }
 
