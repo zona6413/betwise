@@ -636,9 +636,22 @@ export default function App() {
 }
 
 function ErrorBanner({ message, onRetry }) {
+  const isServerDown = message === 'server_unavailable';
   return (
     <div className="error-banner">
-      <span>{message}</span>
+      <div className="error-banner-content">
+        <span className="error-banner-icon">⚡</span>
+        <div>
+          <p className="error-banner-title">
+            {isServerDown ? 'Serveur en cours de démarrage…' : 'Erreur de connexion'}
+          </p>
+          <p className="error-banner-sub">
+            {isServerDown
+              ? 'Le serveur se réveille (~30s). Réessaie dans quelques secondes.'
+              : message}
+          </p>
+        </div>
+      </div>
       <button onClick={onRetry}>Réessayer</button>
     </div>
   );
@@ -648,13 +661,15 @@ function Empty({ tab, onReset }) {
   const msgs = {
     live:     'Aucun match en direct pour le moment.',
     value:    'Aucun value bet détecté pour l\'instant.',
-    today:    'Aucun match aujourd\'hui.',
-    tomorrow: 'Aucun match demain.',
+    today:    'Aucun match disponible aujourd\'hui.',
+    tomorrow: 'Aucun match disponible demain.',
   };
   return (
     <div className="empty-state">
-      <p>{msgs[tab] ?? 'Aucun match disponible.'}</p>
-      <button className="btn-reset" onClick={onReset}>Voir tous les matchs</button>
+      <div className="empty-state-icon">📅</div>
+      <p className="empty-state-title">{msgs[tab] ?? 'Aucun match disponible.'}</p>
+      <p className="empty-state-sub">La Coupe du Monde 2026 commence le 11 juin — les matchs apparaîtront automatiquement.</p>
+      <button className="btn-reset" onClick={onReset}>Actualiser</button>
     </div>
   );
 }
