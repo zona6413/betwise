@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
  * Fond avec halo radial configurable.
  *
  * Props:
- *  - color     : couleur du glow (défaut: violet BetWise)
+ *  - color     : couleur du glow (défaut: violet DoddBet)
  *  - size      : rayon du cercle en px (défaut: 500)
  *  - x         : position X en % (défaut: "50%")
  *  - y         : position Y en px ou % (défaut: "50%")

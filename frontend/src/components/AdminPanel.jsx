@@ -233,7 +233,7 @@ export default function AdminPanel({ authFetch, onClose }) {
                       ).join('\n');
                       const blob = new Blob([csv], { type: 'text/csv' });
                       const url  = URL.createObjectURL(blob);
-                      const a    = document.createElement('a'); a.href = url; a.download = 'betwise-leads.csv'; a.click();
+                      const a    = document.createElement('a'); a.href = url; a.download = 'doddbet-leads.csv'; a.click();
                       URL.revokeObjectURL(url);
                     }}
                   >

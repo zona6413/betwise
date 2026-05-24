@@ -1,13 +1,13 @@
 import { cn } from "@/lib/utils";
 
 /**
- * Glow Backgrounds — 21st.dev adaptation (dark theme BetWise)
+ * Glow Backgrounds — 21st.dev adaptation (dark theme DoddBet)
  *
  * Variants:
  *  - YellowGlow   : halo jaune doux (light, non utilisé en dark)
  *  - SunriseGlow  : halo doré (original demo)
- *  - GoldGlow     : halo ambre/or → section Pro / premium BetWise
- *  - VioletGlow   : halo violet → section principale BetWise
+ *  - GoldGlow     : halo ambre/or → section Pro / premium DoddBet
+ *  - VioletGlow   : halo violet → section principale DoddBet
  */
 
 /** Halo jaune doux — fond blanc (original) */
@@ -39,7 +39,7 @@ export const SunriseGlow = ({ className, children }) => (
 );
 
 /**
- * GoldGlow — halo ambre/or sur fond sombre BetWise
+ * GoldGlow — halo ambre/or sur fond sombre DoddBet
  * Idéal pour : section Pro, badge premium, picks du jour
  */
 export const GoldGlow = ({ className, children, size = 600, x = "50%", y = "0px" }) => (
@@ -55,7 +55,7 @@ export const GoldGlow = ({ className, children, size = 600, x = "50%", y = "0px"
 );
 
 /**
- * VioletGlow — halo violet BetWise
+ * VioletGlow — halo violet DoddBet
  * Usage général pour les sections principales
  */
 export const VioletGlow = ({ className, children, size = 600, x = "50%", y = "0px" }) => (
