@@ -58,9 +58,9 @@ export default function LegalPage({ initialTab = 'mentions', onClose }) {
               <h2>3. Hébergement</h2>
               <p>
                 <strong>Frontend :</strong><br/>
-                Netlify, Inc.<br/>
-                44 Montgomery Street, Suite 300, San Francisco, CA 94104, USA<br/>
-                <a href="https://www.netlify.com" target="_blank" rel="noreferrer">www.netlify.com</a>
+                Vercel, Inc.<br/>
+                340 S Lemon Ave #4133, Walnut, CA 91789, USA<br/>
+                <a href="https://vercel.com" target="_blank" rel="noreferrer">vercel.com</a>
                 <br/><br/>
                 <strong>Backend / API :</strong><br/>
                 Render Services, Inc.<br/>
@@ -313,7 +313,7 @@ export default function LegalPage({ initialTab = 'mentions', onClose }) {
                 <li><strong>Stripe</strong> — traitement des paiements (politique : <a href="https://stripe.com/fr/privacy" target="_blank" rel="noreferrer">stripe.com/fr/privacy</a>)</li>
                 <li><strong>MongoDB Atlas</strong> — hébergement de la base de données (UE)</li>
                 <li><strong>Render.com</strong> — hébergement du serveur applicatif (USA — Privacy Shield)</li>
-                <li><strong>Netlify</strong> — hébergement du frontend (USA — Privacy Shield)</li>
+                <li><strong>Vercel</strong> — hébergement du frontend (USA — Privacy Shield)</li>
               </ul>
               <p>DoddBet ne vend, ne loue et ne cède jamais vos données à des tiers à des fins commerciales.</p>
 
@@ -356,7 +356,7 @@ export default function LegalPage({ initialTab = 'mentions', onClose }) {
 
               <h2>9. Transferts hors UE</h2>
               <p>
-                Certains prestataires (Render, Netlify, Stripe) sont basés aux États-Unis.
+                Certains prestataires (Render, Vercel, Stripe) sont basés aux États-Unis.
                 Ces transferts sont encadrés par des Clauses Contractuelles Types (CCT) approuvées
                 par la Commission européenne, conformément à l'Art. 46 RGPD.
               </p>
