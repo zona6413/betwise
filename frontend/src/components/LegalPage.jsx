@@ -49,7 +49,7 @@ export default function LegalPage({ initialTab = 'mentions', onClose }) {
                 <strong>Noah — Entrepreneur individuel</strong><br/>
                 Statut : Auto-entrepreneur<br/>
                 Activité : Édition de logiciels et services numériques<br/>
-                Contact : <a href="mailto:contact@doddbet.com">contact@doddbet.com</a>
+                Contact : <a href="mailto:doddbetservice@proton.me">doddbetservice@proton.me</a>
               </p>
 
               <h2>2. Directeur de la publication</h2>
@@ -98,7 +98,7 @@ export default function LegalPage({ initialTab = 'mentions', onClose }) {
               <h2>7. Contact</h2>
               <p>
                 Pour toute question relative aux mentions légales :<br/>
-                <a href="mailto:contact@doddbet.com">contact@doddbet.com</a>
+                <a href="mailto:doddbetservice@proton.me">doddbetservice@proton.me</a>
               </p>
             </div>
           )}
@@ -150,7 +150,7 @@ export default function LegalPage({ initialTab = 'mentions', onClose }) {
                 L'utilisateur est responsable de la confidentialité de ses identifiants.
                 Toute utilisation du compte est réputée effectuée par son titulaire.
                 En cas de compromission, l'utilisateur doit contacter immédiatement DoddBet
-                à <a href="mailto:contact@doddbet.com">contact@doddbet.com</a>.
+                à <a href="mailto:doddbetservice@proton.me">doddbetservice@proton.me</a>.
               </p>
               <p>
                 DoddBet se réserve le droit de suspendre ou supprimer tout compte en cas de :
@@ -185,7 +185,7 @@ export default function LegalPage({ initialTab = 'mentions', onClose }) {
                 Conformément à l'article L.221-18 du Code de la consommation, l'utilisateur dispose
                 d'un <strong>droit de rétractation de 14 jours</strong> à compter de la souscription
                 pour les nouvelles souscriptions. Ce droit ne s'applique pas aux renouvellements.
-                Pour exercer ce droit : <a href="mailto:contact@doddbet.com">contact@doddbet.com</a>.
+                Pour exercer ce droit : <a href="mailto:doddbetservice@proton.me">doddbetservice@proton.me</a>.
               </p>
 
               <h2>7. Absence de garantie de gains</h2>
@@ -229,7 +229,7 @@ export default function LegalPage({ initialTab = 'mentions', onClose }) {
               <h2>11. Résiliation</h2>
               <p>
                 L'utilisateur peut supprimer son compte à tout moment en contactant
-                <a href="mailto:contact@doddbet.com"> contact@doddbet.com</a>.
+                <a href="mailto:doddbetservice@proton.me"> doddbetservice@proton.me</a>.
                 La suppression entraîne la perte de toutes les données associées (historique de paris,
                 paramètres) dans un délai de 30 jours.
               </p>
@@ -259,7 +259,7 @@ export default function LegalPage({ initialTab = 'mentions', onClose }) {
               <p>
                 Le responsable du traitement des données personnelles est :<br/><br/>
                 <strong>Noah — DoddBet</strong><br/>
-                Contact : <a href="mailto:contact@doddbet.com">contact@doddbet.com</a>
+                Contact : <a href="mailto:doddbetservice@proton.me">doddbetservice@proton.me</a>
               </p>
 
               <h2>2. Données collectées</h2>
@@ -328,7 +328,7 @@ export default function LegalPage({ initialTab = 'mentions', onClose }) {
                 <li><strong>Droit à la limitation</strong> : limiter temporairement le traitement</li>
               </ul>
               <p>
-                Pour exercer ces droits : <a href="mailto:contact@doddbet.com">contact@doddbet.com</a><br/>
+                Pour exercer ces droits : <a href="mailto:doddbetservice@proton.me">doddbetservice@proton.me</a><br/>
                 Délai de réponse : 30 jours maximum.<br/>
                 En cas de réponse insatisfaisante, vous pouvez saisir la <strong>CNIL</strong> :
                 <a href="https://www.cnil.fr" target="_blank" rel="noreferrer"> cnil.fr</a>
@@ -364,7 +364,7 @@ export default function LegalPage({ initialTab = 'mentions', onClose }) {
               <h2>10. Contact</h2>
               <p>
                 Pour toute question relative à la protection de vos données :<br/>
-                <a href="mailto:contact@doddbet.com">contact@doddbet.com</a><br/>
+                <a href="mailto:doddbetservice@proton.me">doddbetservice@proton.me</a><br/>
                 Objet : « Protection des données — [votre demande] »
               </p>
             </div>

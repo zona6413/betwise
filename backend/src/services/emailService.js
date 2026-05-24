@@ -5,7 +5,7 @@
 import { Resend } from 'resend';
 
 const RESEND_KEY  = process.env.RESEND_API_KEY?.trim() ?? null;
-const FROM_EMAIL  = process.env.FROM_EMAIL?.trim()    ?? 'DoddBet <noreply@doddbet.com>';
+const FROM_EMAIL  = process.env.FROM_EMAIL?.trim()    ?? 'DoddBet <doddbetservice@proton.me>';
 const APP_URL     = process.env.FRONTEND_URL?.trim()  ?? 'https://doddbet.com';
 
 const resend = RESEND_KEY ? new Resend(RESEND_KEY) : null;
