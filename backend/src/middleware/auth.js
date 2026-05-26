@@ -1,7 +1,7 @@
 import jwt  from 'jsonwebtoken';
 import User from '../models/User.js';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'betwise_dev_secret_change_in_prod';
+const JWT_SECRET = process.env.JWT_SECRET || 'doddbet_dev_secret_change_in_prod';
 
 export function signToken(userId) {
   return jwt.sign({ sub: userId }, JWT_SECRET, { expiresIn: '30d' });

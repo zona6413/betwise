@@ -1,5 +1,5 @@
 /**
- * admin.js — Panel admin BetWise
+ * admin.js — Panel admin DoddBet
  * Toutes les routes sont protégées par requireAdmin
  */
 import { Router } from 'express';

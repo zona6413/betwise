@@ -118,7 +118,7 @@ app.use((_req, res) => res.status(404).json({ error: 'Route not found' }));
 
 // ── Start ───────────────────────────────────────────────────────────────────────
 app.listen(PORT, () => {
-  console.log(`\n🚀 BetWise backend  →  http://localhost:${PORT}`);
+  console.log(`\n🚀 DoddBet backend  →  http://localhost:${PORT}`);
   console.log(`   API-Football : ${process.env.API_FOOTBALL_KEY ? '✅ clé configurée' : '⚠️  mode mock (sans clé API)'}`);
   console.log(`   TheOddsAPI   : ${process.env.ODDS_API_KEY     ? '✅ clé configurée' : '⚠️  mode mock (sans clé API)'}`);
   console.log(`   MongoDB      : ${process.env.MONGODB_URI      ? '✅ configuré'      : '⚠️  non configuré (comptes désactivés)'}\n`);

@@ -8,7 +8,7 @@ const stripe       = new Stripe(process.env.STRIPE_SECRET_KEY ?? 'sk_test_placeh
 const router       = Router();
 const PRICE_MONTHLY = process.env.STRIPE_PRICE_MONTHLY;
 const PRICE_YEARLY  = process.env.STRIPE_PRICE_YEARLY;
-const FRONTEND_URL  = (process.env.FRONTEND_URL ?? 'https://betwise.vercel.app').replace(/\/$/, '');
+const FRONTEND_URL  = (process.env.FRONTEND_URL ?? 'https://doddbet.com').replace(/\/$/, '');
 
 // ── POST /api/stripe/create-checkout ──────────────────────────────────────────
 // Crée une session Stripe Checkout et retourne l'URL de paiement
