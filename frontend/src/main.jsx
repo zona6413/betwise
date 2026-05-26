@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.jsx';
 import './index.css';
+import { inject } from '@vercel/analytics';
 
 // Error boundary — évite l'écran noir en cas de crash React
 class ErrorBoundary extends React.Component {
@@ -44,6 +45,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     </ErrorBoundary>
   </React.StrictMode>
 );
+
+// Vercel Analytics
+inject();
 
 // Enregistrement du Service Worker (PWA)
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
