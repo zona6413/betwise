@@ -26,7 +26,7 @@ class ErrorBoundary extends React.Component {
             Essaie de rafraîchir la page
           </p>
           <button onClick={() => window.location.reload()} style={{
-            background: 'linear-gradient(135deg, #5b6ef5, #a855f7)', color: '#fff',
+            background: 'linear-gradient(135deg, #b45309, #eab308)', color: '#fff',
             border: 'none', borderRadius: 12, padding: '10px 24px',
             fontSize: 14, fontWeight: 700, cursor: 'pointer', marginTop: 8,
           }}>Rafraîchir</button>

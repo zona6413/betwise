@@ -58,12 +58,12 @@ export const GoldGlow = ({ className, children, size = 600, x = "50%", y = "0px"
  * VioletGlow — halo violet DoddBet
  * Usage général pour les sections principales
  */
-export const VioletGlow = ({ className, children, size = 600, x = "50%", y = "0px" }) => (
+export const GoldGlowAlt = ({ className, children, size = 600, x = "50%", y = "0px" }) => (
   <div className={cn("relative overflow-hidden", className)}>
     <div
       className="absolute inset-0 z-0 pointer-events-none"
       style={{
-        backgroundImage: `radial-gradient(circle ${size}px at ${x} ${y}, rgba(139,92,246,0.15), transparent)`,
+        backgroundImage: `radial-gradient(circle ${size}px at ${x} ${y}, rgba(234,179,8,0.15), transparent)`,
       }}
     />
     <div className="relative z-10">{children}</div>

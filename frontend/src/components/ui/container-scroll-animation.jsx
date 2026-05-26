@@ -52,11 +52,11 @@ export const ScrollCard = ({ rotate, scale, children }) => (
       margin: "-3rem auto 0",
       height: "40rem",
       width: "100%",
-      border: "1px solid rgba(139,92,246,0.25)",
+      border: "1px solid rgba(234,179,8,0.25)",
       background: "#0C0F18",
       borderRadius: "24px",
       padding: "8px",
-      boxShadow: "0 0 #0000004d, 0 9px 20px #0000004a, 0 37px 37px #00000042, 0 84px 50px #00000026, 0 0 40px rgba(139,92,246,0.08)",
+      boxShadow: "0 0 #0000004d, 0 9px 20px #0000004a, 0 37px 37px #00000042, 0 84px 50px #00000026, 0 0 40px rgba(234,179,8,0.08)",
     }}
   >
     <div style={{ height: "100%", width: "100%", overflow: "hidden", borderRadius: "18px", background: "#080B12" }}>

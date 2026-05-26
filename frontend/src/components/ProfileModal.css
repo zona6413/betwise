@@ -80,7 +80,7 @@
   color: #fff;
   letter-spacing: -0.5px;
   flex-shrink: 0;
-  box-shadow: 0 4px 16px rgba(91, 110, 245, 0.4);
+  box-shadow: 0 4px 16px rgba(234, 179, 8, 0.4);
 }
 
 .profile-identity {
@@ -120,8 +120,8 @@
   width: fit-content;
 }
 .role--free  { background: rgba(255,255,255,0.06); color: rgba(240,242,248,0.5); border: 1px solid rgba(255,255,255,0.08); }
-.role--pro   { background: rgba(91,110,245,0.15);  color: #a5b4fc; border: 1px solid rgba(91,110,245,0.3); }
-.role--admin { background: rgba(168,85,247,0.15);  color: #d8b4fe; border: 1px solid rgba(168,85,247,0.3); }
+.role--pro   { background: rgba(234,179,8,0.15);  color: #eab308; border: 1px solid rgba(234,179,8,0.3); }
+.role--admin { background: rgba(180,83,9,0.15);   color: #fcbf49; border: 1px solid rgba(180,83,9,0.3); }
 
 /* ── Tabs ────────────────────────────────────────── */
 .profile-tabs {
@@ -148,9 +148,9 @@
 }
 .profile-tab:hover { color: rgba(240,242,248,0.7); background: rgba(255,255,255,0.04); }
 .profile-tab.active {
-  background: rgba(91, 110, 245, 0.12);
-  border-color: rgba(91, 110, 245, 0.3);
-  color: #a5b4fc;
+  background: rgba(234, 179, 8, 0.12);
+  border-color: rgba(234, 179, 8, 0.3);
+  color: #eab308;
 }
 
 /* ── Body ────────────────────────────────────────── */
@@ -203,7 +203,7 @@
   width: 100%;
   box-sizing: border-box;
 }
-.profile-field input:focus { border-color: rgba(91, 110, 245, 0.5); }
+.profile-field input:focus { border-color: rgba(234, 179, 8, 0.5); }
 .profile-field input::placeholder { color: rgba(240,242,248,0.2); }
 .profile-input--disabled { opacity: 0.45; cursor: not-allowed; }
 
@@ -284,13 +284,13 @@
 }
 
 .profile-btn--stripe {
-  background: rgba(99, 102, 241, 0.1);
-  border: 1px solid rgba(99, 102, 241, 0.25);
-  color: #a5b4fc;
+  background: rgba(234, 179, 8, 0.1);
+  border: 1px solid rgba(234, 179, 8, 0.25);
+  color: #eab308;
   margin-top: 16px;
 }
 .profile-btn--stripe:hover:not(:disabled) {
-  background: rgba(99, 102, 241, 0.18);
+  background: rgba(234, 179, 8, 0.18);
 }
 
 .profile-btn-row {
@@ -399,8 +399,8 @@
   letter-spacing: -0.5px;
 }
 .profile-plan-name.role--free  { color: rgba(240,242,248,0.5); }
-.profile-plan-name.role--pro   { color: #a5b4fc; }
-.profile-plan-name.role--admin { color: #d8b4fe; }
+.profile-plan-name.role--pro   { color: #eab308; }
+.profile-plan-name.role--admin { color: #fcbf49; }
 
 .profile-plan-expiry {
   font-size: 11px;

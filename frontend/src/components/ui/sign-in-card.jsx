@@ -68,7 +68,7 @@ function SubmitBtn({ loading, label }) {
       style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
     >
       <div style={{
-        background: loading ? 'rgba(139,92,246,0.7)' : '#8B5CF6',
+        background: loading ? 'rgba(234,179,8,0.7)' : '#eab308',
         height: '40px',
         borderRadius: '12px',
         display: 'flex',
@@ -198,8 +198,8 @@ export default function SignInCard({ onLogin, onRegister, onClose, loading, erro
         ) : (
           <div className="text-center py-3">
             <div className="w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-3"
-              style={{ background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.25)' }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8B5CF6" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+              style={{ background: 'rgba(234,179,8,0.15)', border: '1px solid rgba(234,179,8,0.25)' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#eab308" strokeWidth="2.5" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
             </div>
             <p className="text-white/55 text-sm">Envoyé à <span className="text-white">{email}</span></p>
             <button type="button" onClick={() => switchMode('login')}
@@ -364,7 +364,7 @@ export default function SignInCard({ onLogin, onRegister, onClose, loading, erro
               {/* Logo */}
               <motion.div className="flex items-center gap-2 mb-5"
                 initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-                <div style={{ width: 30, height: 30, borderRadius: 9, background: '#8B5CF6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: 30, height: 30, borderRadius: 9, background: '#eab308', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <BarChart2 className="w-4 h-4 text-white" />
                 </div>
                 <span style={{ color: '#fff', fontWeight: 600, fontSize: '14px', letterSpacing: '-0.3px' }}>DoddBet</span>

@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
  *  - children  : contenu par-dessus le fond
  */
 export function RadialGlowBackground({
-  color = "rgba(139,92,246,0.35)",
+  color = "rgba(234,179,8,0.35)",
   size = 500,
   x = "50%",
   y = "50%",

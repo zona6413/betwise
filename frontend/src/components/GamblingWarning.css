@@ -113,13 +113,13 @@
 .gw-checkbox input {
   width: 15px;
   height: 15px;
-  accent-color: #6c63ff;
+  accent-color: #eab308;
   cursor: pointer;
   flex-shrink: 0;
 }
 
 .gw-btn {
-  background: linear-gradient(135deg, #6c63ff, #b45309);
+  background: linear-gradient(135deg, #b45309, #eab308);
   border: none;
   border-radius: 12px;
   color: #fff;

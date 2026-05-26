@@ -17,7 +17,7 @@
 
 .auth-modal {
   background: #13151f;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(234, 179, 8, 0.12);
   border-radius: 20px;
   width: 100%;
   max-width: 400px;
@@ -26,7 +26,7 @@
   flex-direction: column;
   position: relative;
   animation: authIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255,255,255,0.04);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6), 0 0 60px rgba(234, 179, 8, 0.06), 0 0 0 1px rgba(234,179,8,0.06);
 }
 
 @keyframes authIn {
@@ -149,8 +149,8 @@
   font-family: inherit;
 }
 .auth-field input:focus {
-  border-color: rgba(91, 110, 245, 0.55);
-  background: rgba(91, 110, 245, 0.05);
+  border-color: rgba(234, 179, 8, 0.5);
+  background: rgba(234, 179, 8, 0.04);
 }
 .auth-field input::placeholder {
   color: rgba(240, 242, 248, 0.2);
@@ -277,7 +277,7 @@
   transition: color 0.15s;
 }
 .auth-switch button:hover {
-  color: #a5b4fc;
+  color: #fcbf49;
 }
 
 /* ── Continuer sans compte ──────────────────────── */
@@ -309,7 +309,7 @@
 .auth-forgot-link {
   background: none;
   border: none;
-  color: rgba(165, 180, 252, 0.55);
+  color: rgba(234, 179, 8, 0.55);
   font-size: 11.5px;
   font-weight: 600;
   cursor: pointer;
@@ -318,7 +318,7 @@
   transition: color 0.15s;
 }
 .auth-forgot-link:hover {
-  color: #a5b4fc;
+  color: #eab308;
 }
 
 /* ── Bouton retour ──────────────────────────────── */
@@ -353,12 +353,12 @@
   width: 52px;
   height: 52px;
   border-radius: 50%;
-  background: rgba(99, 102, 241, 0.12);
-  border: 1px solid rgba(99, 102, 241, 0.25);
+  background: rgba(234, 179, 8, 0.1);
+  border: 1px solid rgba(234, 179, 8, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #a5b4fc;
+  color: #eab308;
   flex-shrink: 0;
 }
 

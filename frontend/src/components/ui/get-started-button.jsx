@@ -15,7 +15,7 @@ export function GetStartedButton({ onClick, label = "Commencer", size = "lg" }) 
         display: 'inline-flex',
         alignItems: 'center',
         overflow: 'hidden',
-        background: '#8B5CF6',
+        background: '#eab308',
         color: '#fff',
         border: 'none',
         borderRadius: '8px',

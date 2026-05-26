@@ -84,7 +84,7 @@
   border: 1px solid transparent;
 }
 .combo-card--safe   { background: rgba(0,214,143,0.05);  border-color: rgba(0,214,143,0.2); }
-.combo-card--medium { background: rgba(129,140,248,0.05); border-color: rgba(129,140,248,0.2); }
+.combo-card--medium { background: rgba(234,179,8,0.05); border-color: rgba(234,179,8,0.2); }
 .combo-card--value  { background: rgba(245,166,35,0.05);  border-color: rgba(245,166,35,0.2); }
 
 .combo-card-top {
@@ -108,7 +108,7 @@
   font-variant-numeric: tabular-nums;
 }
 .combo-card--safe   .combo-card-odd { color: #00d68f; }
-.combo-card--medium .combo-card-odd { color: #a5b4fc; }
+.combo-card--medium .combo-card-odd { color: #eab308; }
 .combo-card--value  .combo-card-odd { color: #f5a623; }
 
 .combo-card-prob {

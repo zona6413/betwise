@@ -53,8 +53,8 @@
   gap: 16px;
 }
 .pricing-card--best {
-  border-color: rgba(91,110,245,0.5);
-  background: rgba(91,110,245,0.08);
+  border-color: rgba(234,179,8,0.5);
+  background: rgba(234,179,8,0.08);
 }
 .pricing-card--free {
   opacity: 0.75;
@@ -179,7 +179,7 @@
 .pricing-link {
   background: none;
   border: none;
-  color: #9ba3f8;
+  color: #eab308;
   cursor: pointer;
   font-size: 13px;
   text-decoration: underline;

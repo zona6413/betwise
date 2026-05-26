@@ -102,7 +102,7 @@
 
 .modal-predicted {
   display: flex; flex-direction: column; align-items: center; gap: 2px;
-  background: rgba(91,110,245,0.11); border: 1px solid rgba(91,110,245,0.22);
+  background: rgba(234,179,8,0.11); border: 1px solid rgba(234,179,8,0.22);
   border-radius: 10px; padding: 6px 12px;
 }
 .modal-predicted-label { font-size: 9px; font-weight: 700; color: #eab308; text-transform: uppercase; letter-spacing: 0.6px; }
@@ -144,7 +144,7 @@
 }
 .lecture-pill--open   { background: rgba(0,214,143,0.1); border-color: rgba(0,214,143,0.25); color: #00d68f; }
 .lecture-pill--closed { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); color: rgba(255,255,255,0.5); }
-.lecture-pill--neutral { background: rgba(91,110,245,0.09); border-color: rgba(91,110,245,0.2); color: #a5b4fc; }
+.lecture-pill--neutral { background: rgba(234,179,8,0.09); border-color: rgba(234,179,8,0.2); color: #eab308; }
 
 .modal-lecture-context {
   font-size: 13.5px; line-height: 1.7;
@@ -152,7 +152,7 @@
   margin: 0;
   padding: 12px 16px;
   background: rgba(255,255,255,0.025);
-  border-left: 2px solid rgba(91,110,245,0.35);
+  border-left: 2px solid rgba(234,179,8,0.35);
   border-radius: 0 8px 8px 0;
 }
 
@@ -241,7 +241,7 @@
 .modal-market-bar-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
 .modal-market-bar-fill--blue   { background: linear-gradient(90deg, #b45309, #eab308); }
 .modal-market-bar-fill--grey   { background: rgba(255,255,255,0.25); }
-.modal-market-bar-fill--purple { background: linear-gradient(90deg, #EAB308, #FCBF49); }
+.modal-market-bar-fill--gold { background: linear-gradient(90deg, #EAB308, #FCBF49); }
 .modal-market-bar-fill--green  { background: linear-gradient(90deg, #00d68f, #00b4d8); }
 .modal-market-bar-fill--orange { background: linear-gradient(90deg, #eab308, #fbbf24); }
 .modal-market-bar-fill--teal   { background: linear-gradient(90deg, #06b6d4, #22d3ee); }
@@ -276,14 +276,14 @@
 
 .modal-bet { border-radius: 12px; padding: 16px; border: 1px solid transparent; }
 .modal-bet--safe   { background: rgba(0,214,143,0.04); border-color: rgba(0,214,143,0.14); }
-.modal-bet--medium { background: rgba(129,140,248,0.04); border-color: rgba(129,140,248,0.14); }
+.modal-bet--medium { background: rgba(234,179,8,0.04); border-color: rgba(234,179,8,0.14); }
 .modal-bet--value  { background: rgba(245,166,35,0.04); border-color: rgba(245,166,35,0.14); }
 
 .modal-bet--highlighted {
   position: relative;
 }
 .modal-bet--safe.modal-bet--highlighted   { box-shadow: 0 0 0 2px rgba(0,214,143,0.45); }
-.modal-bet--medium.modal-bet--highlighted { box-shadow: 0 0 0 2px rgba(129,140,248,0.45); }
+.modal-bet--medium.modal-bet--highlighted { box-shadow: 0 0 0 2px rgba(234,179,8,0.45); }
 .modal-bet--value.modal-bet--highlighted  { box-shadow: 0 0 0 2px rgba(245,166,35,0.45); }
 .modal-bet--highlighted::after {
   content: '✓ Votre profil';
@@ -308,7 +308,7 @@
   letter-spacing: -0.5px; line-height: 1; font-variant-numeric: tabular-nums;
 }
 .modal-bet--safe   .modal-bet-odd { color: #00d68f; }
-.modal-bet--medium .modal-bet-odd { color: #a5b4fc; }
+.modal-bet--medium .modal-bet-odd { color: #eab308; }
 .modal-bet--value  .modal-bet-odd { color: #f5a623; }
 .modal-bet-prob { font-size: 11px; color: rgba(255,255,255,0.35); font-weight: 600; margin-top: 2px; font-variant-numeric: tabular-nums; }
 
@@ -344,7 +344,7 @@
   flex-direction: column;
   gap: 8px;
 }
-.modal-player-block--home { border-top: 2px solid rgba(91,110,245,0.4); }
+.modal-player-block--home { border-top: 2px solid rgba(234,179,8,0.4); }
 .modal-player-block--away { border-top: 2px solid rgba(255,107,53,0.4); }
 
 .modal-player-team {

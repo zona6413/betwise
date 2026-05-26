@@ -11,8 +11,8 @@
 }
 
 .search-bar--focused {
-  border-color: var(--accent, #6c63ff);
-  box-shadow: 0 0 0 2px rgba(108,99,255,0.15);
+  border-color: var(--accent, #eab308);
+  box-shadow: 0 0 0 2px rgba(234,179,8,0.15);
 }
 
 .search-icon {
@@ -93,8 +93,8 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--accent, #6c63ff);
-  background: rgba(108,99,255,0.12);
+  color: var(--accent, #eab308);
+  background: rgba(234,179,8,0.12);
   border-radius: 4px;
   padding: 2px 6px;
   flex-shrink: 0;

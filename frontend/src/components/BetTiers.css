@@ -58,7 +58,7 @@
   text-transform: uppercase;
 }
 .bet-level-tag--safe   { background: var(--green-dim);      color: var(--green); border: 1px solid rgba(0,214,143,0.2); }
-.bet-level-tag--medium { background: rgba(129,140,248,0.1); color: #eab308;    border: 1px solid rgba(129,140,248,0.2); }
+.bet-level-tag--medium { background: rgba(234,179,8,0.1); color: #eab308;    border: 1px solid rgba(234,179,8,0.2); }
 .bet-level-tag--value  { background: var(--gold-dim);       color: var(--gold); border: 1px solid rgba(245,166,35,0.25); }
 .bet-level-tag--risky  { background: rgba(239,68,68,0.12);  color: #ef4444;    border: 1px solid rgba(239,68,68,0.25); }
 
@@ -154,7 +154,7 @@
   line-height: 1;
 }
 .bet-row--safe   .bet-odd { color: var(--green); }
-.bet-row--medium .bet-odd { color: #a5b4fc; }
+.bet-row--medium .bet-odd { color: #eab308; }
 .bet-row--value  .bet-odd { color: var(--gold); }
 .bet-row--risky  .bet-odd { color: #ef4444; }
 

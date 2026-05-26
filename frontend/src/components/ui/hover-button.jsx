@@ -84,8 +84,8 @@ const HoverButton = React.forwardRef(({ className, children, ...props }, ref) =>
       onPointerLeave={handlePointerLeave}
       {...props}
       style={{
-        "--circle-start": "#c4b5fd",
-        "--circle-end": "#8B5CF6",
+        "--circle-start": "#fcbf49",
+        "--circle-end": "#eab308",
       }}>
       {circles.map(({ id, x, y, color, fadeState }) => (
         <div

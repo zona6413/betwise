@@ -24,9 +24,9 @@
 }
 
 .toast--refresh {
-  background: rgba(91,110,245,0.12);
-  border: 1px solid rgba(91,110,245,0.3);
-  color: #9ba3f8;
+  background: rgba(234,179,8,0.12);
+  border: 1px solid rgba(234,179,8,0.3);
+  color: #eab308;
 }
 
 .toast-icon { font-size: 16px; }

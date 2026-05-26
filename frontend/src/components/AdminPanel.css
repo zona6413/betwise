@@ -55,9 +55,9 @@
   font-size: 9px;
   font-weight: 800;
   letter-spacing: 1.2px;
-  background: rgba(168, 85, 247, 0.2);
-  color: #d8b4fe;
-  border: 1px solid rgba(168, 85, 247, 0.3);
+  background: rgba(234, 179, 8, 0.2);
+  color: #eab308;
+  border: 1px solid rgba(234, 179, 8, 0.3);
   padding: 3px 7px;
   border-radius: 5px;
 }
@@ -101,9 +101,9 @@
 }
 .admin-tab:hover { color: rgba(240,242,248,0.7); background: rgba(255,255,255,0.04); }
 .admin-tab.active {
-  background: rgba(168,85,247,0.12);
-  border-color: rgba(168,85,247,0.3);
-  color: #d8b4fe;
+  background: rgba(234,179,8,0.12);
+  border-color: rgba(234,179,8,0.3);
+  color: #eab308;
 }
 
 /* ── Body ─── */
@@ -136,7 +136,7 @@
   flex-direction: column;
   gap: 6px;
 }
-.admin-stat-card--pro   { border-color: rgba(91,110,245,0.2);  background: rgba(91,110,245,0.05); }
+.admin-stat-card--pro   { border-color: rgba(234,179,8,0.2);  background: rgba(234,179,8,0.05); }
 .admin-stat-card--green { border-color: rgba(34,197,94,0.2);   background: rgba(34,197,94,0.04); }
 
 .asc-label {
@@ -183,7 +183,7 @@
   outline: none;
   font-family: inherit;
 }
-.admin-search:focus { border-color: rgba(168,85,247,0.4); }
+.admin-search:focus { border-color: rgba(234,179,8,0.4); }
 .admin-search::placeholder { color: rgba(240,242,248,0.2); }
 
 .admin-select {
@@ -250,8 +250,8 @@
   display: inline-block;
 }
 .role-free  { background: rgba(255,255,255,0.05); color: rgba(240,242,248,0.4);  border: 1px solid rgba(255,255,255,0.08); }
-.role-pro   { background: rgba(91,110,245,0.12);  color: #a5b4fc; border: 1px solid rgba(91,110,245,0.25); }
-.role-admin { background: rgba(168,85,247,0.12);  color: #d8b4fe; border: 1px solid rgba(168,85,247,0.25); }
+.role-pro   { background: rgba(234,179,8,0.12);  color: #eab308; border: 1px solid rgba(234,179,8,0.25); }
+.role-admin { background: rgba(180,83,9,0.12);   color: #fcbf49; border: 1px solid rgba(180,83,9,0.25); }
 
 .admin-role-select {
   background: rgba(255,255,255,0.04);
