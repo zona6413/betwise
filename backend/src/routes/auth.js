@@ -25,7 +25,7 @@ const forgotLimiter = rateLimit({
 
 const router = Router();
 
-const APP_URL = process.env.FRONTEND_URL?.trim() ?? 'https://betwise.netlify.app';
+const APP_URL = process.env.FRONTEND_URL?.trim() ?? 'https://doddbet.com';
 
 // ── POST /api/auth/register ─────────────────────────────────
 router.post('/register', authLimiter, async (req, res) => {
