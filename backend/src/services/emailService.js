@@ -6,6 +6,7 @@ import { Resend } from 'resend';
 
 const RESEND_KEY  = process.env.RESEND_API_KEY?.trim() ?? null;
 const FROM_EMAIL  = process.env.FROM_EMAIL?.trim()    ?? 'DoddBet <noreply@doddbet.com>';
+const REPLY_TO    = 'doddbetservice@proton.me';
 const APP_URL     = process.env.FRONTEND_URL?.trim()  ?? 'https://doddbet.com';
 
 const resend = RESEND_KEY ? new Resend(RESEND_KEY) : null;
@@ -16,7 +17,7 @@ async function send({ to, subject, html }) {
     return { ok: true, dev: true };
   }
   try {
-    const { data, error } = await resend.emails.send({ from: FROM_EMAIL, to, subject, html });
+    const { data, error } = await resend.emails.send({ from: FROM_EMAIL, to, subject, html, reply_to: REPLY_TO });
     if (error) throw new Error(error.message ?? JSON.stringify(error));
     console.log(`[email] Sent "${subject}" → ${to} (id: ${data?.id})`);
     return { ok: true, id: data?.id };
