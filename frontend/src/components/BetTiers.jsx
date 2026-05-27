@@ -65,7 +65,7 @@ export default function BetTiers({ tieredBets }) {
     <div className="bet-tiers">
       <div className="bet-tiers-title">
         <span>Paris recommandés</span>
-        <span className="bet-tiers-sub">IA · 3 niveaux de risque</span>
+        <span className="bet-tiers-sub">Dodd · 3 niveaux de risque</span>
       </div>
       <BetRow bet={tieredBets.safe}   which="SAFE"   />
       <BetRow bet={tieredBets.medium} which="MOYEN"  />

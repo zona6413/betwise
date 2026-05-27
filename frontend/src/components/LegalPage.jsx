@@ -165,7 +165,7 @@ export default function LegalPage({ initialTab = 'mentions', onClose }) {
               <ul>
                 <li><strong>Gratuit</strong> : accès aux matchs du jour et aux analyses de base</li>
                 <li><strong>Pro — 4,99€/mois ou 39€/an</strong> : accès complet à toutes les fonctionnalités
-                  (value bets, combos IA, suivi de paris synchronisé, toutes les ligues)</li>
+                  (value bets, combos Dodd, suivi de paris synchronisé, toutes les ligues)</li>
               </ul>
               <p>
                 Les tarifs sont affichés TTC. DoddBet se réserve le droit de modifier ses tarifs

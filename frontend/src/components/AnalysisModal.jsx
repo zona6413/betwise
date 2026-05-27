@@ -112,11 +112,11 @@ function buildSummary(match) {
     bullets.push('Match équilibré — résultat difficile à anticiper');
 
   if (aiProbs.home > 0.52)
-    bullets.push(`${homeTeam.name} favoris à domicile (${Math.round(aiProbs.home * 100)}% IA)`);
+    bullets.push(`${homeTeam.name} favoris à domicile (${Math.round(aiProbs.home * 100)}% Dodd)`);
   else if (aiProbs.away > 0.44)
     bullets.push(`${awayTeam.name} légèrement favori malgré le déplacement (${Math.round(aiProbs.away * 100)}%)`);
   else
-    bullets.push(`Nul envisageable — ${Math.round(aiProbs.draw * 100)}% de probabilité selon l'IA`);
+    bullets.push(`Nul envisageable — ${Math.round(aiProbs.draw * 100)}% de probabilité selon Dodd`);
 
   if (stats.bttsProb > 0.55 || h2hAvg >= 2.8)
     bullets.push('BTTS (les deux équipes marquent) très probable');
@@ -167,7 +167,7 @@ function buildTendances(match) {
     {
       market: `Victoire ${favName}`,
       prob: favProb,
-      why: `Notre IA évalue la probabilité de victoire à ${Math.round(favProb * 100)}% — forme + classement + H2H combinés.`,
+      why: `Dodd évalue la probabilité de victoire à ${Math.round(favProb * 100)}% — forme + classement + H2H combinés.`,
     },
     {
       market: 'Under 2.5 buts',

@@ -206,7 +206,7 @@ function CalibrationSection({ stats }) {
 
   return (
     <section className="st-section">
-      <h2 className="st-section-title">Apprentissage du modèle IA</h2>
+      <h2 className="st-section-title">Statistiques Dodd</h2>
       <div className="st-cal-summary">
         <div className="st-cal-stat">
           <span className="st-cal-num">{totalOutcomes}</span>

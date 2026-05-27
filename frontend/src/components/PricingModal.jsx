@@ -86,9 +86,9 @@ export default function PricingModal({ onClose, authFetch, isLoggedIn, onOpenAut
                   </div>
                 </div>
                 <ul className="pricing-features">
-                  <li>✅ 3 picks du jour sélectionnés par l'IA</li>
+                  <li>✅ 3 picks du jour sélectionnés par Dodd</li>
                   <li>❌ Accès à tous les matchs</li>
-                  <li>❌ Analyses IA détaillées</li>
+                  <li>❌ Analyses Dodd détaillées</li>
                   <li>❌ Value bets en temps réel</li>
                   <li>❌ Générateur de combos</li>
                   <li>❌ Suivi de paris</li>
@@ -109,7 +109,7 @@ export default function PricingModal({ onClose, authFetch, isLoggedIn, onOpenAut
                 </div>
                 <ul className="pricing-features">
                   <li>✅ Tous les matchs & ligues</li>
-                  <li>✅ Analyses IA illimitées</li>
+                  <li>✅ Analyses Dodd illimitées</li>
                   <li>✅ Value bets en temps réel</li>
                   <li>✅ Générateur de combos</li>
                   <li>✅ Suivi de paris synchronisé</li>

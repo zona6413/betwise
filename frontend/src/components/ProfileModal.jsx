@@ -294,7 +294,7 @@ export default function ProfileModal({ user, onClose, onLogout, onUpdate, authFe
                   <>
                     <p className="profile-plan-desc">Tu es sur le plan gratuit. Passe Pro pour débloquer toutes les fonctionnalités.</p>
                     <div className="profile-plan-features">
-                      {['Value bets en temps réel', 'Combos IA optimisés', 'Tous les championnats', 'Suivi paris synchronisé', 'Stats avancées & ROI'].map(f => (
+                      {['Value bets en temps réel', 'Combos Dodd optimisés', 'Tous les championnats', 'Suivi paris synchronisé', 'Stats avancées & ROI'].map(f => (
                         <div key={f} className="profile-plan-feature">
                           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#818cf8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                           {f}

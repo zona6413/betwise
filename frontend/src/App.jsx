@@ -556,7 +556,7 @@ export default function App() {
                 <div className="free-lock-wall">
                   <div className="free-lock-icon">🔒</div>
                   <p className="free-lock-title">{bettableMatches.length} matchs disponibles aujourd'hui</p>
-                  <p className="free-lock-sub">Passez Pro pour accéder à tous les matchs, value bets, analyses IA et combos optimisés.</p>
+                  <p className="free-lock-sub">Passez Pro pour accéder à tous les matchs, value bets, analyses Dodd et combos optimisés.</p>
                   <button className="btn-upgrade" onClick={() => isLoggedIn ? setShowPricing(true) : setShowAuth(true)}>
                     Débloquer — à partir de 4,99€/mois
                   </button>

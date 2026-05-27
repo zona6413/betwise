@@ -279,7 +279,7 @@ export default function MatchCard({ match, onAnalyse, onBet, riskProfile = 'medi
         >
           <div className="toggle-left">
             <span className={`toggle-label ${expanded ? 'toggle-label--active' : ''}`}>
-              Analyse IA
+              Analyse Dodd
             </span>
             {hasValueBet && !expanded && (
               <span className="toggle-value-hint">Value</span>

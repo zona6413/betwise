@@ -30,8 +30,8 @@ function useCountdown() {
 const FEATURES = [
   {
     icon: '🤖',
-    title: 'Analyses IA',
-    desc: 'Chaque match analysé par notre IA : probabilités, forme, H2H, blessés — tout en un coup d\'œil.',
+    title: 'Analyses Dodd',
+    desc: 'Chaque match analysé par Dodd : probabilités, forme, H2H, blessés — tout en un coup d\'œil.',
   },
   {
     icon: '💎',
@@ -40,7 +40,7 @@ const FEATURES = [
   },
   {
     icon: '🎯',
-    title: 'Combos IA',
+    title: 'Combos Dodd',
     desc: 'Génère des combinés optimisés automatiquement selon ton profil de risque (Prudent / Audacieux).',
   },
   {
@@ -63,7 +63,7 @@ const FEATURES = [
 const STATS = [
   { value: '500+', label: 'Matchs analysés / semaine' },
   { value: '5',    label: 'Ligues top européennes' },
-  { value: '3',    label: 'Niveaux de paris IA' },
+  { value: '3',    label: 'Niveaux de paris Dodd' },
   { value: '24/7', label: 'Mises à jour en temps réel' },
 ];
 
@@ -130,13 +130,13 @@ export default function LandingPage({ onStart, onLogin, onPricing }) {
 
       {/* ── Hero ── */}
       <section className="landing-hero">
-        <div className="landing-hero-badge">🚀 IA · Cotes Poisson · Value Bets</div>
+        <div className="landing-hero-badge">🚀 Dodd · Cotes · Value Bets</div>
         <h1 className="landing-hero-title">
           Pariez plus<br />
           <span className="landing-gradient">intelligemment</span>
         </h1>
         <p className="landing-hero-sub">
-          DoddBet analyse chaque match avec l'IA pour te donner les meilleures chances de gagner.
+          DoddBet analyse chaque match pour te donner les meilleures chances de gagner.
           Value bets, combos optimisés, suivi de paris — tout au même endroit.
         </p>
         {/* ── Countdown CdM 2026 ── */}
@@ -293,7 +293,7 @@ export default function LandingPage({ onStart, onLogin, onPricing }) {
               <li>✅ Analyses de base</li>
               <li>✅ Application mobile</li>
               <li>❌ Value bets</li>
-              <li>❌ Combos IA</li>
+              <li>❌ Combos Dodd</li>
               <li>❌ Suivi de paris cloud</li>
             </ul>
             <GetStartedButton onClick={onStart} label="Commencer gratuitement" />
@@ -312,7 +312,7 @@ export default function LandingPage({ onStart, onLogin, onPricing }) {
               <li>✅ Tout le gratuit</li>
               <li>✅ Tous les matchs & ligues</li>
               <li>✅ Value bets en temps réel</li>
-              <li>✅ Combos IA optimisés</li>
+              <li>✅ Combos Dodd optimisés</li>
               <li>✅ Suivi paris synchronisé</li>
               <li>✅ Stats avancées & ROI</li>
             </ul>
@@ -327,13 +327,13 @@ export default function LandingPage({ onStart, onLogin, onPricing }) {
       {/* ── CTA final ── */}
       <section className="landing-final">
         <h2>Prêt à parier plus intelligemment ?</h2>
-        <p>Rejoins les parieurs qui utilisent l'IA pour avoir un edge sur les bookmakers.</p>
+        <p>Rejoins les parieurs qui utilisent Dodd pour avoir un edge sur les bookmakers.</p>
         <GetStartedButton onClick={onStart} label="Accéder à DoddBet gratuitement" />
       </section>
 
       {/* ── Footer ── */}
       <footer className="landing-footer">
-        <p>⚡ DoddBet — Paris sportifs assistés par IA</p>
+        <p>⚡ DoddBet — L'edge sur les bookmakers</p>
         <p className="landing-footer-legal">
           DoddBet est un outil d'aide à la décision. Les paris comportent des risques. Jouez de manière responsable. 18+
         </p>

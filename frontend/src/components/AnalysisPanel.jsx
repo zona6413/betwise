@@ -82,7 +82,7 @@ export default function AnalysisPanel({ match, onClose }) {
                   <span>Issue</span>
                   <span>Cote</span>
                   <span>Bookmaker</span>
-                  <span>IA</span>
+                  <span>Dodd</span>
                   <span>Edge</span>
                 </div>
                 {bets.map(bet => (
@@ -121,7 +121,7 @@ export default function AnalysisPanel({ match, onClose }) {
                     <strong className="text-green">+{(bestBet.edge * 100).toFixed(1)}pts</strong>
                   </div>
                   <div className="best-bet-stat">
-                    <span>Proba IA</span>
+                    <span>Proba Dodd</span>
                     <strong>{(bestBet.aiProb * 100).toFixed(0)}%</strong>
                   </div>
                 </div>
