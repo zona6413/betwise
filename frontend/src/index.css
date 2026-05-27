@@ -56,8 +56,8 @@
   --radius-xs:   5px;
   --radius-sm:   10px;
   --radius:      14px;
-  --radius-lg:   20px;
-  --radius-xl:   25px;
+  --radius-lg:   18px;
+  --radius-xl:   24px;
 
   /* ── Shadows ── */
   --shadow-card:  0 1px 3px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05);
