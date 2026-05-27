@@ -53,11 +53,11 @@
   --accent-dim:  rgba(255,255,255,0.05);
 
   /* ── Radius ── */
-  --radius-xs:   5px;
-  --radius-sm:   10px;
-  --radius:      14px;
-  --radius-lg:   18px;
-  --radius-xl:   24px;
+  --radius-xs:   4px;
+  --radius-sm:   8px;
+  --radius:      10px;
+  --radius-lg:   12px;
+  --radius-xl:   14px;
 
   /* ── Shadows ── */
   --shadow-card:  0 1px 3px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05);
@@ -84,19 +84,6 @@ body {
   position: relative;
 }
 
-/* ── Ambient glow background — Sunrise Gold ──────────────── */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background-image:
-    radial-gradient(circle at 50% 0%,   rgba(234,179,8,0.25)  0%, transparent 60%),
-    radial-gradient(circle at 20% 60%,  rgba(255,249,145,0.06) 0%, transparent 55%),
-    radial-gradient(circle at 80% 40%,  rgba(252,191,73,0.07)  0%, transparent 55%),
-    radial-gradient(circle at 50% 100%, rgba(234,179,8,0.05)   0%, transparent 50%);
-}
 
 #root {
   position: relative;

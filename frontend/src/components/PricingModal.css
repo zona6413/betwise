@@ -1,8 +1,8 @@
 .pricing-modal {
-  background: var(--card-bg, #1a1d2e);
+  background: var(--card-bg, #13151f);
   border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 20px;
-  padding: 32px 24px 24px;
+  border-radius: 12px;
+  padding: 28px 24px 20px;
   width: 100%;
   max-width: 680px;
   position: relative;
@@ -26,10 +26,7 @@
   margin: 0;
 }
 .pro-badge {
-  background: linear-gradient(135deg, #b45309, #eab308);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #eab308;
 }
 
 .pricing-cards {
@@ -45,7 +42,7 @@
 .pricing-card {
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 16px;
+  border-radius: 10px;
   padding: 20px;
   position: relative;
   display: flex;
@@ -71,15 +68,15 @@
 
 .pricing-best-badge {
   position: absolute;
-  top: -12px;
+  top: -11px;
   left: 50%;
   transform: translateX(-50%);
-  background: linear-gradient(135deg, #b45309, #eab308);
-  color: #fff;
+  background: #eab308;
+  color: #000;
   font-size: 11px;
   font-weight: 700;
-  padding: 3px 14px;
-  border-radius: 20px;
+  padding: 3px 12px;
+  border-radius: 4px;
   white-space: nowrap;
 }
 
@@ -132,20 +129,20 @@
 .btn-subscribe {
   width: 100%;
   padding: 12px;
-  border-radius: 12px;
+  border-radius: 8px;
   border: none;
   background: rgba(255,255,255,0.08);
   color: #fff;
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: background 0.15s, opacity 0.15s;
 }
 .btn-subscribe:hover:not(:disabled) {
   background: rgba(255,255,255,0.14);
 }
 .btn-subscribe--best {
-  background: linear-gradient(135deg, #b45309, #eab308);
+  background: #eab308;
 }
 .btn-subscribe--best:hover:not(:disabled) {
   opacity: 0.9;

@@ -37,9 +37,8 @@
     color: var(--violet);
   }
   .bnav-item--active .bnav-icon {
-    background: rgba(234,179,8,0.12);
-    border-radius: 10px;
-    box-shadow: 0 0 12px rgba(234,179,8,0.15);
+    background: rgba(234,179,8,0.10);
+    border-radius: 8px;
   }
 
   .bnav-icon {

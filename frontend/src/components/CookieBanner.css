@@ -89,7 +89,6 @@
 
 .cookie-btn:hover:not(:disabled) {
   opacity: 0.85;
-  transform: translateY(-1px);
 }
 
 .cookie-btn--ghost {
