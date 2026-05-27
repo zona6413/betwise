@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://betwise.netlify.app/sitemap.xml
+Sitemap: https://doddbet.com/sitemap.xml
