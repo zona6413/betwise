@@ -255,6 +255,7 @@
   flex: 1;
   min-width: 140px;
   border-right: 1px solid rgba(255,255,255,0.06);
+  cursor: default;
 }
 .landing-stat:last-child { border-right: none; }
 
@@ -309,10 +310,6 @@
   border: 1px solid rgba(255,255,255,0.07);
   border-radius: 10px;
   padding: 28px 24px;
-  transition: border-color 0.2s;
-}
-.landing-feature-card:hover {
-  border-color: rgba(234,179,8,0.25);
 }
 
 .landing-feature-icon {
