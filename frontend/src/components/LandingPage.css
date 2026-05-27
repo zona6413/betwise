@@ -39,9 +39,9 @@
 }
 
 .landing-btn-ghost {
-  background: transparent;
-  border: 1px solid rgba(255,255,255,0.15);
-  color: rgba(255,255,255,0.75);
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.22);
+  color: rgba(255,255,255,0.90);
   padding: 8px 18px;
   border-radius: 8px;
   font-size: 0.85rem;
@@ -138,9 +138,9 @@
 }
 
 .landing-cta-ghost {
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.12);
-  color: rgba(255,255,255,0.8);
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.22);
+  color: rgba(255,255,255,0.92);
   padding: 13px 26px;
   border-radius: 8px;
   font-size: 1rem;
@@ -448,12 +448,12 @@
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
-  background: rgba(255,255,255,0.07);
-  border: 1px solid rgba(255,255,255,0.12);
-  color: rgba(255,255,255,0.8);
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.22);
+  color: rgba(255,255,255,0.92);
 }
 .landing-plan-btn:hover {
-  background: rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.16);
   color: #fff;
 }
 
