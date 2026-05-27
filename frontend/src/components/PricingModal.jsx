@@ -66,7 +66,7 @@ export default function PricingModal({ onClose, authFetch, isLoggedIn, onOpenAut
                 {loading === 'portal' ? 'Chargement…' : '⚙ Gérer mon abonnement'}
               </button>
             )}
-            {error && <p className="pricing-error">❌ {error}</p>}
+            {error && <p className="pricing-error">{error}</p>}
           </div>
         ) : (
           <>
@@ -86,12 +86,12 @@ export default function PricingModal({ onClose, authFetch, isLoggedIn, onOpenAut
                   </div>
                 </div>
                 <ul className="pricing-features">
-                  <li>✅ 3 picks du jour sélectionnés par Dodd</li>
-                  <li>❌ Accès à tous les matchs</li>
-                  <li>❌ Analyses Dodd détaillées</li>
-                  <li>❌ Value bets en temps réel</li>
-                  <li>❌ Générateur de combos</li>
-                  <li>❌ Suivi de paris</li>
+                  <li>—3 picks du jour sélectionnés par Dodd</li>
+                  <li>—Accès à tous les matchs</li>
+                  <li>—Analyses Dodd détaillées</li>
+                  <li>—Value bets en temps réel</li>
+                  <li>—Générateur de combos</li>
+                  <li>—Suivi de paris</li>
                 </ul>
                 <button className="btn-subscribe btn-subscribe--free" disabled>
                   Plan actuel
@@ -108,12 +108,12 @@ export default function PricingModal({ onClose, authFetch, isLoggedIn, onOpenAut
                   </div>
                 </div>
                 <ul className="pricing-features">
-                  <li>✅ Tous les matchs & ligues</li>
-                  <li>✅ Analyses Dodd illimitées</li>
-                  <li>✅ Value bets en temps réel</li>
-                  <li>✅ Générateur de combos</li>
-                  <li>✅ Suivi de paris synchronisé</li>
-                  <li>✅ Résiliation à tout moment</li>
+                  <li>—Tous les matchs & ligues</li>
+                  <li>—Analyses Dodd illimitées</li>
+                  <li>—Value bets en temps réel</li>
+                  <li>—Générateur de combos</li>
+                  <li>—Suivi de paris synchronisé</li>
+                  <li>—Résiliation à tout moment</li>
                 </ul>
                 <button
                   className="btn-subscribe"
@@ -136,10 +136,10 @@ export default function PricingModal({ onClose, authFetch, isLoggedIn, onOpenAut
                   <span className="pricing-saving">soit 3,25€/mois — économise 35%</span>
                 </div>
                 <ul className="pricing-features">
-                  <li>✅ Tous les avantages Pro</li>
-                  <li>✅ Priorité nouvelles fonctions</li>
-                  <li>✅ Support prioritaire</li>
-                  <li>✅ 2 mois offerts vs mensuel</li>
+                  <li>—Tous les avantages Pro</li>
+                  <li>—Priorité nouvelles fonctions</li>
+                  <li>—Support prioritaire</li>
+                  <li>—2 mois offerts vs mensuel</li>
                 </ul>
                 <button
                   className="btn-subscribe btn-subscribe--best"
@@ -157,7 +157,7 @@ export default function PricingModal({ onClose, authFetch, isLoggedIn, onOpenAut
               </p>
             )}
 
-            {error && <p className="pricing-error">❌ {error}</p>}
+            {error && <p className="pricing-error">{error}</p>}
 
             <p className="pricing-legal">
               Paiement sécurisé par Stripe · Sans engagement pour le mensuel · Remboursement sous 14 jours

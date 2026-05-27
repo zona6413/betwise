@@ -71,7 +71,7 @@ function WorldCupCountdown() {
   const { days, hours, minutes, seconds } = useCountdown();
   return (
     <div className="wc-countdown">
-      <div className="wc-countdown-label">⚽ Coupe du Monde 2026</div>
+      <div className="wc-countdown-label">Coupe du Monde 2026</div>
       <div className="wc-countdown-blocks">
         {[{ v: days, l: 'Jours' }, { v: hours, l: 'Heures' }, { v: minutes, l: 'Min' }, { v: seconds, l: 'Sec' }].map(({ v, l }) => (
           <div key={l} className="wc-countdown-block">
@@ -121,7 +121,7 @@ export default function LandingPage({ onStart, onLogin, onPricing }) {
 
       {/* ── Nav ── */}
       <nav className="landing-nav">
-        <div className="landing-logo">⚡ DoddBet</div>
+        <div className="landing-logo">DoddBet</div>
         <div className="landing-nav-actions">
           <button className="landing-btn-ghost" onClick={onLogin}>Se connecter</button>
           <button className="landing-btn-primary" onClick={onPricing}>Voir les offres</button>
@@ -130,7 +130,7 @@ export default function LandingPage({ onStart, onLogin, onPricing }) {
 
       {/* ── Hero ── */}
       <section className="landing-hero">
-        <div className="landing-hero-badge">🚀 Dodd · Cotes · Value Bets</div>
+        <div className="landing-hero-badge">Dodd · Cotes · Value Bets</div>
         <h1 className="landing-hero-title">
           Pariez plus<br />
           <span className="landing-gradient">intelligemment</span>
@@ -198,7 +198,7 @@ export default function LandingPage({ onStart, onLogin, onPricing }) {
             </span>
             <h2 style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)", fontWeight: 700, color: "var(--text)", marginTop: "0.5rem", lineHeight: 1.15, letterSpacing: "-0.03em" }}>
               Tout ce qu'il te faut<br />
-              <span style={{ background: "linear-gradient(135deg, #DC2626, #EAB308, #FCBF49)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+              <span style={{ color: "#eab308" }}>
                 en un seul endroit
               </span>
             </h2>
@@ -289,12 +289,12 @@ export default function LandingPage({ onStart, onLogin, onPricing }) {
               <span className="plan-period">/ toujours</span>
             </div>
             <ul className="landing-plan-features">
-              <li>✅ Matchs du jour</li>
-              <li>✅ Analyses de base</li>
-              <li>✅ Application mobile</li>
-              <li>❌ Value bets</li>
-              <li>❌ Combos Dodd</li>
-              <li>❌ Suivi de paris cloud</li>
+              <li>Matchs du jour</li>
+              <li>Analyses de base</li>
+              <li>Application mobile</li>
+              <li style={{ opacity: 0.4 }}>Value bets</li>
+              <li style={{ opacity: 0.4 }}>Combos Dodd</li>
+              <li style={{ opacity: 0.4 }}>Suivi de paris cloud</li>
             </ul>
             <GetStartedButton onClick={onStart} label="Commencer gratuitement" />
           </div>
@@ -309,12 +309,12 @@ export default function LandingPage({ onStart, onLogin, onPricing }) {
             </div>
             <div className="landing-plan-yearly">ou 39€/an — économise 35%</div>
             <ul className="landing-plan-features">
-              <li>✅ Tout le gratuit</li>
-              <li>✅ Tous les matchs & ligues</li>
-              <li>✅ Value bets en temps réel</li>
-              <li>✅ Combos Dodd optimisés</li>
-              <li>✅ Suivi paris synchronisé</li>
-              <li>✅ Stats avancées & ROI</li>
+              <li>Tout le gratuit</li>
+              <li>Tous les matchs & ligues</li>
+              <li>Value bets en temps réel</li>
+              <li>Combos Dodd optimisés</li>
+              <li>Suivi paris synchronisé</li>
+              <li>Stats avancées & ROI</li>
             </ul>
             <button className="landing-plan-btn landing-plan-btn--pro" onClick={onPricing}>
               Essayer Pro →
@@ -333,7 +333,7 @@ export default function LandingPage({ onStart, onLogin, onPricing }) {
 
       {/* ── Footer ── */}
       <footer className="landing-footer">
-        <p>⚡ DoddBet — L'edge sur les bookmakers</p>
+        <p>DoddBet — L'edge sur les bookmakers</p>
         <p className="landing-footer-legal">
           DoddBet est un outil d'aide à la décision. Les paris comportent des risques. Jouez de manière responsable. 18+
         </p>
