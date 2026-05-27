@@ -438,12 +438,12 @@ export default function App() {
                   <button className="user-logout" onClick={logout} title="Se déconnecter">✕</button>
                 </div>
               ) : (
-                <button
+                <HoverButton
                   onClick={() => setShowAuth(true)}
-                  className="btn-login"
+                  className="btn-login-hover"
                 >
                   Se connecter
-                </button>
+                </HoverButton>
               )}
             </div>
           </div>

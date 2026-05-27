@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { GetStartedButton } from '@/components/ui/get-started-button';
+import { ContainerScroll } from '@/components/ui/container-scroll-animation';
+import { GoldGlow } from '@/components/ui/glow-background';
 import './LandingPage.css';
 
 const API = import.meta.env.VITE_API_URL ?? '';
@@ -187,48 +189,57 @@ export default function LandingPage({ onStart, onLogin, onPricing }) {
         </div>
       </section>
 
-      {/* ── App preview ── */}
-      <section style={{ maxWidth: "860px", margin: "0 auto", padding: "64px 24px 0", textAlign: "center" }}>
-        <h2 style={{ fontSize: "clamp(1.8rem, 4vw, 2.8rem)", fontWeight: 700, color: "var(--text)", marginBottom: "8px", letterSpacing: "-0.04em" }}>
-          Tout ce qu'il te faut<br />
-          <span style={{ color: "#eab308" }}>en un seul endroit</span>
-        </h2>
-        <p style={{ fontSize: "0.95rem", color: "rgba(240,242,248,0.5)", marginBottom: "36px" }}>Aperçu de l'application</p>
-        {/* Mockup UI */}
-        <div style={{ border: "1px solid rgba(255,255,255,0.08)", borderRadius: "10px", overflow: "hidden", background: "#05070B", maxWidth: "680px", margin: "0 auto" }}>
-          {/* Nav simulée */}
-          <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "10px 16px", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "#080B12" }}>
-            <div style={{ width: "22px", height: "22px", borderRadius: "5px", background: "#eab308", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "11px" }}>⚽</div>
-            <span style={{ fontWeight: 700, fontSize: "13px", color: "#E8EAF2" }}>DoddBet</span>
-            <div style={{ marginLeft: "auto", display: "flex", gap: "4px" }}>
+      {/* ── Scroll Animation ── */}
+      <ContainerScroll
+        titleComponent={
+          <div style={{ marginBottom: "2rem" }}>
+            <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--violet)", letterSpacing: "0.08em", textTransform: "uppercase" }}>
+              Aperçu de l'app
+            </span>
+            <h2 style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)", fontWeight: 700, color: "var(--text)", marginTop: "0.5rem", lineHeight: 1.15, letterSpacing: "-0.03em" }}>
+              Tout ce qu'il te faut<br />
+              <span style={{ color: "#eab308" }}>
+                en un seul endroit
+              </span>
+            </h2>
+          </div>
+        }
+      >
+        {/* Mockup UI de l'app */}
+        <div style={{ height: "100%", display: "flex", flexDirection: "column", background: "#05070B", borderRadius: "18px", overflow: "hidden" }}>
+          {/* Barre nav simulée */}
+          <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "12px 20px", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "#080B12" }}>
+            <div style={{ width: "28px", height: "28px", borderRadius: "8px", background: "#eab308", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px" }}>⚽</div>
+            <span style={{ fontWeight: 700, fontSize: "14px", color: "#E8EAF2" }}>DoddBet</span>
+            <div style={{ marginLeft: "auto", display: "flex", gap: "6px" }}>
               {["Tous", "Aujourd'hui", "Value bets"].map((t, i) => (
-                <span key={t} style={{ fontSize: "11px", padding: "3px 10px", borderRadius: "6px", background: i === 1 ? "rgba(234,179,8,0.12)" : "transparent", color: i === 1 ? "#EAB308" : "rgba(232,234,242,0.4)", border: i === 1 ? "1px solid rgba(234,179,8,0.25)" : "1px solid transparent" }}>{t}</span>
+                <span key={t} style={{ fontSize: "11px", padding: "3px 10px", borderRadius: "6px", background: i === 1 ? "rgba(234,179,8,0.15)" : "transparent", color: i === 1 ? "#EAB308" : "rgba(232,234,242,0.4)", border: i === 1 ? "1px solid rgba(234,179,8,0.3)" : "1px solid transparent" }}>{t}</span>
               ))}
             </div>
           </div>
           {/* Cards simulées */}
-          <div style={{ padding: "14px 16px", display: "flex", flexDirection: "column", gap: "8px" }}>
+          <div style={{ flex: 1, padding: "16px 20px", display: "flex", flexDirection: "column", gap: "10px", overflowY: "hidden" }}>
             {[
               { home: "Chelsea", away: "Arsenal", h: "2.10", n: "3.40", a: "3.20", live: true,  score: "1–0" },
               { home: "PSG",     away: "Lyon",    h: "1.75", n: "3.80", a: "4.50", live: false, score: null },
               { home: "Madrid",  away: "Barça",   h: "2.40", n: "3.20", a: "2.90", live: false, score: null, value: true },
             ].map((m) => (
-              <div key={m.home} style={{ background: "#0C0F18", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.06)", padding: "10px 14px", display: "flex", alignItems: "center", gap: "10px" }}>
+              <div key={m.home} style={{ background: "#0C0F18", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.06)", padding: "12px 16px", display: "flex", alignItems: "center", gap: "12px" }}>
                 <div style={{ flex: 1 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "5px", marginBottom: "5px" }}>
-                    {m.live && <span style={{ fontSize: "9px", fontWeight: 700, color: "#F43F5E", background: "rgba(244,63,94,0.08)", border: "1px solid rgba(244,63,94,0.18)", borderRadius: "3px", padding: "1px 5px" }}>EN DIRECT</span>}
-                    {m.value && <span style={{ fontSize: "9px", fontWeight: 700, color: "#FCBF49", background: "rgba(252,191,73,0.08)", border: "1px solid rgba(252,191,73,0.20)", borderRadius: "3px", padding: "1px 5px" }}>VALUE</span>}
+                  <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "6px" }}>
+                    {m.live && <span style={{ fontSize: "9px", fontWeight: 700, color: "#F43F5E", background: "rgba(244,63,94,0.1)", border: "1px solid rgba(244,63,94,0.2)", borderRadius: "4px", padding: "1px 5px" }}>EN DIRECT</span>}
+                    {m.value && <span style={{ fontSize: "9px", fontWeight: 700, color: "#FCBF49", background: "rgba(252,191,73,0.1)", border: "1px solid rgba(252,191,73,0.25)", borderRadius: "4px", padding: "1px 5px" }}>VALUE</span>}
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                     <span style={{ fontSize: "13px", fontWeight: 600, color: "#E8EAF2" }}>{m.home}</span>
-                    <span style={{ fontSize: "14px", fontWeight: 700, color: "#FCBF49", minWidth: "36px", textAlign: "center" }}>{m.score ?? "vs"}</span>
+                    <span style={{ fontSize: "15px", fontWeight: 700, color: "#FCBF49", minWidth: "40px", textAlign: "center" }}>{m.score ?? "vs"}</span>
                     <span style={{ fontSize: "13px", fontWeight: 600, color: "#E8EAF2" }}>{m.away}</span>
                   </div>
                 </div>
-                <div style={{ display: "flex", gap: "5px" }}>
+                <div style={{ display: "flex", gap: "6px" }}>
                   {[m.h, m.n, m.a].map((odd, i) => (
-                    <div key={i} style={{ background: i === 0 && m.value ? "rgba(252,191,73,0.08)" : "rgba(255,255,255,0.04)", border: `1px solid ${i === 0 && m.value ? "rgba(252,191,73,0.22)" : "rgba(255,255,255,0.06)"}`, borderRadius: "6px", padding: "4px 9px", textAlign: "center" }}>
-                      <div style={{ fontSize: "10px", color: "rgba(232,234,242,0.35)" }}>{["1", "N", "2"][i]}</div>
+                    <div key={i} style={{ background: i === 0 && m.value ? "rgba(252,191,73,0.12)" : "rgba(255,255,255,0.04)", border: `1px solid ${i === 0 && m.value ? "rgba(252,191,73,0.3)" : "rgba(255,255,255,0.06)"}`, borderRadius: "6px", padding: "4px 10px", textAlign: "center" }}>
+                      <div style={{ fontSize: "11px", color: "rgba(232,234,242,0.4)" }}>{["1", "N", "2"][i]}</div>
                       <div style={{ fontSize: "13px", fontWeight: 700, color: i === 0 && m.value ? "#FCBF49" : "#E8EAF2" }}>{odd}</div>
                     </div>
                   ))}
@@ -237,7 +248,7 @@ export default function LandingPage({ onStart, onLogin, onPricing }) {
             ))}
           </div>
         </div>
-      </section>
+      </ContainerScroll>
 
       {/* ── Stats ── */}
       <section className="landing-stats">
