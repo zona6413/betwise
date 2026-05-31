@@ -25,6 +25,7 @@ import LegalPage         from './components/LegalPage.jsx';
 import CookieBanner      from './components/CookieBanner.jsx';
 import ProfileModal      from './components/ProfileModal.jsx';
 import AdminPanel        from './components/AdminPanel.jsx';
+import PaymentSuccessModal from './components/PaymentSuccessModal.jsx';
 import './App.css';
 
 const FINISHED_STATUSES = new Set(['FT', 'AET', 'PEN', 'AWD', 'WO']);
@@ -122,8 +123,9 @@ export default function App() {
   const [searchQuery,   setSearchQuery]   = useState('');
   const [toast,         setToast]         = useState({ visible: false, message: '', type: 'value' });
   const [showWarning,   setShowWarning]   = useState(shouldShowWarning);
-  const [showProfile,   setShowProfile]   = useState(false);
-  const [showAdmin,     setShowAdmin]     = useState(false);
+  const [showProfile,        setShowProfile]        = useState(false);
+  const [showAdmin,          setShowAdmin]          = useState(false);
+  const [showPaymentSuccess, setShowPaymentSuccess] = useState(false);
   const prevValueCount = useRef(0);
 
   // Retour depuis Stripe Checkout
@@ -132,8 +134,9 @@ export default function App() {
     if (params.get('payment') === 'success') {
       // Recharge le profil pour obtenir le nouveau rôle Pro
       refreshUser?.();
-      setToast({ visible: true, message: '🎉 Paiement réussi ! Ton compte Pro est activé.', type: 'value' });
-      setTimeout(() => setToast(t => ({ ...t, visible: false })), 5000);
+      // Petit délai pour laisser le temps au webhook de traiter
+      setTimeout(() => refreshUser?.(), 3000);
+      setShowPaymentSuccess(true);
       window.history.replaceState({}, '', window.location.pathname);
     } else if (params.get('payment') === 'cancelled') {
       setToast({ visible: true, message: 'Paiement annulé.', type: 'lock' });
@@ -620,6 +623,12 @@ export default function App() {
         />
       )}
       <CookieBanner />
+      {showPaymentSuccess && (
+        <PaymentSuccessModal
+          user={user}
+          onClose={() => setShowPaymentSuccess(false)}
+        />
+      )}
       {showAuth && (
         <AuthModal
           onLogin={async (email, pwd, directData) => {
