@@ -129,13 +129,15 @@ router.post('/webhook', async (req, res) => {
         }
 
         const sub    = await stripe.subscriptions.retrieve(subId);
-        const expiry = new Date(sub.current_period_end * 1000);
+        // current_period_end peut être null juste après création — fallback 30 jours
+        const periodEnd = sub.current_period_end ?? Math.floor(Date.now() / 1000) + 30 * 24 * 3600;
+        const expiry    = new Date(periodEnd * 1000);
 
         const updatedUser = await User.findByIdAndUpdate(userId, {
           role: 'pro',
           subscriptionExpiry: expiry,
           stripeCustomerId:   customerId,
-        }, { new: true });
+        }, { returnDocument: 'after' });
 
         if (!updatedUser) {
           console.error(`[stripe] ❌ User introuvable en DB — userId=${userId}`);
@@ -171,13 +173,14 @@ router.post('/webhook', async (req, res) => {
           break;
         }
 
-        const expiry     = new Date(sub.current_period_end * 1000);
+        const periodEnd2 = sub.current_period_end ?? Math.floor(Date.now() / 1000) + 30 * 24 * 3600;
+        const expiry     = new Date(periodEnd2 * 1000);
         const customerId = sub.customer;
         const updatedUser = await User.findByIdAndUpdate(userId, {
           role: 'pro',
           subscriptionExpiry: expiry,
           stripeCustomerId:   customerId,
-        }, { new: true });
+        }, { returnDocument: 'after' });
 
         if (!updatedUser) {
           console.error(`[stripe] ❌ User introuvable en DB — userId=${userId}`);
