@@ -69,33 +69,42 @@ export function impliedProbabilities(homeOdd, drawOdd, awayOdd) {
   };
 }
 
-// ── Probabilités IA (1X2) ────────────────────────────────────────────────────
+// ── Distribution de Poisson jointe (scores exacts h vs a) ───────────────────
+// Renvoie P(victoire dom), P(nul), P(victoire ext) depuis les xG des deux équipes
+
+function poissonJoint1X2(hxg, axg) {
+  let homeWin = 0, draw = 0, awayWin = 0;
+  const MAX = 9; // scores au-delà de 9 sont négligeables (<0.01%)
+  for (let h = 0; h <= MAX; h++) {
+    const ph = poissonProb(hxg, h);
+    for (let a = 0; a <= MAX; a++) {
+      const p = ph * poissonProb(axg, a);
+      if      (h > a) homeWin += p;
+      else if (h === a) draw  += p;
+      else              awayWin += p;
+    }
+  }
+  return { homeWin, draw, awayWin };
+}
+
+// ── Probabilités IA (1X2) via Poisson ───────────────────────────────────────
+// Le xG de chaque équipe est calculé depuis les stats réelles (gpg/cgpg),
+// puis la distribution de Poisson jointe donne les proba 1X2 → cohérent avec
+// Over/Under, BTTS et scores probables qui utilisent le même modèle.
 
 export function computeAIProbability(homeStats, awayStats) {
-  const h = computeTeamStrength(homeStats);
-  const a = computeTeamStrength(awayStats);
+  const hxg = estimateExpectedGoals(homeStats, awayStats, true);
+  const axg = estimateExpectedGoals(awayStats, homeStats, false);
 
-  // Home team benefits from field advantage (+12% attack, -8% conceding)
-  const homeScore = (h.attack * 1.12 + (1 - a.defence) * 0.92) / 2;
-  const awayScore = (a.attack * 0.88 + (1 - h.defence) * 0.88) / 2;
+  const raw = poissonJoint1X2(hxg, axg);
 
-  // Draw more likely when teams are balanced
-  const gap      = Math.abs(homeScore - awayScore);
-  const drawPool = Math.min(0.32, 0.20 + (1 - gap) * 0.10);
-
-  const total = homeScore + awayScore + drawPool;
-  const raw = {
-    homeWin: homeScore / total,
-    draw:    drawPool  / total,
-    awayWin: awayScore / total,
-  };
   const cal = applyCalibration(raw);
   // Re-normalise après calibration pour que la somme reste 1
   const sum = cal.homeWin + cal.draw + cal.awayWin;
   return {
-    home: cal.homeWin / sum,
-    draw: cal.draw    / sum,
-    away: cal.awayWin / sum,
+    home: +(cal.homeWin / sum).toFixed(4),
+    draw: +(cal.draw    / sum).toFixed(4),
+    away: +(cal.awayWin / sum).toFixed(4),
   };
 }
 
@@ -114,7 +123,7 @@ export function estimateExpectedGoals(attackStats, defenceStats, isHome = false)
     const xg = LEAGUE_AVG_HOME * attackRate * defenceRate;
     return Math.max(0.30, Math.min(3.5, xg));
   }
-  if (!isHome && attackStats?.awayGpg && defenceStats?.awayCgpg) {
+  if (!isHome && attackStats?.awayGpg && defenceStats?.homeCgpg) {
     const attackRate  = attackStats.awayGpg  / LEAGUE_AVG_AWAY;  // force d'attaque extérieur
     const defenceRate = defenceStats.homeCgpg / LEAGUE_AVG_HOME;  // faiblesse défense domicile
     const xg = LEAGUE_AVG_AWAY * attackRate * defenceRate;
@@ -182,18 +191,15 @@ export function computeOverUnderProbs(homeExpG, awayExpG) {
 }
 
 // Versions RAW (pré-calibration) pour le moteur d'apprentissage
+// Même modèle Poisson que computeAIProbability mais sans calibration
 export function computeRawAIProbability(homeStats, awayStats) {
-  const h = computeTeamStrength(homeStats);
-  const a = computeTeamStrength(awayStats);
-  const homeScore = (h.attack * 1.12 + (1 - a.defence) * 0.92) / 2;
-  const awayScore = (a.attack * 0.88 + (1 - h.defence) * 0.88) / 2;
-  const gap       = Math.abs(homeScore - awayScore);
-  const drawPool  = Math.min(0.32, 0.20 + (1 - gap) * 0.10);
-  const total     = homeScore + awayScore + drawPool;
+  const hxg = estimateExpectedGoals(homeStats, awayStats, true);
+  const axg = estimateExpectedGoals(awayStats, homeStats, false);
+  const { homeWin, draw, awayWin } = poissonJoint1X2(hxg, axg);
   return {
-    homeWin: +(homeScore / total).toFixed(3),
-    draw:    +(drawPool  / total).toFixed(3),
-    awayWin: +(awayScore / total).toFixed(3),
+    homeWin: +homeWin.toFixed(3),
+    draw:    +draw.toFixed(3),
+    awayWin: +awayWin.toFixed(3),
   };
 }
 

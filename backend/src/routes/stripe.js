@@ -112,34 +112,90 @@ router.post('/webhook', async (req, res) => {
   try {
     switch (event.type) {
 
-      // ── Paiement réussi → activer Pro ──────────────────────────
+      // ── Checkout terminé → activer Pro immédiatement (source la plus fiable) ──
+      case 'checkout.session.completed': {
+        const session = event.data.object;
+        if (session.mode !== 'subscription' || session.payment_status !== 'paid') break;
+
+        const userId     = session.metadata?.userId;
+        const subId      = session.subscription;
+        const customerId = session.customer;
+
+        console.log(`[stripe] checkout.session.completed — userId=${userId} subId=${subId}`);
+
+        if (!userId || !subId) {
+          console.warn('[stripe] checkout.session.completed — userId ou subId manquant', { userId, subId });
+          break;
+        }
+
+        const sub    = await stripe.subscriptions.retrieve(subId);
+        const expiry = new Date(sub.current_period_end * 1000);
+
+        const updatedUser = await User.findByIdAndUpdate(userId, {
+          role: 'pro',
+          subscriptionExpiry: expiry,
+          stripeCustomerId:   customerId,
+        }, { new: true });
+
+        if (!updatedUser) {
+          console.error(`[stripe] ❌ User introuvable en DB — userId=${userId}`);
+          break;
+        }
+
+        console.log(`[stripe] ✅ Pro activé (checkout) — userId=${userId} expire=${expiry.toISOString()}`);
+
+        const plan = sub.items?.data?.[0]?.price?.recurring?.interval === 'year' ? 'yearly' : 'monthly';
+        sendReceiptEmail({
+          to:       updatedUser.email,
+          username: updatedUser.username,
+          plan,
+          amount:   session.amount_total ?? 0,
+          date:     session.created * 1000,
+        }).catch(() => {});
+        break;
+      }
+
+      // ── Paiement réussi → activer Pro (renouvellements) ────────────────────────
       case 'invoice.payment_succeeded': {
         const invoice = event.data.object;
-        if (invoice.billing_reason === 'subscription_create' || invoice.billing_reason === 'subscription_cycle') {
-          const sub    = await stripe.subscriptions.retrieve(invoice.subscription);
-          const userId = sub.metadata?.userId;
-          if (!userId) break;
+        console.log(`[stripe] invoice.payment_succeeded — billing_reason=${invoice.billing_reason} sub=${invoice.subscription}`);
 
-          const expiry     = new Date(sub.current_period_end * 1000);
-          const customerId = sub.customer;
-          const updatedUser = await User.findByIdAndUpdate(userId, {
-            role: 'pro',
-            subscriptionExpiry: expiry,
-            stripeCustomerId:   customerId,
-          }, { new: true });
-          console.log(`[stripe] ✅ Pro activé — userId=${userId} expire=${expiry.toISOString()}`);
+        if (!invoice.subscription) break;
+        const sub    = await stripe.subscriptions.retrieve(invoice.subscription);
+        const userId = sub.metadata?.userId;
 
-          // Reçu email (non-bloquant)
-          if (updatedUser && invoice.billing_reason === 'subscription_create') {
-            const plan = sub.items?.data?.[0]?.price?.recurring?.interval === 'year' ? 'yearly' : 'monthly';
-            sendReceiptEmail({
-              to:       updatedUser.email,
-              username: updatedUser.username,
-              plan,
-              amount:   invoice.amount_paid,
-              date:     invoice.created * 1000,
-            }).catch(() => {});
-          }
+        console.log(`[stripe] invoice sub metadata — userId=${userId}`);
+
+        if (!userId) {
+          console.warn('[stripe] invoice.payment_succeeded — userId absent des métadonnées subscription');
+          break;
+        }
+
+        const expiry     = new Date(sub.current_period_end * 1000);
+        const customerId = sub.customer;
+        const updatedUser = await User.findByIdAndUpdate(userId, {
+          role: 'pro',
+          subscriptionExpiry: expiry,
+          stripeCustomerId:   customerId,
+        }, { new: true });
+
+        if (!updatedUser) {
+          console.error(`[stripe] ❌ User introuvable en DB — userId=${userId}`);
+          break;
+        }
+
+        console.log(`[stripe] ✅ Pro activé (invoice) — userId=${userId} expire=${expiry.toISOString()}`);
+
+        // Reçu email uniquement à la création (pas aux renouvellements)
+        if (invoice.billing_reason === 'subscription_create') {
+          const plan = sub.items?.data?.[0]?.price?.recurring?.interval === 'year' ? 'yearly' : 'monthly';
+          sendReceiptEmail({
+            to:       updatedUser.email,
+            username: updatedUser.username,
+            plan,
+            amount:   invoice.amount_paid,
+            date:     invoice.created * 1000,
+          }).catch(() => {});
         }
         break;
       }

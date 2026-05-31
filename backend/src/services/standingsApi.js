@@ -7,19 +7,24 @@ import NodeCache from 'node-cache';
 
 const BASE_URL = 'https://v3.football.api-sports.io';
 const API_KEY  = process.env.API_FOOTBALL_KEY;
-const SEASON   = 2025;
-const cache    = new NodeCache({ stdTTL: 10800 }); // 3h
+const SEASON   = 2025; // saison par défaut (ex : Ligue 1 2025-2026, PL 2025-2026…)
+const cache     = new NodeCache({ stdTTL: 1800 });  // 30 min — standings plus réactifs
+const formCache = new NodeCache({ stdTTL: 3600 });  // 1h — forme récente par équipe
 
 // Ligues domestiques avec classements
+// season optionnel : certaines ligues (Scandinavie, Baltique…) tournent sur une année civile
+// et leur saison courante est 2026, pas 2025.
 const STANDING_LEAGUES = [
-  { id: 1   }, // Coupe du Monde FIFA 2026
-  { id: 39  }, // Premier League
-  { id: 61  }, // Ligue 1
-  { id: 140 }, // La Liga
-  { id: 135 }, // Serie A
-  { id: 78  }, // Bundesliga
-  { id: 88  }, // Eredivisie
-  { id: 94  }, // Primeira Liga
+  { id: 1   },                  // Coupe du Monde FIFA 2026
+  { id: 39  },                  // Premier League
+  { id: 61  },                  // Ligue 1
+  { id: 140 },                  // La Liga
+  { id: 135 },                  // Serie A
+  { id: 78  },                  // Bundesliga
+  { id: 88  },                  // Eredivisie
+  { id: 94  },                  // Primeira Liga
+  { id: 244, season: 2026 },    // Veikkausliiga (Finlande) — saison civile
+  { id: 329, season: 2026 },    // Meistriliiga  (Estonie)  — saison civile
 ];
 
 const BOOKMAKERS = ['Unibet', 'Betclic', 'Winamax', 'Bet365', 'PMU'];
@@ -39,10 +44,10 @@ function parseForm(formStr) {
 async function fetchStandingsFromApi() {
   const map = {};
   await Promise.allSettled(
-    STANDING_LEAGUES.map(async ({ id }) => {
+    STANDING_LEAGUES.map(async ({ id, season }) => {
       try {
         const { data } = await client.get('/standings', {
-          params: { league: id, season: SEASON },
+          params: { league: id, season: season ?? SEASON },
         });
         const groups = data?.response?.[0]?.league?.standings ?? [];
         // standings peut être un tableau de groupes (Champions League group stage) ou un seul groupe
@@ -153,6 +158,70 @@ const STATIC_KNOWN = {
   '502': { position: 4,  wins: 18, draws: 8,  losses: 8,  form: 'WWWLD', gpg: 1.74, cgpg: 1.03, homeGpg: 2.05, homeCgpg: 0.78, awayGpg: 1.43, awayCgpg: 1.28 }, // Fiorentina
   '499': { position: 4,  wins: 18, draws: 8,  losses: 8,  form: 'WWWWL', gpg: 2.12, cgpg: 1.00, homeGpg: 2.50, homeCgpg: 0.75, awayGpg: 1.74, awayCgpg: 1.25 }, // Atalanta
 };
+
+// ── Forme récente via fixtures (plus fiable que standings pour les matchs récents) ──
+const FINISHED = new Set(['FT', 'AET', 'PEN']);
+
+async function fetchTeamRecentForm(teamId) {
+  const key = `form_${teamId}`;
+  const cached = formCache.get(key);
+  if (cached !== undefined) return cached;
+
+  try {
+    // Pas de filtre season : last=5 renvoie les 5 derniers matchs toutes saisons
+    // confondues → fonctionne pour les ligues à saison civile (Finlande, Estonie…)
+    const { data } = await client.get('/fixtures', {
+      params: { team: teamId, last: 5 },
+    });
+    const fixtures = (data?.response ?? [])
+      .filter(f => FINISHED.has(f.fixture.status.short))
+      .sort((a, b) => new Date(b.fixture.date) - new Date(a.fixture.date))
+      .slice(0, 5);
+
+    if (!fixtures.length) {
+      formCache.set(key, null);
+      return null;
+    }
+
+    // Reconstruire la forme : plus récent à droite (convention standings API-Football)
+    const formStr = fixtures
+      .reverse()           // du plus ancien au plus récent
+      .map(f => {
+        const isHome = f.teams.home.id === Number(teamId);
+        const gh = f.goals.home ?? 0;
+        const ga = f.goals.away ?? 0;
+        if (gh === ga) return 'D';
+        if (isHome)  return gh > ga ? 'W' : 'L';
+        return ga > gh ? 'W' : 'L';
+      })
+      .join('');
+
+    formCache.set(key, formStr);
+    return formStr;
+  } catch (err) {
+    console.warn(`[standings] form team ${teamId}:`, err.message);
+    formCache.set(key, null);
+    return null;
+  }
+}
+
+/**
+ * Enrichit la forme de plusieurs équipes via leurs derniers matchs disputés.
+ * À appeler avec les équipes présentes dans les matchs du jour.
+ * @param {string[]} teamIds
+ * @returns {Promise<Record<string,string>>}  teamId → formStr (5 chars)
+ */
+export async function enrichWithRecentForm(teamIds) {
+  const results = await Promise.allSettled(
+    teamIds.map(id => fetchTeamRecentForm(String(id)))
+  );
+  const formMap = {};
+  teamIds.forEach((id, i) => {
+    const val = results[i].status === 'fulfilled' ? results[i].value : null;
+    if (val) formMap[String(id)] = val;
+  });
+  return formMap;
+}
 
 export async function getTeamStatsMap() {
   const cached = cache.get('standings');

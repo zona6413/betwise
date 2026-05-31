@@ -3,7 +3,7 @@ import NodeCache      from 'node-cache';
 
 import { getTodayFixtures, getHeadToHead, getInjuries } from '../services/footballApi.js';
 import { getOddsMap }              from '../services/oddsApi.js';
-import { getTeamStatsMap, randomBookmaker } from '../services/standingsApi.js';
+import { getTeamStatsMap, randomBookmaker, enrichWithRecentForm } from '../services/standingsApi.js';
 import { getMatchPlayers, applyInjuryFilter, preloadTopScorers } from '../services/playerStats.js';
 import {
   impliedProbabilities,
@@ -26,80 +26,52 @@ const oddsCache  = new NodeCache({ stdTTL: 21600 }); // cotes : 6h (préserve qu
 const h2hCache   = new NodeCache({ stdTTL: 86400 });  // H2H : 24h
 const injuryCache = new NodeCache({ stdTTL: 10800 }); // injuries : 3h
 
-const DEFAULT_STATS = { form: 'WDWLW', position: 12, wins: 10, draws: 8, losses: 10 };
+// Stats par défaut pour les équipes absentes des standings (moyenne ligue européenne)
+// Inclut gpg/cgpg pour que estimateExpectedGoals() calcule toujours un xG Poisson réel
+const DEFAULT_STATS = {
+  form: 'WDWWL', position: 12,
+  wins: 10, draws: 8, losses: 10,
+  gpg: 1.35,  cgpg: 1.35,           // buts marqués/encaissés par match
+  homeGpg: 1.42, homeCgpg: 1.42,    // à domicile
+  awayGpg: 1.18, awayCgpg: 1.18,    // à l'extérieur
+};
 
-// ── Poisson pour la génération de cotes ─────────────────────────────────────────
-function poissonPmf(lambda, k) {
+// ── Distribution de Poisson jointe (copie locale pour générer les cotes) ─────────
+// Note : le même calcul est dans analyzer.js (poissonJoint1X2) pour les probas IA.
+// On garde une copie ici pour ne pas exposer une fonction interne d'analyzer.
+function _poissonPmf(lambda, k) {
   if (lambda <= 0) return k === 0 ? 1 : 0;
   let p = Math.exp(-lambda);
   for (let i = 1; i <= k; i++) p *= lambda / i;
   return p;
 }
-
-// Probabilités 1X2 via distribution de Poisson jointe sur les scores
-function poissonProbs(xgHome, xgAway) {
+function _poissonJoint(xgH, xgA) {
   let homeWin = 0, draw = 0, awayWin = 0;
-  const MAX = 8;
+  const MAX = 9;
   for (let h = 0; h <= MAX; h++) {
-    const ph = poissonPmf(xgHome, h);
+    const ph = _poissonPmf(xgH, h);
     for (let a = 0; a <= MAX; a++) {
-      const p = ph * poissonPmf(xgAway, a);
-      if (h > a)       homeWin += p;
-      else if (h === a) draw   += p;
+      const p = ph * _poissonPmf(xgA, a);
+      if      (h > a) homeWin += p;
+      else if (h === a) draw  += p;
       else              awayWin += p;
     }
   }
   return { homeWin, draw, awayWin };
 }
 
-// ── Génère des cotes réalistes via modèle Poisson ───────────────────────────────
+// ── Génère des cotes bookmaker via le MÊME xG qu'analyzer.js ─────────────────────
+// estimateExpectedGoals est importé depuis analyzer.js → source de vérité unique
 function generateSyntheticOdds(homeStats, awayStats) {
-  const LEAGUE_AVG_HOME = 1.42;
-  const LEAGUE_AVG_AWAY = 1.18;
+  // Même xG que computeAIProbability → cotes synthétiques et probas IA sont cohérentes
+  const xgHome = Math.max(0.40, Math.min(3.20, estimateExpectedGoals(homeStats, awayStats, true)));
+  const xgAway = Math.max(0.30, Math.min(2.80, estimateExpectedGoals(awayStats, homeStats, false)));
 
-  // xG domicile : attaque dom × faiblesse défense extérieure
-  let xgHome, xgAway;
+  const { homeWin, draw, awayWin } = _poissonJoint(xgHome, xgAway);
 
-  if (homeStats?.homeGpg && awayStats?.awayCgpg) {
-    const homeAttack  = homeStats.homeGpg   / LEAGUE_AVG_HOME;
-    const awayDefence = awayStats.awayCgpg  / LEAGUE_AVG_AWAY;
-    xgHome = LEAGUE_AVG_HOME * homeAttack * awayDefence;
-  } else {
-    // Fallback position + forme
-    const formPts = s => s?.form ? s.form.toUpperCase().split('').slice(-5)
-      .reduce((acc, c) => acc + (c === 'W' ? 3 : c === 'D' ? 1 : 0), 0) : 7;
-    const leagueSize = 20;
-    const hRating = ((leagueSize - (homeStats?.position ?? 10)) / (leagueSize - 1)) * 60
-                  + (formPts(homeStats) / 15) * 40 + 8;
-    const aRating = ((leagueSize - (awayStats?.position ?? 10)) / (leagueSize - 1)) * 60
-                  + (formPts(awayStats) / 15) * 40;
-    xgHome = LEAGUE_AVG_HOME * (0.4 + (hRating / 100) * 1.2);
-    xgAway = LEAGUE_AVG_AWAY * (0.4 + (aRating / 100) * 1.2);
-  }
-
-  if (homeStats?.awayGpg && awayStats?.homeCgpg) {
-    const awayAttack  = awayStats.awayGpg  / LEAGUE_AVG_AWAY;
-    const homeDefence = homeStats.homeCgpg / LEAGUE_AVG_HOME;
-    xgAway = LEAGUE_AVG_AWAY * awayAttack * homeDefence;
-  } else if (!xgAway) {
-    xgAway = LEAGUE_AVG_AWAY;
-  }
-
-  // Clamp xG dans des plages réalistes
-  xgHome = Math.max(0.40, Math.min(3.20, xgHome));
-  xgAway = Math.max(0.30, Math.min(2.80, xgAway));
-
-  // Probabilités via Poisson joint
-  const { homeWin, draw, awayWin } = poissonProbs(xgHome, xgAway);
-
-  // Marge bookmaker ~5.5% (réaliste Winamax/Bet365)
+  // Marge bookmaker ~5.5% (réaliste Winamax/Bet365), arrondi multiples de 0.05
   const margin = 1.055;
-
-  // Conversion en cotes + arrondi Winamax (multiples de 0.05)
-  const toOdd = prob => {
-    const raw = (margin / Math.max(prob, 0.03));
-    return Math.round(Math.max(1.10, Math.min(raw, 25)) * 20) / 20;
-  };
+  const toOdd  = prob => Math.round(Math.max(1.10, Math.min(margin / Math.max(prob, 0.03), 25)) * 20) / 20;
 
   return {
     homeOdd:   toOdd(homeWin),
@@ -223,6 +195,23 @@ router.get('/', async (req, res) => {
       getTeamStatsMap(),
       preloadTopScorers(),
     ]);
+
+    // Forme récente via fixtures — remplace la forme standings (peut être décalée de plusieurs heures)
+    if (process.env.API_FOOTBALL_KEY && fixtures.length) {
+      const matchTeamIds = [...new Set(
+        fixtures.flatMap(f => [String(f.teams.home.id), String(f.teams.away.id)])
+      )];
+      try {
+        const recentForms = await enrichWithRecentForm(matchTeamIds);
+        for (const [id, form] of Object.entries(recentForms)) {
+          if (teamStats[id]) teamStats[id] = { ...teamStats[id], form };
+          else teamStats[id] = { ...DEFAULT_STATS, form };
+        }
+        console.log(`[matches] Forme enrichie pour ${Object.keys(recentForms).length}/${matchTeamIds.length} équipes`);
+      } catch (err) {
+        console.warn('[matches] Enrichissement forme échoué:', err.message);
+      }
+    }
 
     // Cotes via API-Football /odds — par date + requêtes individuelles fallback
     let realOddsMap = oddsCache.get('oddsMap');
