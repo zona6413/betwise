@@ -32,7 +32,6 @@ export default function Header({ lastUpdated, fromCache, onRefresh, loading, act
             </svg>
           </div>
           <span className="logo-text">Dodd<span className="logo-accent">Bet</span></span>
-          <span className="logo-tag">BETA</span>
         </div>
 
         <nav className="header-nav" role="navigation" aria-label="Filtres ligue">
