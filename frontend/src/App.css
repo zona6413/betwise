@@ -161,6 +161,68 @@
 .user-logout:hover { color: var(--red); }
 .user-manage:hover { color: var(--text-soft); }
 
+/* ── Coupe du Monde 2026 countdown strip ── */
+.wc-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: linear-gradient(135deg, rgba(180,83,9,0.12), rgba(234,179,8,0.08));
+  border: 1px solid rgba(234,179,8,0.22);
+  border-radius: var(--radius);
+  padding: 12px 20px;
+  margin-bottom: 20px;
+}
+.wc-strip-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gold);
+  letter-spacing: -0.1px;
+  white-space: nowrap;
+}
+.wc-strip-ball { font-size: 16px; }
+.wc-strip-blocks {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.wc-strip-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(234,179,8,0.08);
+  border: 1px solid rgba(234,179,8,0.15);
+  border-radius: 6px;
+  padding: 4px 10px;
+  min-width: 42px;
+}
+.wc-strip-num {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+  letter-spacing: -0.5px;
+}
+.wc-strip-unit {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--gold);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-top: 1px;
+}
+@media (max-width: 480px) {
+  .wc-strip { padding: 10px 14px; }
+  .wc-strip-label { font-size: 12px; }
+  .wc-strip-ball { font-size: 14px; }
+  .wc-strip-num { font-size: 15px; }
+  .wc-strip-block { min-width: 34px; padding: 3px 7px; }
+}
+
 /* ── Upgrade banner ── */
 .upgrade-banner {
   display: flex;
