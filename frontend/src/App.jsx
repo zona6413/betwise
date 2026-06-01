@@ -235,10 +235,8 @@ export default function App() {
         // Utilisateur connecté mais pas Pro → ouvrir directement la modal pricing
         setShowPricing(true);
       } else {
-        // Visiteur non connecté → ouvrir la connexion
-        setToast({ visible: true, message: '🔒 Fonctionnalité Pro — Connecte-toi ou abonne-toi', type: 'lock' });
-        setTimeout(() => setToast(t => ({ ...t, visible: false })), 3000);
-        setShowAuth(true);
+        // Visiteur non connecté → montrer le pricing d'abord
+        setShowPricing(true);
       }
       return;
     }
