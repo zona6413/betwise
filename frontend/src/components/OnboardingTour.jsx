@@ -159,7 +159,7 @@ function IllValue() {
           <span className="ill-value-pct">45%</span>
         </div>
         <div className="ill-value-row">
-          <span className="ill-value-name ill-value-name--ai">DoddBet IA</span>
+          <span className="ill-value-name ill-value-name--ai">Dodd</span>
           <div className="ill-value-track">
             <div className="ill-value-fill ill-value-fill--ai" style={{ width: '62%' }} />
           </div>
@@ -183,7 +183,7 @@ function IllAnalysis() {
         <div className="ill-mini-probs">
           <div className="ill-mini-prob-col">
             <span className="ill-mini-prob-val green">58%</span>
-            <span className="ill-mini-prob-lbl">IA Domicile</span>
+            <span className="ill-mini-prob-lbl">Dodd Domicile</span>
           </div>
           <div className="ill-mini-prob-col">
             <span className="ill-mini-prob-val">21%</span>
@@ -257,7 +257,7 @@ const STEPS = [
   {
     mood:  'excited',
     title: 'Salut, je suis Dodd !',
-    text:  "Bienvenue sur DoddBet. Je vais t'expliquer les paris sportifs et te montrer comment utiliser l'application. C'est parti !",
+    text:  "Je suis Dodd, l'intelligence qui analyse les matchs pour toi. Je vais t'expliquer les paris sportifs et te montrer comment tirer le meilleur de mes analyses. C'est parti !",
     Ill:   IllWelcome,
   },
   {
@@ -287,13 +287,13 @@ const STEPS = [
   {
     mood:  'excited',
     title: "Value Bet — l'avantage caché",
-    text:  "Quand notre IA estime qu'un résultat est plus probable que ce que le bookmaker propose, c'est un Value Bet. C'est là que se trouvent les vraies opportunités sur le long terme.",
+    text:  "Quand Dodd estime qu'un résultat est plus probable que ce que le bookmaker propose, c'est un Value Bet. C'est là que se trouvent les vraies opportunités sur le long terme.",
     Ill:   IllValue,
   },
   {
     mood:  'happy',
     title: "Zone d'analyse",
-    text:  "Chaque carte de match affiche les probabilités de l'IA, la forme récente des équipes, les joueurs blessés et les paris recommandés. Tout est calculé automatiquement.",
+    text:  "Chaque carte de match affiche les probabilités que Dodd a calculées, la forme récente des équipes, les joueurs blessés et les paris recommandés. Tout est analysé en temps réel.",
     Ill:   IllAnalysis,
   },
   {
@@ -305,7 +305,7 @@ const STEPS = [
   {
     mood:  'excited',
     title: "Tu es prêt !",
-    text:  "Explore les matchs du jour, suis les recommandations de l'IA et enregistre tes paris dans l'onglet Mes paris pour suivre ton évolution. Parie responsable.",
+    text:  "Explore les matchs du jour, suis les recommandations de Dodd et enregistre tes paris dans l'onglet Mes paris pour suivre ton évolution. Bonne chance !",
     Ill:   IllReady,
   },
 ];
