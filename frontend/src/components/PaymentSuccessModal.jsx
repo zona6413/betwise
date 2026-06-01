@@ -6,7 +6,7 @@ export default function PaymentSuccessModal({ user, onClose }) {
       <div className="psm-card" onClick={e => e.stopPropagation()}>
 
         {/* Icon */}
-        <div className="psm-icon">🎉</div>
+        <div className="psm-icon"></div>
 
         {/* Titre */}
         <h2 className="psm-title">Bienvenue dans DoddBet Pro !</h2>
@@ -18,19 +18,15 @@ export default function PaymentSuccessModal({ user, onClose }) {
         {/* Features débloquées */}
         <div className="psm-features">
           <div className="psm-feature">
-            <span className="psm-feature-icon">📊</span>
             <span>Tous les matchs &amp; ligues débloqués</span>
           </div>
           <div className="psm-feature">
-            <span className="psm-feature-icon">🎯</span>
             <span>Value bets &amp; analyses IA illimitées</span>
           </div>
           <div className="psm-feature">
-            <span className="psm-feature-icon">🔀</span>
             <span>Générateur de combos optimisés</span>
           </div>
           <div className="psm-feature">
-            <span className="psm-feature-icon">📈</span>
             <span>Suivi de tes paris avec statistiques</span>
           </div>
         </div>

@@ -438,7 +438,7 @@ export default function BetModal({ match, onAdd, onClose }) {
 
           <button type="submit" className={`bet-submit ${isValue ? 'bet-submit--value' : ''}`} disabled={!canSubmit}>
             {canSubmit
-              ? isValue ? '⚡ Enregistrer — VALUE BET' : 'Enregistrer le pari'
+              ? isValue ? 'Enregistrer — VALUE BET' : 'Enregistrer le pari'
               : optKey ? 'Entrez la mise' : 'Choisissez un pari'}
           </button>
         </form>

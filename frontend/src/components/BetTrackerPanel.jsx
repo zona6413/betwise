@@ -190,7 +190,7 @@ function BetRow({ bet, onResolve, onVoid, onDelete }) {
             <button className="bet-action-btn" onClick={() => setConfirmDel(false)}>Non</button>
           </>
         ) : (
-          <button className="bet-action-btn bet-action-btn--delete" onClick={() => setConfirmDel(true)}>🗑</button>
+          <button className="bet-action-btn bet-action-btn--delete" onClick={() => setConfirmDel(true)}>Suppr.</button>
         )}
       </div>
     </div>

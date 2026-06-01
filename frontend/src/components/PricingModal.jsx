@@ -65,7 +65,7 @@ export default function PricingModal({ onClose, authFetch, isLoggedIn, onOpenAut
 
         {isPro ? (
           <div className="pricing-current">
-            <div className="pricing-current-icon">{isAdmin ? '👑' : '⚡'}</div>
+            <div className="pricing-current-icon"></div>
             <h2>{isAdmin ? 'Compte Admin' : 'Tu es déjà Pro !'}</h2>
             <p>{isAdmin
               ? 'Tu as accès à toutes les fonctionnalités sans restriction.'
@@ -73,7 +73,7 @@ export default function PricingModal({ onClose, authFetch, isLoggedIn, onOpenAut
             }</p>
             {!isAdmin && (
               <button className="btn-cta" onClick={handlePortal} disabled={loading === 'portal'} style={{ marginTop: 20 }}>
-                {loading === 'portal' ? 'Chargement…' : '⚙ Gérer mon abonnement'}
+                {loading === 'portal' ? 'Chargement…' : 'Gérer mon abonnement'}
               </button>
             )}
             {error && <p className="pricing-error">{error}</p>}
@@ -81,7 +81,7 @@ export default function PricingModal({ onClose, authFetch, isLoggedIn, onOpenAut
         ) : (
           <>
             <div className="pricing-header">
-              <div className="pricing-icon">⚡</div>
+              <div className="pricing-icon"></div>
               <h2>Passe à DoddBet <span className="pro-badge">PRO</span></h2>
               <p>Toutes les analyses, value bets et combos pour maximiser tes gains</p>
             </div>
@@ -129,7 +129,7 @@ export default function PricingModal({ onClose, authFetch, isLoggedIn, onOpenAut
             {error && <p className="pricing-error">{error}</p>}
 
             <p className="pricing-legal">
-              🔒 Paiement sécurisé par Stripe · Remboursement sous 14 jours
+              Paiement sécurisé par Stripe · Remboursement sous 14 jours
             </p>
           </>
         )}

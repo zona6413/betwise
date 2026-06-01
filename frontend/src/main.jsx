@@ -21,7 +21,7 @@ class ErrorBoundary extends React.Component {
           color: '#fff', fontFamily: 'system-ui, sans-serif', padding: 24,
           textAlign: 'center', gap: 16,
         }}>
-          <div style={{ fontSize: 48 }}>⚡</div>
+          <div style={{ fontSize: 22, fontWeight: 700, color: '#eab308' }}>DoddBet</div>
           <h2 style={{ margin: 0, fontSize: 22 }}>Une erreur s'est produite</h2>
           <p style={{ color: 'rgba(255,255,255,0.5)', margin: 0, fontSize: 14 }}>
             Essaie de rafraîchir la page

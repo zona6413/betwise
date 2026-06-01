@@ -29,32 +29,26 @@ function useCountdown() {
 
 const FEATURES = [
   {
-    icon: '🤖',
     title: 'Analyses Dodd',
     desc: 'Chaque match analysé par Dodd : probabilités, forme, H2H, blessés — tout en un coup d\'œil.',
   },
   {
-    icon: '💎',
     title: 'Value Bets',
     desc: 'Notre algorithme détecte les cotes sous-évaluées par les bookmakers pour maximiser ton edge.',
   },
   {
-    icon: '🎯',
     title: 'Combos Dodd',
     desc: 'Génère des combinés optimisés automatiquement selon ton profil de risque (Prudent / Audacieux).',
   },
   {
-    icon: '📊',
     title: 'Suivi de paris',
     desc: 'Enregistre tes paris, suis ton ROI en temps réel et synchronise sur tous tes appareils.',
   },
   {
-    icon: '⚡',
     title: 'En direct',
     desc: 'Scores et cotes mis à jour en temps réel. Ne rate jamais un match à fort potentiel.',
   },
   {
-    icon: '📈',
     title: 'Modèle Poisson',
     desc: 'Nos cotes sont calculées via un modèle statistique basé sur les vrais buts par match.',
   },
@@ -209,7 +203,7 @@ export default function LandingPage({ onStart, onLogin, onPricing }) {
         <div style={{ height: "100%", display: "flex", flexDirection: "column", background: "#05070B", borderRadius: "18px", overflow: "hidden" }}>
           {/* Barre nav simulée */}
           <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "12px 20px", borderBottom: "1px solid rgba(255,255,255,0.06)", background: "#080B12" }}>
-            <div style={{ width: "28px", height: "28px", borderRadius: "8px", background: "#eab308", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px" }}>⚽</div>
+            <div style={{ width: "28px", height: "28px", borderRadius: "8px", background: "#eab308" }}></div>
             <span style={{ fontWeight: 700, fontSize: "14px", color: "#E8EAF2" }}>DoddBet</span>
             <div style={{ marginLeft: "auto", display: "flex", gap: "6px" }}>
               {["Tous", "Aujourd'hui", "Value bets"].map((t, i) => (
@@ -267,7 +261,6 @@ export default function LandingPage({ onStart, onLogin, onPricing }) {
         <div className="landing-features-grid">
           {FEATURES.map(f => (
             <div key={f.title} className="landing-feature-card">
-              <div className="landing-feature-icon">{f.icon}</div>
               <h3>{f.title}</h3>
               <p>{f.desc}</p>
             </div>

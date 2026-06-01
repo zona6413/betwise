@@ -21,7 +21,7 @@ export default function GamblingWarning({ onClose }) {
   return (
     <div className="gw-overlay">
       <div className="gw-modal">
-        <div className="gw-icon">⚠️</div>
+        <div className="gw-icon"></div>
 
         <h2 className="gw-title">Jeu responsable</h2>
 
@@ -42,7 +42,7 @@ export default function GamblingWarning({ onClose }) {
           href="tel:0974751313"
           onClick={e => e.stopPropagation()}
         >
-          <span className="gw-helpline-icon">📞</span>
+          <span className="gw-helpline-icon"></span>
           <span>
             <strong>Joueurs Info Service</strong>
             <small>09 74 75 13 13 — gratuit, anonyme, 7j/7</small>

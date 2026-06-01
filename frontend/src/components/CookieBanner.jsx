@@ -34,7 +34,7 @@ export default function CookieBanner() {
           /* ── Vue principale ── */
           <>
             <div className="cookie-top">
-              <div className="cookie-icon">🍪</div>
+              <div className="cookie-icon"></div>
               <div className="cookie-text">
                 <p className="cookie-title">Cookies & confidentialité</p>
                 <p className="cookie-desc">

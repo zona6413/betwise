@@ -107,7 +107,6 @@ function WCCountdown() {
   return (
     <div className="wc-strip">
       <span className="wc-strip-label">
-        <span className="wc-strip-ball">⚽</span>
         Coupe du Monde 2026
       </span>
       <div className="wc-strip-blocks">
@@ -229,7 +228,7 @@ export default function App() {
   function handleTabChange(tabId) {
     if (!accessibleTabs.has(tabId)) {
       if (tabId === 'taux') {
-        setToast({ visible: true, message: '🔒 Taux réservé aux admins', type: 'lock' });
+        setToast({ visible: true, message: 'Taux réservé aux admins', type: 'lock' });
         setTimeout(() => setToast(t => ({ ...t, visible: false })), 3000);
       } else if (isLoggedIn) {
         // Utilisateur connecté mais pas Pro → ouvrir directement la modal pricing
@@ -477,7 +476,7 @@ export default function App() {
                   {user?.role === 'pro'   && <span className="role-badge role-badge--pro">Pro</span>}
                   <span className="user-avatar">{(user?.username || user?.email || '?')[0].toUpperCase()}</span>
                   {user?.role === 'pro' && (
-                    <button className="user-manage" onClick={handleManageSubscription} title="Gérer mon abonnement">⚙</button>
+                    <button className="user-manage" onClick={handleManageSubscription} title="Gérer mon abonnement">···</button>
                   )}
                   <button className="user-logout" onClick={logout} title="Se déconnecter">✕</button>
                 </div>
@@ -498,7 +497,7 @@ export default function App() {
           {/* ── Banner upgrade pour les gratuits ─────────────────── */}
           {isFree && !loading && bettableMatches.length > 0 && (
             <div className="upgrade-banner">
-              <span>⚡ Accédez à tous les matchs, value bets, analyses et combos</span>
+              <span>Accédez à tous les matchs, value bets, analyses et combos</span>
               <button className="btn-upgrade" onClick={() => setShowPricing(true)}>Passer Pro</button>
             </div>
           )}
@@ -571,7 +570,7 @@ export default function App() {
                   onClick={() => handleTabChange(t.id)}
                   title={locked ? (t.id === 'taux' ? 'Réservé aux admins' : 'Fonctionnalité Pro') : ''}
                 >
-                  {locked && <span className="tab-lock">🔒</span>}{t.label}
+                  {t.label}
                   {!locked && t.id === 'live'  && liveMatches.length > 0 && <span className="tab-badge">{liveMatches.length}</span>}
                   {!locked && t.id === 'value' && valueCount > 0          && <span className="tab-badge tab-badge--green">{valueCount}</span>}
                 </button>
@@ -601,7 +600,7 @@ export default function App() {
               {/* Gratuits : teaser lock à la place de la grille */}
               {isFree && !loading && bettableMatches.length > 0 && (
                 <div className="free-lock-wall">
-                  <div className="free-lock-icon">🔒</div>
+                  <div className="free-lock-icon"></div>
                   <p className="free-lock-title">{bettableMatches.length} matchs disponibles aujourd'hui</p>
                   <p className="free-lock-sub">Passez Pro pour accéder à tous les matchs, value bets, analyses Dodd et combos optimisés.</p>
                   <button className="btn-upgrade" onClick={() => setShowPricing(true)}>
@@ -730,7 +729,7 @@ function Empty({ tab, onReset }) {
   };
   return (
     <div className="empty-state">
-      <div className="empty-state-icon">📅</div>
+      <div className="empty-state-icon"></div>
       <p className="empty-state-title">{msgs[tab] ?? 'Aucun match disponible.'}</p>
       <p className="empty-state-sub">La Coupe du Monde 2026 commence le 11 juin — les matchs apparaîtront automatiquement.</p>
       <button className="btn-reset" onClick={onReset}>Actualiser</button>
