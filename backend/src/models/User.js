@@ -11,6 +11,9 @@ const userSchema = new mongoose.Schema({
   subscriptionExpiry: { type: Date, default: null },
   stripeCustomerId:   { type: String, default: null },
   createdAt: { type: Date, default: Date.now },
+  // Vérification email
+  emailVerified:    { type: Boolean, default: false },
+  verifyToken:      { type: String,  default: null },
   // Réinitialisation du mot de passe
   resetToken:       { type: String, default: null },
   resetTokenExpiry: { type: Date,   default: null },
@@ -34,7 +37,7 @@ userSchema.methods.checkPassword = function (plain) {
 
 // Ne jamais exposer le mot de passe en JSON
 userSchema.methods.toPublic = function () {
-  return { id: this._id, email: this.email, username: this.username, role: this.role, subscriptionExpiry: this.subscriptionExpiry, createdAt: this.createdAt };
+  return { id: this._id, email: this.email, username: this.username, role: this.role, emailVerified: this.emailVerified, subscriptionExpiry: this.subscriptionExpiry, createdAt: this.createdAt };
 };
 
 // Vérifie si l'utilisateur a accès Pro (admin ou pro actif)

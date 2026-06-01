@@ -4,7 +4,7 @@ const API_BASE = `${import.meta.env.VITE_API_URL ?? 'https://betwise-suh4.onrend
 
 const LIVE_STATUSES = new Set(['1H', 'HT', '2H', 'ET', 'P', 'LIVE']);
 const POLL_LIVE = 3 * 60_000;       // 3 min si match en cours
-const POLL_IDLE = 90_000;           // 1 min 30 sinon
+const POLL_IDLE = 5 * 60_000;       // 5 min sinon (économise les requêtes)
 
 export function useMatches() {
   const [matches,     setMatches]     = useState([]);

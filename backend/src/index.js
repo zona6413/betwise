@@ -13,6 +13,7 @@ import stripeRouter   from './routes/stripe.js';
 import leadsRouter    from './routes/leads.js';
 import adminRouter    from './routes/admin.js';
 import { requireAdmin } from './middleware/auth.js';
+import { initLearningEngine } from './services/learningEngine.js';
 
 dotenv.config();
 
@@ -157,7 +158,11 @@ app.use((err, _req, res, _next) => {
 });
 
 // ── Start ─────────────────────────────────────────────────────────────────────
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
+  // Charger les résultats historiques depuis MongoDB au démarrage
+  if (process.env.MONGODB_URI) {
+    try { await initLearningEngine(); } catch {}
+  }
   console.log(`\n🚀 DoddBet backend  →  http://localhost:${PORT}`);
   console.log(`   API-Football : ${process.env.API_FOOTBALL_KEY ? '✅' : '⚠️  mock'}`);
   console.log(`   TheOddsAPI   : ${process.env.ODDS_API_KEY     ? '✅' : '⚠️  mock'}`);

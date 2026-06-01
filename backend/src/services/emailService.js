@@ -178,3 +178,27 @@ export async function sendReceiptEmail({ to, username, plan, amount, date }) {
   `);
   return send({ to, subject: `✅ Abonnement DoddBet ${planLbl} activé`, html });
 }
+
+/* ─────────────────────────────────────────────────────────────
+   Vérification email
+───────────────────────────────────────────────────────────── */
+export async function sendVerificationEmail({ to, verifyUrl }) {
+  const html = baseLayout(`
+    <h1 style="margin:0 0 8px;font-size:24px;font-weight:800;color:#f0f2f8;letter-spacing:-0.5px;">Confirme ton email 📧</h1>
+    <p style="margin:0 0 24px;font-size:13px;color:rgba(240,242,248,0.4);">Lien valide pendant 24 heures</p>
+
+    <p style="font-size:14px;line-height:1.65;color:rgba(240,242,248,0.7);margin:0 0 24px;">
+      Clique sur le bouton ci-dessous pour vérifier ton adresse email et accéder à toutes les fonctionnalités de DoddBet.
+    </p>
+
+    <a href="${verifyUrl}" style="display:block;background:linear-gradient(135deg,#b45309,#eab308);color:#fff;text-align:center;padding:14px 24px;border-radius:12px;text-decoration:none;font-size:14px;font-weight:700;letter-spacing:0.2px;margin:0 0 20px;">
+      Vérifier mon email →
+    </a>
+
+    <p style="font-size:12px;color:rgba(240,242,248,0.3);margin:0;line-height:1.5;">
+      Si tu n'as pas créé de compte DoddBet, ignore cet email.<br/>
+      Ou copie ce lien : <span style="color:rgba(234,179,8,0.5);word-break:break-all;">${verifyUrl}</span>
+    </p>
+  `);
+  return send({ to, subject: '📧 Confirme ton email DoddBet', html });
+}

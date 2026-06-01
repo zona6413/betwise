@@ -143,8 +143,9 @@ export default function App() {
   const [legalTab,    setLegalTab]    = useState(null); // null = fermé, sinon 'mentions'|'cgu'|'confidentialite'|'jeu'
   const [showLanding, setShowLanding] = useState(() => {
     if (typeof window === 'undefined') return false;
-    // Ne pas afficher la landing si un token de reset est dans l'URL
-    if (new URLSearchParams(window.location.search).get('reset')) return false;
+    const p = new URLSearchParams(window.location.search);
+    // Ne pas afficher la landing si un token reset ou verify est dans l'URL
+    if (p.get('reset') || p.get('verify')) return false;
     return !localStorage.getItem('bw_visited') && !localStorage.getItem('betwise_token_v1');
   });
   // Token de réinitialisation de mot de passe (depuis URL ?reset=xxx)
@@ -152,6 +153,8 @@ export default function App() {
     if (typeof window === 'undefined') return null;
     return new URLSearchParams(window.location.search).get('reset') ?? null;
   });
+  // Vérification email (depuis URL ?verify=xxx)
+  const [showEmailBanner, setShowEmailBanner] = useState(true);
   const [showAuth,    setShowAuth]    = useState(() => {
     if (typeof window === 'undefined') return false;
     return !!new URLSearchParams(window.location.search).get('reset');
@@ -173,6 +176,29 @@ export default function App() {
     try { return !localStorage.getItem('betwise_tour_v1'); } catch { return true; }
   });
   const prevValueCount = useRef(0);
+
+  // Vérification email depuis URL ?verify=token
+  useEffect(() => {
+    const token = new URLSearchParams(window.location.search).get('verify');
+    if (!token) return;
+    const API = import.meta.env.VITE_API_URL ?? 'https://betwise-suh4.onrender.com';
+    fetch(`${API}/api/auth/verify-email?token=${encodeURIComponent(token)}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.ok) {
+          setToast({ visible: true, message: '✅ Email vérifié ! Bienvenue.', type: 'value' });
+          if (data.token) login(null, null, data);
+          else refreshUser?.();
+        } else {
+          setToast({ visible: true, message: data.error ?? 'Lien invalide ou expiré', type: 'lock' });
+        }
+      })
+      .catch(() => {})
+      .finally(() => {
+        window.history.replaceState({}, '', window.location.pathname);
+        setTimeout(() => setToast(t => ({ ...t, visible: false })), 4000);
+      });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Retour depuis Stripe Checkout
   useEffect(() => {
@@ -504,6 +530,31 @@ export default function App() {
             <div className="upgrade-banner">
               <span>Accédez à tous les matchs, value bets, analyses et combos</span>
               <button className="btn-upgrade" onClick={() => setShowPricing(true)}>Passer Pro</button>
+            </div>
+          )}
+
+          {/* ── Banner vérification email ─────────────────────────── */}
+          {isLoggedIn && user && user.emailVerified === false && showEmailBanner && (
+            <div className="email-verify-banner">
+              <span>📧 Confirme ton adresse email pour sécuriser ton compte</span>
+              <button
+                className="btn-resend-verify"
+                onClick={async () => {
+                  const API = import.meta.env.VITE_API_URL ?? 'https://betwise-suh4.onrender.com';
+                  try {
+                    const token = localStorage.getItem('betwise_token_v1');
+                    await fetch(`${API}/api/auth/resend-verification`, {
+                      method: 'POST',
+                      headers: { Authorization: `Bearer ${token}` },
+                    });
+                    setToast({ visible: true, message: 'Email de vérification renvoyé !', type: 'value' });
+                    setTimeout(() => setToast(t => ({ ...t, visible: false })), 3000);
+                  } catch {}
+                }}
+              >
+                Renvoyer
+              </button>
+              <button className="btn-close-banner" onClick={() => setShowEmailBanner(false)}>✕</button>
             </div>
           )}
 

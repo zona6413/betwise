@@ -2,7 +2,7 @@ import { Router }  from 'express';
 import crypto       from 'crypto';
 import User         from '../models/User.js';
 import { signToken, requireAuth } from '../middleware/auth.js';
-import { sendWelcomeEmail, sendResetEmail } from '../services/emailService.js';
+import { sendWelcomeEmail, sendResetEmail, sendVerificationEmail } from '../services/emailService.js';
 import rateLimit from 'express-rate-limit';
 
 // Limiteur strict pour les routes d'authentification (brute-force protection)
@@ -37,10 +37,21 @@ router.post('/register', authLimiter, async (req, res) => {
     const exists = await User.findOne({ email });
     if (exists) return res.status(409).json({ error: 'Un compte existe déjà avec cet email' });
 
-    const user  = await User.create({ email, password, username: username ?? '' });
+    // Générer token de vérification email
+    const rawVerifyToken  = crypto.randomBytes(32).toString('hex');
+    const hashVerifyToken = crypto.createHash('sha256').update(rawVerifyToken).digest('hex');
+
+    const user  = await User.create({
+      email, password,
+      username:     username ?? '',
+      emailVerified: false,
+      verifyToken:  hashVerifyToken,
+    });
     const token = signToken(user._id);
 
-    // Email de bienvenue (non-bloquant)
+    // Email de bienvenue + vérification (non-bloquant)
+    const verifyUrl = `${APP_URL}?verify=${rawVerifyToken}`;
+    sendVerificationEmail({ to: user.email, verifyUrl }).catch(() => {});
     sendWelcomeEmail({ to: user.email, username: user.username }).catch(() => {});
 
     res.status(201).json({ token, user: user.toPublic() });
@@ -189,6 +200,55 @@ router.post('/reset-password', async (req, res) => {
     res.json({ ok: true, token: jwtToken, user: user.toPublic() });
   } catch (err) {
     console.error('[auth] reset-password:', err.message);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+// ── GET /api/auth/verify-email?token=xxx ────────────────────
+// Valide le token de vérification et marque l'email comme vérifié
+router.get('/verify-email', async (req, res) => {
+  try {
+    const { token } = req.query;
+    if (!token || typeof token !== 'string') {
+      return res.status(400).json({ error: 'Token manquant' });
+    }
+
+    const hashToken = crypto.createHash('sha256').update(token).digest('hex');
+    const user = await User.findOne({ verifyToken: hashToken });
+
+    if (!user) return res.status(400).json({ error: 'Lien invalide ou déjà utilisé' });
+
+    user.emailVerified = true;
+    user.verifyToken   = null;
+    await user.save();
+
+    console.log(`[auth] Email vérifié — userId=${user._id}`);
+    const jwtToken = signToken(user._id);
+    res.json({ ok: true, token: jwtToken, user: user.toPublic() });
+  } catch (err) {
+    console.error('[auth] verify-email:', err.message);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+// ── POST /api/auth/resend-verification ──────────────────────
+// Renvoie l'email de vérification (limité)
+router.post('/resend-verification', requireAuth, authLimiter, async (req, res) => {
+  try {
+    const user = await User.findById(req.userId);
+    if (!user) return res.status(404).json({ error: 'Utilisateur introuvable' });
+    if (user.emailVerified) return res.json({ ok: true, already: true });
+
+    const rawToken  = crypto.randomBytes(32).toString('hex');
+    const hashToken = crypto.createHash('sha256').update(rawToken).digest('hex');
+    user.verifyToken = hashToken;
+    await user.save();
+
+    const verifyUrl = `${APP_URL}?verify=${rawToken}`;
+    await sendVerificationEmail({ to: user.email, verifyUrl });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('[auth] resend-verification:', err.message);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 });
