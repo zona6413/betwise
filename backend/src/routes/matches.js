@@ -229,6 +229,9 @@ router.get('/', async (req, res) => {
       oddsCache.set('oddsMap', realOddsMap);
     }
 
+    // Blessés uniquement pour les 6 grands championnats (économie de quota API)
+    const TOP_INJURY_LEAGUES = new Set([2, 39, 61, 78, 135, 140]);
+
     // H2H + injuries : en parallèle, avec cache
     const [h2hResults, injuryResults] = await Promise.all([
       Promise.all(fixtures.map(async f => {
@@ -240,6 +243,7 @@ router.get('/', async (req, res) => {
         return data;
       })),
       Promise.all(fixtures.map(async f => {
+        if (!TOP_INJURY_LEAGUES.has(f.league.id)) return [];
         const key = `inj_${f.fixture.id}`;
         const hit = injuryCache.get(key);
         if (hit !== undefined) return hit;
