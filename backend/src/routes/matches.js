@@ -83,6 +83,14 @@ function generateSyntheticOdds(homeStats, awayStats) {
   };
 }
 
+// Malus xG pour blessures : -8% top scorer absent, -4% scorer2, cap -12%
+function injuryXgFactor(teamPlayers) {
+  if (!teamPlayers) return 1.0;
+  const topOut = teamPlayers.topScorer?.injured ? 0.08 : 0;
+  const sc2Out = teamPlayers.scorer2?.injured   ? 0.04 : 0;
+  return Math.max(0.88, 1 - topOut - sc2Out);
+}
+
 // ── Enrichit un fixture avec stats + cotes + analyse IA ─────────────────────────
 function buildMatch(fixture, teamStats, realOddsMap, h2h = null, injuries = []) {
   const homeId    = String(fixture.teams.home.id);
@@ -100,8 +108,10 @@ function buildMatch(fixture, teamStats, realOddsMap, h2h = null, injuries = []) 
   const rawPlayers = getMatchPlayers(homeId, awayId, fixture.teams.home.name, fixture.teams.away.name);
   // Croiser avec les blessés/suspendus du match — retire les joueurs absents des recommandations
   const players = applyInjuryFilter(rawPlayers, injuries, Number(homeId), Number(awayId));
+  const homeInjFactor = injuryXgFactor(players?.home);
+  const awayInjFactor = injuryXgFactor(players?.away);
   const bookmakerProbs = impliedProbabilities(homeOdd, drawOdd, awayOdd);
-  const aiProbs        = computeAIProbability(homeStats, awayStats);
+  const aiProbs        = computeAIProbability(homeStats, awayStats, homeInjFactor, awayInjFactor);
   // Prédictions RAW pré-calibration pour le moteur d'apprentissage
   const hxg        = estimateExpectedGoals(homeStats, awayStats, true);
   const axg        = estimateExpectedGoals(awayStats, homeStats, false);

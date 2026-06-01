@@ -92,14 +92,14 @@ function poissonJoint1X2(hxg, axg) {
 // puis la distribution de Poisson jointe donne les proba 1X2 → cohérent avec
 // Over/Under, BTTS et scores probables qui utilisent le même modèle.
 
-export function computeAIProbability(homeStats, awayStats) {
-  const hxg = estimateExpectedGoals(homeStats, awayStats, true);
-  const axg = estimateExpectedGoals(awayStats, homeStats, false);
+// homeInjFactor / awayInjFactor : multiplicateur xG (1.0 = pas de blessé, 0.88 = top scorer absent)
+export function computeAIProbability(homeStats, awayStats, homeInjFactor = 1, awayInjFactor = 1) {
+  const hxg = estimateExpectedGoals(homeStats, awayStats, true)  * homeInjFactor;
+  const axg = estimateExpectedGoals(awayStats, homeStats, false) * awayInjFactor;
 
   const raw = poissonJoint1X2(hxg, axg);
 
   const cal = applyCalibration(raw);
-  // Re-normalise après calibration pour que la somme reste 1
   const sum = cal.homeWin + cal.draw + cal.awayWin;
   return {
     home: +(cal.homeWin / sum).toFixed(4),
@@ -116,17 +116,21 @@ const LEAGUE_AVG_HOME = 1.42; // moyenne buts marqués à dom en Europe
 const LEAGUE_AVG_AWAY = 1.18; // moyenne buts marqués à l'ext en Europe
 
 export function estimateExpectedGoals(attackStats, defenceStats, isHome = false) {
+  // Facteur forme récente : ±10% max (neutre à formScore=0.5)
+  const form       = formScore(attackStats?.form);
+  const formFactor = 1 + (form - 0.5) * 0.20; // [0.90, 1.10]
+
   // Si on a les vrais buts/match → modèle Dixon-Coles simplifié
   if (isHome && attackStats?.homeGpg && defenceStats?.awayCgpg) {
-    const attackRate  = attackStats.homeGpg / LEAGUE_AVG_HOME;   // force d'attaque domicile
-    const defenceRate = defenceStats.awayCgpg / LEAGUE_AVG_AWAY; // faiblesse défense visiteur
-    const xg = LEAGUE_AVG_HOME * attackRate * defenceRate;
+    const attackRate  = attackStats.homeGpg / LEAGUE_AVG_HOME;
+    const defenceRate = defenceStats.awayCgpg / LEAGUE_AVG_AWAY;
+    const xg = LEAGUE_AVG_HOME * attackRate * defenceRate * formFactor;
     return Math.max(0.30, Math.min(3.5, xg));
   }
   if (!isHome && attackStats?.awayGpg && defenceStats?.homeCgpg) {
-    const attackRate  = attackStats.awayGpg  / LEAGUE_AVG_AWAY;  // force d'attaque extérieur
-    const defenceRate = defenceStats.homeCgpg / LEAGUE_AVG_HOME;  // faiblesse défense domicile
-    const xg = LEAGUE_AVG_AWAY * attackRate * defenceRate;
+    const attackRate  = attackStats.awayGpg  / LEAGUE_AVG_AWAY;
+    const defenceRate = defenceStats.homeCgpg / LEAGUE_AVG_HOME;
+    const xg = LEAGUE_AVG_AWAY * attackRate * defenceRate * formFactor;
     return Math.max(0.25, Math.min(3.5, xg));
   }
   // Fallback : modèle basé sur force/faiblesse relative
