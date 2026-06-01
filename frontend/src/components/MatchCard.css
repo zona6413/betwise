@@ -427,16 +427,16 @@
   border-radius: var(--radius-sm);
   font-size: 12px;
   font-weight: 700;
-  background: linear-gradient(135deg, #00b377, #00d68f);
-  border: 1px solid rgba(0, 214, 143, 0.4);
+  background: #00b377;
+  border: 1px solid rgba(0, 179, 119, 0.3);
   color: #fff;
   transition: all 0.18s ease;
   letter-spacing: -0.1px;
-  box-shadow: 0 0 10px rgba(0, 214, 143, 0.25);
+  box-shadow: 0 2px 6px rgba(0, 179, 119, 0.15);
 }
 .btn-analyse:hover {
-  background: linear-gradient(135deg, #00c985, #00f0a0);
-  box-shadow: 0 0 18px rgba(0, 214, 143, 0.5);
+  background: #00c985;
+  box-shadow: 0 3px 10px rgba(0, 179, 119, 0.28);
   transform: translateY(-1px);
 }
 .btn-analyse:disabled { opacity: 0.2; cursor: not-allowed; box-shadow: none; }
