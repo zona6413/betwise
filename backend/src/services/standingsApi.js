@@ -14,7 +14,7 @@ const SEASON   = 2025; // saison européenne par défaut
 // Cache 12h : les standings ne changent pas plusieurs fois par jour
 // La clé contient les IDs de ligues actives → si la fenêtre change, on refetch
 const cache     = new NodeCache({ stdTTL: 43200 }); // 12h
-const formCache = new NodeCache({ stdTTL: 3600 });  // 1h — forme récente par équipe
+const formCache = new NodeCache({ stdTTL: 21600 }); // 6h — forme récente (équipe joue 1x/semaine max)
 
 const BOOKMAKERS = ['Unibet', 'Betclic', 'Winamax', 'Bet365', 'PMU'];
 
