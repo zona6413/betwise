@@ -3,16 +3,32 @@ import './PricingModal.css';
 
 const API = import.meta.env.VITE_API_URL ?? 'https://betwise-suh4.onrender.com';
 
+const FEATURES = [
+  'Tous les matchs & ligues (60+)',
+  'Value bets détectés en temps réel',
+  'Analyses Dodd illimitées',
+  'Générateur de combos optimisés',
+  'Suivi de paris synchronisé',
+  'Support prioritaire',
+];
+
 export default function PricingModal({ onClose, authFetch, isLoggedIn, onOpenAuth, user }) {
-  const [loading, setLoading] = useState(null); // 'monthly' | 'yearly' | 'portal'
+  const [billing, setBilling] = useState('yearly');
+  const [loading, setLoading] = useState(null);
   const [error,   setError]   = useState(null);
 
   const isPro   = user?.role === 'pro' || user?.role === 'admin';
   const isAdmin = user?.role === 'admin';
 
-  async function handleSubscribe(plan) {
+  const isYearly = billing === 'yearly';
+  const price    = isYearly ? '39€' : '4,99€';
+  const sub      = isYearly ? '/an · soit 3,25€/mois' : '/mois · résiliable à tout moment';
+  const plan     = isYearly ? 'yearly' : 'monthly';
+  const ctaLabel = isYearly ? 'Commencer — 39€/an' : 'Commencer — 4,99€/mois';
+
+  async function handleSubscribe() {
     if (!isLoggedIn) { onOpenAuth(); return; }
-    setLoading(plan);
+    setLoading('subscribe');
     setError(null);
     try {
       const res  = await authFetch(`${API}/api/stripe/create-checkout`, {
@@ -47,7 +63,6 @@ export default function PricingModal({ onClose, authFetch, isLoggedIn, onOpenAut
       <div className="pricing-modal" onClick={e => e.stopPropagation()}>
         <button className="modal-close" onClick={onClose}>✕</button>
 
-        {/* ── Déjà Pro / Admin ── */}
         {isPro ? (
           <div className="pricing-current">
             <div className="pricing-current-icon">{isAdmin ? '👑' : '⚡'}</div>
@@ -57,12 +72,7 @@ export default function PricingModal({ onClose, authFetch, isLoggedIn, onOpenAut
               : `Abonnement actif${user?.subscriptionExpiry ? ` jusqu'au ${new Date(user.subscriptionExpiry).toLocaleDateString('fr-FR')}` : ''}`
             }</p>
             {!isAdmin && (
-              <button
-                className="btn-subscribe btn-subscribe--best"
-                onClick={handlePortal}
-                disabled={loading === 'portal'}
-                style={{ marginTop: 16 }}
-              >
+              <button className="btn-cta" onClick={handlePortal} disabled={loading === 'portal'} style={{ marginTop: 20 }}>
                 {loading === 'portal' ? 'Chargement…' : '⚙ Gérer mon abonnement'}
               </button>
             )}
@@ -71,85 +81,44 @@ export default function PricingModal({ onClose, authFetch, isLoggedIn, onOpenAut
         ) : (
           <>
             <div className="pricing-header">
+              <div className="pricing-icon">⚡</div>
               <h2>Passe à DoddBet <span className="pro-badge">PRO</span></h2>
-              <p>Accède à toutes les analyses, value bets, combos et statistiques avancées</p>
+              <p>Toutes les analyses, value bets et combos pour maximiser tes gains</p>
             </div>
 
-            <div className="pricing-cards">
-              {/* Gratuit */}
-              <div className="pricing-card pricing-card--free">
-                <div className="pricing-card-top">
-                  <span className="pricing-period">Gratuit</span>
-                  <div className="pricing-price">
-                    <span className="price-amount">0€</span>
-                    <span className="price-period">/toujours</span>
-                  </div>
-                </div>
-                <ul className="pricing-features">
-                  <li>—3 picks du jour sélectionnés par Dodd</li>
-                  <li>—Accès à tous les matchs</li>
-                  <li>—Analyses Dodd détaillées</li>
-                  <li>—Value bets en temps réel</li>
-                  <li>—Générateur de combos</li>
-                  <li>—Suivi de paris</li>
-                </ul>
-                <button className="btn-subscribe btn-subscribe--free" disabled>
-                  Plan actuel
-                </button>
-              </div>
-
-              {/* Mensuel */}
-              <div className="pricing-card">
-                <div className="pricing-card-top">
-                  <span className="pricing-period">Mensuel</span>
-                  <div className="pricing-price">
-                    <span className="price-amount">4,99€</span>
-                    <span className="price-period">/mois</span>
-                  </div>
-                </div>
-                <ul className="pricing-features">
-                  <li>—Tous les matchs & ligues</li>
-                  <li>—Analyses Dodd illimitées</li>
-                  <li>—Value bets en temps réel</li>
-                  <li>—Générateur de combos</li>
-                  <li>—Suivi de paris synchronisé</li>
-                  <li>—Résiliation à tout moment</li>
-                </ul>
-                <button
-                  className="btn-subscribe"
-                  onClick={() => handleSubscribe('monthly')}
-                  disabled={!!loading}
-                >
-                  {loading === 'monthly' ? 'Redirection…' : 'Commencer — 4,99€/mois'}
-                </button>
-              </div>
-
-              {/* Annuel */}
-              <div className="pricing-card pricing-card--best">
-                <div className="pricing-best-badge">Meilleure offre</div>
-                <div className="pricing-card-top">
-                  <span className="pricing-period">Annuel</span>
-                  <div className="pricing-price">
-                    <span className="price-amount">39€</span>
-                    <span className="price-period">/an</span>
-                  </div>
-                  <span className="pricing-saving">soit 3,25€/mois — économise 35%</span>
-                </div>
-                <ul className="pricing-features">
-                  <li>—Tous les avantages Pro</li>
-                  <li>—Priorité nouvelles fonctions</li>
-                  <li>—Support prioritaire</li>
-                  <li>—2 mois offerts vs mensuel</li>
-                </ul>
-                <button
-                  className="btn-subscribe btn-subscribe--best"
-                  onClick={() => handleSubscribe('yearly')}
-                  disabled={!!loading}
-                >
-                  {loading === 'yearly' ? 'Redirection…' : 'Commencer — 39€/an'}
-                </button>
-              </div>
+            <div className="billing-toggle">
+              <button
+                className={`billing-btn ${billing === 'monthly' ? 'billing-btn--active' : ''}`}
+                onClick={() => setBilling('monthly')}
+              >
+                Mensuel
+              </button>
+              <button
+                className={`billing-btn ${billing === 'yearly' ? 'billing-btn--active' : ''}`}
+                onClick={() => setBilling('yearly')}
+              >
+                Annuel
+                <span className="billing-save">−35%</span>
+              </button>
             </div>
+
+            <div className="pricing-price-block">
+              <span className="pricing-price-amount">{price}</span>
+              <span className="pricing-price-sub">{sub}</span>
+            </div>
+
+            <ul className="pricing-features">
+              {FEATURES.map(f => (
+                <li key={f}>
+                  <span className="feat-check">✓</span>
+                  {f}
+                </li>
+              ))}
+            </ul>
+
+            <button className="btn-cta" onClick={handleSubscribe} disabled={!!loading}>
+              {loading === 'subscribe' ? 'Redirection vers Stripe…' : ctaLabel}
+            </button>
 
             {!isLoggedIn && (
               <p className="pricing-login-hint">
@@ -160,7 +129,7 @@ export default function PricingModal({ onClose, authFetch, isLoggedIn, onOpenAut
             {error && <p className="pricing-error">{error}</p>}
 
             <p className="pricing-legal">
-              Paiement sécurisé par Stripe · Sans engagement pour le mensuel · Remboursement sous 14 jours
+              🔒 Paiement sécurisé par Stripe · Remboursement sous 14 jours
             </p>
           </>
         )}
