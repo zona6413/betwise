@@ -1,7 +1,11 @@
 import jwt  from 'jsonwebtoken';
 import User from '../models/User.js';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'doddbet_dev_secret_change_in_prod';
+const DEV_SECRET = 'doddbet_dev_secret_change_in_prod';
+const JWT_SECRET = process.env.JWT_SECRET || DEV_SECRET;
+if (!process.env.JWT_SECRET || JWT_SECRET === DEV_SECRET) {
+  console.warn('⚠️  [auth] JWT_SECRET non configuré — tokens DEV actifs (NON SÉCURISÉ EN PROD)');
+}
 
 export function signToken(userId) {
   return jwt.sign({ sub: userId }, JWT_SECRET, { expiresIn: '30d' });

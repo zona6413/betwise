@@ -1,5 +1,6 @@
 import { Router }    from 'express';
 import NodeCache      from 'node-cache';
+import { requireAuth } from '../middleware/auth.js';
 
 import { getTodayFixtures, getHeadToHead, getInjuries } from '../services/footballApi.js';
 import { getOddsMap }              from '../services/oddsApi.js';
@@ -187,8 +188,8 @@ function buildMatch(fixture, teamStats, realOddsMap, h2h = null, injuries = []) 
   };
 }
 
-// ── POST /api/matches/refresh — vide le cache ────────────────────────────────────
-router.post('/refresh', (_req, res) => {
+// ── POST /api/matches/refresh — vide le cache (auth requise) ────────────────────
+router.post('/refresh', requireAuth, (_req, res) => {
   cache.flushAll();
   res.json({ ok: true, message: 'Cache vidé' });
 });
@@ -196,7 +197,7 @@ router.post('/refresh', (_req, res) => {
 // ── GET /api/matches ─────────────────────────────────────────────────────────────
 router.get('/', async (req, res) => {
   try {
-    if (req.query.refresh === 'true') cache.flushAll();
+    // Le flush via query param est désactivé — utiliser POST /refresh (auth requise)
     const cached = cache.get('matches');
     if (cached) return res.json({ data: cached, cached: true, count: cached.length });
 

@@ -60,12 +60,17 @@ router.get('/users', requireAdmin, async (req, res) => {
     const page  = Math.max(1, parseInt(req.query.page) || 1);
     const limit = Math.min(100, parseInt(req.query.limit) || 50);
     const skip  = (page - 1) * limit;
-    const role  = req.query.role; // filtre optionnel
-    const q     = req.query.q;   // recherche email
+    const role  = req.query.role;
+    const q     = req.query.q;
 
     const filter = {};
-    if (role) filter.role = role;
-    if (q)    filter.email = { $regex: q, $options: 'i' };
+    // Whitelist du rôle pour éviter les injections
+    if (role && ['free','pro','admin'].includes(role)) filter.role = role;
+    // Échapper le regex (anti-ReDoS) + limiter à 100 chars
+    if (q && typeof q === 'string' && q.length <= 100) {
+      const safeQ = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      filter.email = { $regex: safeQ, $options: 'i' };
+    }
 
     const [users, total] = await Promise.all([
       User.find(filter)
