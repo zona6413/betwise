@@ -26,6 +26,7 @@ import CookieBanner      from './components/CookieBanner.jsx';
 import ProfileModal      from './components/ProfileModal.jsx';
 import AdminPanel        from './components/AdminPanel.jsx';
 import PaymentSuccessModal from './components/PaymentSuccessModal.jsx';
+import OnboardingTour     from './components/OnboardingTour.jsx';
 import './App.css';
 
 const FINISHED_STATUSES = new Set(['FT', 'AET', 'PEN', 'AWD', 'WO']);
@@ -137,7 +138,7 @@ export default function App() {
   const { matches, loading, error, lastUpdated, refresh } = useMatches();
   const learningStats = useLearning(matches);
   const { user, isLoggedIn, loading: authLoading, error: authError, setError: setAuthError, register, login, logout, authFetch, refreshUser } = useAuth();
-  const { bets, stats: betStats, addBet, resolveBet, voidBet, deleteBet, syncing } = useBetTracker(authFetch, isLoggedIn);
+  const { bets, stats: betStats, addBet, resolveBet, voidBet, deleteBet, syncing, bankrollInitial, setBankroll } = useBetTracker(authFetch, isLoggedIn);
   // Landing page : affiché pour les visiteurs non connectés qui n'ont pas encore cliqué "Commencer"
   const [legalTab,    setLegalTab]    = useState(null); // null = fermé, sinon 'mentions'|'cgu'|'confidentialite'|'jeu'
   const [showLanding, setShowLanding] = useState(() => {
@@ -168,6 +169,9 @@ export default function App() {
   const [showProfile,        setShowProfile]        = useState(false);
   const [showAdmin,          setShowAdmin]          = useState(false);
   const [showPaymentSuccess, setShowPaymentSuccess] = useState(false);
+  const [showTour,           setShowTour]           = useState(() => {
+    try { return !localStorage.getItem('betwise_tour_v1'); } catch { return true; }
+  });
   const prevValueCount = useRef(0);
 
   // Retour depuis Stripe Checkout
@@ -468,6 +472,7 @@ export default function App() {
             </div>
             <div className="top-bar-right">
               {isProOrAdmin && <button className="combo-trigger-btn" onClick={() => setShowCombo(true)}>Combo</button>}
+              <button className="btn-help-tour" onClick={() => setShowTour(true)} title="Guide DoddBet">?</button>
               <button className={`btn-refresh-sm ${loading ? 'spinning' : ''}`} onClick={refresh} disabled={loading} title="Rafraîchir">↻</button>
               {lastUpdated && <span className="stats-time">{lastUpdated.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</span>}
               {isLoggedIn ? (
@@ -591,6 +596,8 @@ export default function App() {
               onResolve={resolveBet}
               onVoid={voidBet}
               onDelete={deleteBet}
+              bankrollInitial={bankrollInitial}
+              setBankroll={setBankroll}
             />
           )}
 
@@ -694,6 +701,9 @@ export default function App() {
           user={user}
           onOpenAuth={() => { setShowPricing(false); setShowAuth(true); }}
         />
+      )}
+      {showTour && (
+        <OnboardingTour onClose={() => setShowTour(false)} />
       )}
     </div>
   );
