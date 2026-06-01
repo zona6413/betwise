@@ -8,23 +8,60 @@ import NodeCache from 'node-cache';
 const BASE_URL = 'https://v3.football.api-sports.io';
 const API_KEY  = process.env.API_FOOTBALL_KEY;
 const SEASON   = 2025; // saison par défaut (ex : Ligue 1 2025-2026, PL 2025-2026…)
-const cache     = new NodeCache({ stdTTL: 1800 });  // 30 min — standings plus réactifs
+const cache     = new NodeCache({ stdTTL: 43200 }); // 12h — standings (35 ligues, économie quota)
 const formCache = new NodeCache({ stdTTL: 3600 });  // 1h — forme récente par équipe
 
 // Ligues domestiques avec classements
 // season optionnel : certaines ligues (Scandinavie, Baltique…) tournent sur une année civile
 // et leur saison courante est 2026, pas 2025.
 const STANDING_LEAGUES = [
+  // ── Grandes ligues européennes ────────────────────────────────────────────────
   { id: 1   },                  // Coupe du Monde FIFA 2026
   { id: 39  },                  // Premier League
+  { id: 40  },                  // Championship
   { id: 61  },                  // Ligue 1
+  { id: 62  },                  // Ligue 2
   { id: 140 },                  // La Liga
+  { id: 141 },                  // La Liga 2
   { id: 135 },                  // Serie A
+  { id: 136 },                  // Serie B
   { id: 78  },                  // Bundesliga
+  { id: 79  },                  // 2. Bundesliga
   { id: 88  },                  // Eredivisie
   { id: 94  },                  // Primeira Liga
+  { id: 144 },                  // Jupiler Pro League
+  { id: 179 },                  // Scottish Premiership
+  { id: 203 },                  // Süper Lig
+  { id: 207 },                  // Swiss Super League
+  { id: 197 },                  // Super League Grèce
+  { id: 218 },                  // Bundesliga Autriche
+  { id: 119 },                  // Superliga Danemark
+  { id: 103 },                  // Eliteserien Norvège
+  { id: 113 },                  // Allsvenskan Suède
+  { id: 106 },                  // Ekstraklasa Pologne
+  { id: 210 },                  // HNL Croatie
+  { id: 283 },                  // Liga I Roumanie
+  { id: 286 },                  // Super Liga Serbie
+  { id: 333 },                  // Premier League Ukraine
   { id: 244, season: 2026 },    // Veikkausliiga (Finlande) — saison civile
   { id: 329, season: 2026 },    // Meistriliiga  (Estonie)  — saison civile
+  // ── Afrique du Nord ──────────────────────────────────────────────────────────
+  { id: 186 },                  // Ligue Pro 1 Algérie
+  { id: 200 },                  // Botola Pro Maroc
+  { id: 202 },                  // Ligue 1 Tunisie
+  { id: 233 },                  // Premier League Égypte
+  // ── Amériques — saison civile 2026 ───────────────────────────────────────────
+  { id: 239, season: 2026 },    // Liga BetPlay Colombie
+  { id: 240, season: 2026 },    // LigaPro Équateur
+  { id: 253, season: 2026 },    // MLS
+  { id: 268, season: 2026 },    // Liga 1 Pérou
+  { id: 273, season: 2026 },    // Primera División Uruguay
+  { id: 71,  season: 2026 },    // Série A Brésil
+  { id: 128, season: 2026 },    // Liga Profesional Argentine
+  // ── Asie ─────────────────────────────────────────────────────────────────────
+  { id: 98,  season: 2026 },    // J1 League Japon
+  { id: 292, season: 2026 },    // K League 1 Corée
+  { id: 307 },                  // Saudi Pro League
 ];
 
 const BOOKMAKERS = ['Unibet', 'Betclic', 'Winamax', 'Bet365', 'PMU'];

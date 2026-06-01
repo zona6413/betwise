@@ -100,6 +100,19 @@ const LEAGUES = [
   { id: 345, displayName: 'Czech Liga',               country: 'Czech Republic'},
   { id: 333, displayName: 'Premier League Ukraine',   country: 'Ukraine'       },
 
+  // ── Afrique du Nord ──────────────────────────────────────────────────────────
+  { id: 186, displayName: 'Ligue Professionnelle 1',  country: 'Algeria'       },
+  { id: 187, displayName: 'Ligue Professionnelle 2',  country: 'Algeria'       },
+  { id: 200, displayName: 'Botola Pro',               country: 'Morocco'       },
+  { id: 201, displayName: 'Botola Pro 2',             country: 'Morocco'       },
+  { id: 202, displayName: 'Ligue 1',                  country: 'Tunisia'       },
+  { id: 233, displayName: 'Premier League',           country: 'Egypt'         },
+
+  // ── Autres ligues européennes (Winamax) ───────────────────────────────────────
+  { id: 283, displayName: 'Liga I',                   country: 'Romania'       },
+  { id: 286, displayName: 'Super Liga',               country: 'Serbia'        },
+  { id: 383, displayName: "Ligat Ha'al",              country: 'Israel'        },
+
   // ── Asie & Moyen-Orient ──────────────────────────────────────────────────────
   { id: 98,  displayName: 'J1 League',                country: 'Japan'         },
   { id: 292, displayName: 'K League 1',               country: 'South Korea'   },
@@ -117,13 +130,17 @@ const LEAGUES = [
   { id: 11,  displayName: 'Copa Libertadores',        country: 'South America' },
   { id: 13,  displayName: 'Copa Sudamericana',        country: 'South America' },
   { id: 71,  displayName: 'Série A Brésil',           country: 'Brazil'        },
+  { id: 72,  displayName: 'Série B Brésil',           country: 'Brazil'        },
   { id: 73,  displayName: 'Copa do Brasil',           country: 'Brazil'        },
   { id: 128, displayName: 'Liga Profesional',         country: 'Argentina'     },
+  { id: 130, displayName: 'Primera Nacional',         country: 'Argentina'     },
   { id: 253, displayName: 'MLS',                      country: 'USA'           },
   { id: 262, displayName: 'Liga MX',                  country: 'Mexico'        },
   { id: 239, displayName: 'Liga BetPlay',             country: 'Colombia'      },
   { id: 265, displayName: 'Primera División',         country: 'Chile'         },
   { id: 240, displayName: 'LigaPro',                  country: 'Ecuador'       },
+  { id: 268, displayName: 'Liga 1',                   country: 'Peru'          },
+  { id: 273, displayName: 'Primera División',         country: 'Uruguay'       },
 ];
 
 const LIVE_STATUSES    = new Set(['1H', '2H', 'HT', 'ET', 'P', 'BT']);
