@@ -305,7 +305,7 @@ const STEPS = [
   {
     mood:  'excited',
     title: "Tu es prêt !",
-    text:  "Explore les matchs du jour, suis les recommandations de Dodd et enregistre tes paris dans l'onglet Mes paris pour suivre ton évolution. Bonne chance !",
+    text:  "Explore les matchs du jour, suis les recommandations de Dodd et enregistre tes paris dans l'onglet Mes paris pour suivre ton évolution. Parie responsable.",
     Ill:   IllReady,
   },
 ];
