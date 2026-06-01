@@ -157,6 +157,7 @@ function buildMatch(fixture, teamStats, realOddsMap, h2h = null, injuries = []) 
     leagueLogo:    fixture.league.logo ?? null,
     leagueRound:   fixture.league.round ?? null,   // "Group Stage - 1", "Round of 16"…
     leagueId:      fixture.league.id ?? null,
+    platforms:     fixture.league.platforms ?? [],
     homeTeam: {
       id:       Number(homeId),
       name:     fixture.teams.home.name,
@@ -199,12 +200,15 @@ router.get('/', async (req, res) => {
     const cached = cache.get('matches');
     if (cached) return res.json({ data: cached, cached: true, count: cached.length });
 
-    // Fixtures d'abord — on en a besoin pour les requêtes individuelles d'odds
-    const [fixtures, teamStats] = await Promise.all([
+    // ── 1. Fixtures en premier — détermine quelles ligues sont actives ──────
+    const [fixtures] = await Promise.all([
       getTodayFixtures(),
-      getTeamStatsMap(),
       preloadTopScorers(),
     ]);
+
+    // ── 2. Standings uniquement pour les ligues qui jouent aujourd'hui ──────
+    const activeLeagueIds = new Set(fixtures.map(f => f.league.id));
+    const teamStats = await getTeamStatsMap(activeLeagueIds);
 
     // Forme récente via fixtures — remplace la forme standings (peut être décalée de plusieurs heures)
     if (process.env.API_FOOTBALL_KEY && fixtures.length) {

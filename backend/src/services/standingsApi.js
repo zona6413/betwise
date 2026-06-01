@@ -4,65 +4,17 @@
  */
 import axios from 'axios';
 import NodeCache from 'node-cache';
+import { CALENDAR_YEAR_LEAGUE_IDS } from './footballApi.js';
 
 const BASE_URL = 'https://v3.football.api-sports.io';
 const API_KEY  = process.env.API_FOOTBALL_KEY;
-const SEASON   = 2025; // saison par défaut (ex : Ligue 1 2025-2026, PL 2025-2026…)
-const cache     = new NodeCache({ stdTTL: 43200 }); // 12h — standings (35 ligues, économie quota)
-const formCache = new NodeCache({ stdTTL: 3600 });  // 1h — forme récente par équipe
+const SEASON   = 2025; // saison européenne par défaut
+// Ligues à saison civile → importées depuis footballApi pour éviter la duplication
 
-// Ligues domestiques avec classements
-// season optionnel : certaines ligues (Scandinavie, Baltique…) tournent sur une année civile
-// et leur saison courante est 2026, pas 2025.
-const STANDING_LEAGUES = [
-  // ── Grandes ligues européennes ────────────────────────────────────────────────
-  { id: 1   },                  // Coupe du Monde FIFA 2026
-  { id: 39  },                  // Premier League
-  { id: 40  },                  // Championship
-  { id: 61  },                  // Ligue 1
-  { id: 62  },                  // Ligue 2
-  { id: 140 },                  // La Liga
-  { id: 141 },                  // La Liga 2
-  { id: 135 },                  // Serie A
-  { id: 136 },                  // Serie B
-  { id: 78  },                  // Bundesliga
-  { id: 79  },                  // 2. Bundesliga
-  { id: 88  },                  // Eredivisie
-  { id: 94  },                  // Primeira Liga
-  { id: 144 },                  // Jupiler Pro League
-  { id: 179 },                  // Scottish Premiership
-  { id: 203 },                  // Süper Lig
-  { id: 207 },                  // Swiss Super League
-  { id: 197 },                  // Super League Grèce
-  { id: 218 },                  // Bundesliga Autriche
-  { id: 119 },                  // Superliga Danemark
-  { id: 103 },                  // Eliteserien Norvège
-  { id: 113 },                  // Allsvenskan Suède
-  { id: 106 },                  // Ekstraklasa Pologne
-  { id: 210 },                  // HNL Croatie
-  { id: 283 },                  // Liga I Roumanie
-  { id: 286 },                  // Super Liga Serbie
-  { id: 333 },                  // Premier League Ukraine
-  { id: 244, season: 2026 },    // Veikkausliiga (Finlande) — saison civile
-  { id: 329, season: 2026 },    // Meistriliiga  (Estonie)  — saison civile
-  // ── Afrique du Nord ──────────────────────────────────────────────────────────
-  { id: 186 },                  // Ligue Pro 1 Algérie
-  { id: 200 },                  // Botola Pro Maroc
-  { id: 202 },                  // Ligue 1 Tunisie
-  { id: 233 },                  // Premier League Égypte
-  // ── Amériques — saison civile 2026 ───────────────────────────────────────────
-  { id: 239, season: 2026 },    // Liga BetPlay Colombie
-  { id: 240, season: 2026 },    // LigaPro Équateur
-  { id: 253, season: 2026 },    // MLS
-  { id: 268, season: 2026 },    // Liga 1 Pérou
-  { id: 273, season: 2026 },    // Primera División Uruguay
-  { id: 71,  season: 2026 },    // Série A Brésil
-  { id: 128, season: 2026 },    // Liga Profesional Argentine
-  // ── Asie ─────────────────────────────────────────────────────────────────────
-  { id: 98,  season: 2026 },    // J1 League Japon
-  { id: 292, season: 2026 },    // K League 1 Corée
-  { id: 307 },                  // Saudi Pro League
-];
+// Cache 12h : les standings ne changent pas plusieurs fois par jour
+// La clé contient les IDs de ligues actives → si la fenêtre change, on refetch
+const cache     = new NodeCache({ stdTTL: 43200 }); // 12h
+const formCache = new NodeCache({ stdTTL: 3600 });  // 1h — forme récente par équipe
 
 const BOOKMAKERS = ['Unibet', 'Betclic', 'Winamax', 'Bet365', 'PMU'];
 
@@ -78,13 +30,15 @@ function parseForm(formStr) {
   return formStr.slice(-5).padEnd(5, 'D');
 }
 
-async function fetchStandingsFromApi() {
+// Fetch standings uniquement pour les ligues actives passées en paramètre
+async function fetchStandingsFromApi(activeLeagueIds) {
   const map = {};
   await Promise.allSettled(
-    STANDING_LEAGUES.map(async ({ id, season }) => {
+    [...activeLeagueIds].map(async (id) => {
+      const season = CALENDAR_YEAR_LEAGUE_IDS.has(id) ? 2026 : SEASON;
       try {
         const { data } = await client.get('/standings', {
-          params: { league: id, season: season ?? SEASON },
+          params: { league: id, season },
         });
         const groups = data?.response?.[0]?.league?.standings ?? [];
         // standings peut être un tableau de groupes (Champions League group stage) ou un seul groupe
@@ -260,16 +214,23 @@ export async function enrichWithRecentForm(teamIds) {
   return formMap;
 }
 
-export async function getTeamStatsMap() {
-  const cached = cache.get('standings');
+/**
+ * Retourne la map teamId → stats pour les ligues actives du jour.
+ * @param {Set<number>} activeLeagueIds — IDs des ligues qui ont des matchs dans la fenêtre
+ */
+export async function getTeamStatsMap(activeLeagueIds = new Set()) {
+  // Clé de cache basée sur les ligues actives (tri pour stabilité)
+  const cacheKey = 'standings_' + [...activeLeagueIds].sort((a, b) => a - b).join(',');
+  const cached   = cache.get(cacheKey);
   if (cached) return cached;
 
   let map = {};
 
-  if (API_KEY) {
-    map = await fetchStandingsFromApi();
-    console.log(`[standings] ${Object.keys(map).length} équipes via API-Football`);
-  } else {
+  if (API_KEY && activeLeagueIds.size > 0) {
+    // On ne fetch que les ligues qui jouent — économie de quota critique
+    map = await fetchStandingsFromApi(activeLeagueIds);
+    console.log(`[standings] ${Object.keys(map).length} équipes via API (${activeLeagueIds.size} ligues actives)`);
+  } else if (!API_KEY) {
     console.warn('[standings] Pas de clé API — utilisation du fallback statique');
   }
 
@@ -280,7 +241,7 @@ export async function getTeamStatsMap() {
     }
   }
 
-  cache.set('standings', map);
+  cache.set(cacheKey, map);
   console.log(`[standings] Total: ${Object.keys(map).length} équipes chargées`);
   return map;
 }

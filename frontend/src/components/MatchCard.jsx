@@ -206,6 +206,7 @@ export default function MatchCard({ match, onAnalyse, onBet, riskProfile = 'medi
             <span className="league-round">{formatRound(match.leagueRound)}</span>
           )}
           {!match.hasRealOdds && <span className="badge-estimated">Cotes estimées</span>}
+          <PlatformBadges platforms={match.platforms} />
         </div>
         <div className="card-badges">
           {hasValueBet && edgeClass === 'fire' && <span className="badge badge--fire">Top pick</span>}
@@ -313,6 +314,20 @@ function OddPill({ label, odd, isValue }) {
       <span className="odd-pill-label">{label}</span>
       <span className="odd-pill-val">{odd?.toFixed(2) ?? '—'}</span>
       {isValue && <span className="odd-pill-tag">value</span>}
+    </div>
+  );
+}
+
+function PlatformBadges({ platforms }) {
+  if (!platforms?.length) return null;
+  return (
+    <div className="platform-badges">
+      {platforms.includes('winamax') && (
+        <span className="platform-badge platform-badge--winamax" title="Disponible sur Winamax">W</span>
+      )}
+      {platforms.includes('betclic') && (
+        <span className="platform-badge platform-badge--betclic" title="Disponible sur Betclic">B</span>
+      )}
     </div>
   );
 }

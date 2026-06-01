@@ -51,6 +51,31 @@
   border-radius: 4px;
   padding: 1px 5px;
 }
+
+/* ── Badges de plateforme (Winamax / Betclic) ── */
+.platform-badges { display: flex; align-items: center; gap: 3px; }
+.platform-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0;
+  line-height: 1;
+}
+.platform-badge--winamax {
+  background: rgba(255, 94, 0, 0.15);
+  color: #ff8040;
+  border: 1px solid rgba(255, 94, 0, 0.25);
+}
+.platform-badge--betclic {
+  background: rgba(0, 160, 220, 0.15);
+  color: #40b8e8;
+  border: 1px solid rgba(0, 160, 220, 0.25);
+}
 .league-round {
   font-size: 9px;
   font-weight: 600;
