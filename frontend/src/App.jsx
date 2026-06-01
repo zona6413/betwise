@@ -501,7 +501,7 @@ export default function App() {
           {isFree && !loading && bettableMatches.length > 0 && (
             <div className="upgrade-banner">
               <span>⚡ Accédez à tous les matchs, value bets, analyses et combos</span>
-              <button className="btn-upgrade" onClick={() => isLoggedIn ? setShowPricing(true) : setShowAuth(true)}>Passer Pro</button>
+              <button className="btn-upgrade" onClick={() => setShowPricing(true)}>Passer Pro</button>
             </div>
           )}
 
@@ -606,7 +606,7 @@ export default function App() {
                   <div className="free-lock-icon">🔒</div>
                   <p className="free-lock-title">{bettableMatches.length} matchs disponibles aujourd'hui</p>
                   <p className="free-lock-sub">Passez Pro pour accéder à tous les matchs, value bets, analyses Dodd et combos optimisés.</p>
-                  <button className="btn-upgrade" onClick={() => isLoggedIn ? setShowPricing(true) : setShowAuth(true)}>
+                  <button className="btn-upgrade" onClick={() => setShowPricing(true)}>
                     Débloquer — à partir de 4,99€/mois
                   </button>
                 </div>
