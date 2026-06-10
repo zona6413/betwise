@@ -21,10 +21,10 @@ export default function PricingModal({ onClose, authFetch, isLoggedIn, onOpenAut
   const isAdmin = user?.role === 'admin';
 
   const isYearly = billing === 'yearly';
-  const price    = isYearly ? '39€' : '4,99€';
-  const sub      = isYearly ? '/an · soit 3,25€/mois' : '/mois · résiliable à tout moment';
+  const price    = isYearly ? '39,99€' : '5€';
+  const sub      = isYearly ? '/an · soit 3,33€/mois' : '/mois · résiliable à tout moment';
   const plan     = isYearly ? 'yearly' : 'monthly';
-  const ctaLabel = isYearly ? 'Commencer — 39€/an' : 'Commencer — 4,99€/mois';
+  const ctaLabel = isYearly ? 'Commencer — 39,99€/an' : 'Commencer — 5€/mois';
 
   async function handleSubscribe() {
     if (!isLoggedIn) { onOpenAuth(); return; }
@@ -98,7 +98,7 @@ export default function PricingModal({ onClose, authFetch, isLoggedIn, onOpenAut
                 onClick={() => setBilling('yearly')}
               >
                 Annuel
-                <span className="billing-save">−35%</span>
+                <span className="billing-save">−33%</span>
               </button>
             </div>
 

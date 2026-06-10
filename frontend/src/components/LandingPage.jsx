@@ -283,43 +283,26 @@ export default function LandingPage({ onStart, onLogin, onPricing }) {
       {/* ── Pricing ── */}
       <section className="landing-pricing">
         <h2 className="landing-section-title">Simple et transparent</h2>
-        <p className="landing-section-sub">Commence gratuitement, passe Pro quand tu es prêt</p>
+        <p className="landing-section-sub">Un seul plan, tout débloqué</p>
         <div className="landing-pricing-cards">
 
-          {/* Gratuit */}
-          <div className="landing-plan">
-            <div className="landing-plan-name">Gratuit</div>
+          {/* Pro (offre unique) */}
+          <div className="landing-plan landing-plan--pro landing-plan--single">
+            <div className="landing-plan-badge">Accès complet</div>
+            <div className="landing-plan-name">DoddBet Pro</div>
             <div className="landing-plan-price">
-              <span className="plan-amount">0€</span>
-              <span className="plan-period">/ toujours</span>
-            </div>
-            <ul className="landing-plan-features">
-              <li>1 match gratuit / jour</li>
-              <li>Analyses de base</li>
-              <li>Application mobile</li>
-              <li style={{ opacity: 0.4 }}>Value bets</li>
-              <li style={{ opacity: 0.4 }}>Combos Dodd</li>
-              <li style={{ opacity: 0.4 }}>Suivi de paris cloud</li>
-            </ul>
-            <GetStartedButton onClick={onStart} label="Commencer gratuitement" />
-          </div>
-
-          {/* Pro */}
-          <div className="landing-plan landing-plan--pro">
-            <div className="landing-plan-badge">Le plus populaire</div>
-            <div className="landing-plan-name">Pro</div>
-            <div className="landing-plan-price">
-              <span className="plan-amount">4,99€</span>
+              <span className="plan-amount">5€</span>
               <span className="plan-period">/ mois</span>
             </div>
-            <div className="landing-plan-yearly">ou 39€/an — économise 35%</div>
+            <div className="landing-plan-yearly">ou 39,99€/an — 2 mois offerts</div>
             <ul className="landing-plan-features">
-              <li>Tout le gratuit</li>
-              <li>Tous les matchs & ligues</li>
+              <li>Tous les matchs & ligues (60+)</li>
+              <li>Analyses Dodd illimitées</li>
               <li>Value bets en temps réel</li>
               <li>Combos Dodd optimisés</li>
-              <li>Suivi paris synchronisé</li>
+              <li>Suivi de paris synchronisé</li>
               <li>Stats avancées & ROI</li>
+              <li>Application mobile</li>
             </ul>
             <button className="landing-plan-btn landing-plan-btn--pro" onClick={onPricing}>
               Essayer Pro →
