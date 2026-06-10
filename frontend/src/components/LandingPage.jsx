@@ -181,6 +181,18 @@ export default function LandingPage({ onStart, onLogin, onPricing }) {
             </div>
           )}
         </div>
+
+        {/* ── Indicateur de scroll ── */}
+        <button
+          className="landing-scroll-cue"
+          aria-label="Découvre l'app"
+          onClick={() => window.scrollTo({ top: window.innerHeight * 0.85, behavior: 'smooth' })}
+        >
+          <span>Découvre l'app</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
       </section>
 
       {/* ── Scroll Animation ── */}
@@ -282,7 +294,7 @@ export default function LandingPage({ onStart, onLogin, onPricing }) {
               <span className="plan-period">/ toujours</span>
             </div>
             <ul className="landing-plan-features">
-              <li>Matchs du jour</li>
+              <li>1 match gratuit / jour</li>
               <li>Analyses de base</li>
               <li>Application mobile</li>
               <li style={{ opacity: 0.4 }}>Value bets</li>

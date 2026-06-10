@@ -285,25 +285,26 @@ export default function App() {
   );
   const valueCount = bettableMatches.filter(m => m.hasValueBet).length;
 
-  // 3 recommandations IA selon le profil choisi
+  // Recommandations IA selon le profil choisi — 1 seul pick pour les gratuits, 3 pour les Pro
   const aiPicks = useMemo(() => {
+    const PICKS_LIMIT = isFree ? 1 : 3;
     const tier = riskProfile === 'safe' ? 'safe' : riskProfile === 'value' ? 'value' : 'medium';
     const withTier = bettableMatches.filter(m => m.tieredBets?.[tier]?.odd);
     withTier.sort((a, b) => (b.tieredBets[tier].score ?? 0) - (a.tieredBets[tier].score ?? 0));
     // Fallback : si pas assez avec le tier demandé, compléter avec medium puis safe
     const fallbackTiers = tier === 'safe' ? ['medium'] : tier === 'value' ? ['medium', 'safe'] : ['safe'];
-    let picks = withTier.slice(0, 3);
-    if (picks.length < 3) {
+    let picks = withTier.slice(0, PICKS_LIMIT);
+    if (picks.length < PICKS_LIMIT) {
       for (const fb of fallbackTiers) {
         const extra = bettableMatches
           .filter(m => m.tieredBets?.[fb]?.odd && !picks.find(p => p.id === m.id))
           .sort((a, b) => (b.tieredBets[fb].score ?? 0) - (a.tieredBets[fb].score ?? 0));
-        picks = [...picks, ...extra].slice(0, 3);
-        if (picks.length === 3) break;
+        picks = [...picks, ...extra].slice(0, PICKS_LIMIT);
+        if (picks.length === PICKS_LIMIT) break;
       }
     }
     return picks;
-  }, [bettableMatches, riskProfile]);
+  }, [bettableMatches, riskProfile, isFree]);
 
   // Matchs importants : top 5 + coupes européennes, les plus proches en premier
   const importantMatches = useMemo(() => {
@@ -561,12 +562,12 @@ export default function App() {
           {/* ── Compte à rebours Coupe du Monde 2026 ────────────── */}
           {showHomeSections && !loading && <WCCountdown />}
 
-          {/* ── Picks du jour (visible par tous, gratuit = 3 picks only) ── */}
+          {/* ── Picks du jour (visible par tous, gratuit = 1 pick only) ── */}
           {showHomeSections && !loading && aiPicks.length > 0 && (
             <section className="home-section">
               <div className="home-section-header">
                 <h2 className="home-section-title">Picks du jour</h2>
-                <span className="home-section-sub">{isFree ? 'Gratuit · 3 sélections' : `${riskProfile === 'safe' ? 'Prudent' : riskProfile === 'value' ? 'Audacieux' : 'Standard'} · ${aiPicks.length} sélections`}</span>
+                <span className="home-section-sub">{isFree ? 'Gratuit · 1 sélection' : `${riskProfile === 'safe' ? 'Prudent' : riskProfile === 'value' ? 'Audacieux' : 'Standard'} · ${aiPicks.length} sélections`}</span>
               </div>
               <div className="picks-grid">
                 {aiPicks.map((match, i) => (
