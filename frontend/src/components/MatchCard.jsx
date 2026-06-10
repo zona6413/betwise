@@ -190,6 +190,9 @@ export default function MatchCard({ match, onAnalyse, onBet, riskProfile = 'medi
   const minsUntil = isUpcoming ? (new Date(match.date) - Date.now()) / 60000 : Infinity;
   const isUrgent  = minsUntil > 0 && minsUntil < 60;
 
+  const tomorrowStr = new Date(Date.now() + 86400000).toDateString();
+  const isTomorrow  = isUpcoming && new Date(match.date).toDateString() === tomorrowStr;
+
   const hasInsights = !!(tieredBets?.stats && aiProbs);
 
   return (
@@ -241,7 +244,11 @@ export default function MatchCard({ match, onAnalyse, onBet, riskProfile = 'medi
           ) : (
             <>
               <div className="kick-time">{formatTime(match.date)}</div>
-              <Countdown date={match.date} />
+              {isTomorrow ? (
+                <div className="tomorrow-tag">Demain</div>
+              ) : (
+                <Countdown date={match.date} />
+              )}
               {predictedScore && (
                 <div className="predicted-badge">
                   <span className="predicted-badge-label">prédit</span>

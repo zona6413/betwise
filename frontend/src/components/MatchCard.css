@@ -249,6 +249,13 @@
   padding: 1px 6px; border-radius: 5px; letter-spacing: 0.2px;
 }
 
+.tomorrow-tag {
+  font-size: 9px; font-weight: 600; color: #eab308;
+  background: rgba(234,179,8,0.10); border: 1px solid rgba(234,179,8,0.18);
+  padding: 1px 6px; border-radius: 5px; letter-spacing: 0.2px;
+  text-transform: uppercase;
+}
+
 /* ── Cotes ── */
 .card-odds-simple {
   display: flex;

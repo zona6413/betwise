@@ -362,7 +362,14 @@ export default function App() {
     if (activeTab === 'value')    list = list.filter(m => m.hasValueBet);
     if (activeTab === 'today') {
       const today = new Date().toDateString();
-      list = list.filter(m => new Date(m.date).toDateString() === today);
+      const tom   = new Date(); tom.setDate(tom.getDate() + 1);
+      const tomStr = tom.toDateString();
+      // Affiche les matchs du jour + TOUS les matchs de demain (analyses prêtes
+      // à l'avance, effet "hype" pour la Coupe du Monde et le reste)
+      list = list.filter(m => {
+        const d = new Date(m.date).toDateString();
+        return d === today || d === tomStr;
+      });
     }
     if (activeTab === 'tomorrow') {
       const tom = new Date(); tom.setDate(tom.getDate()+1);
