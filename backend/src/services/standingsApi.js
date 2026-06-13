@@ -120,14 +120,15 @@ const STATIC_KNOWN = {
   '52':  { position: 13, wins: 11, draws: 7,  losses: 16, form: 'WLLDW', gpg: 1.21, cgpg: 1.59, homeGpg: 1.45, homeCgpg: 1.30, awayGpg: 0.97, awayCgpg: 1.87 }, // Crystal Palace
   '36':  { position: 6,  wins: 14, draws: 8,  losses: 12, form: 'WDWLW', gpg: 1.47, cgpg: 1.26, homeGpg: 1.75, homeCgpg: 0.95, awayGpg: 1.19, awayCgpg: 1.58 }, // Fulham
   '34':  { position: 11, wins: 12, draws: 7,  losses: 15, form: 'WLWDL', gpg: 1.32, cgpg: 1.47, homeGpg: 1.55, homeCgpg: 1.20, awayGpg: 1.10, awayCgpg: 1.74 }, // Newcastle
-  '37':  { position: 14, wins: 10, draws: 8,  losses: 16, form: 'LLWDL', gpg: 1.18, cgpg: 1.65, homeGpg: 1.40, homeCgpg: 1.35, awayGpg: 0.96, awayCgpg: 1.94 }, // West Ham
+  '48':  { position: 14, wins: 10, draws: 8,  losses: 16, form: 'LLWDL', gpg: 1.18, cgpg: 1.65, homeGpg: 1.40, homeCgpg: 1.35, awayGpg: 0.96, awayCgpg: 1.94 }, // West Ham (ID API réel = 48 ; 37 = Huddersfield)
   // ── Ligue 1 ──────────────────────────────────────────────────
   '85':  { position: 1,  wins: 23, draws: 4,  losses: 3,  form: 'WWWWW', gpg: 2.53, cgpg: 0.70, homeGpg: 2.90, homeCgpg: 0.45, awayGpg: 2.15, awayCgpg: 0.95 }, // PSG
   '81':  { position: 2,  wins: 18, draws: 7,  losses: 5,  form: 'WWDWW', gpg: 1.87, cgpg: 0.97, homeGpg: 2.20, homeCgpg: 0.75, awayGpg: 1.55, awayCgpg: 1.18 }, // Marseille
   '79':  { position: 4,  wins: 16, draws: 7,  losses: 7,  form: 'WDWWL', gpg: 1.60, cgpg: 1.10, homeGpg: 1.90, homeCgpg: 0.85, awayGpg: 1.30, awayCgpg: 1.35 }, // Lille
   '80':  { position: 5,  wins: 15, draws: 6,  losses: 9,  form: 'LWWDW', gpg: 1.50, cgpg: 1.23, homeGpg: 1.80, homeCgpg: 0.95, awayGpg: 1.20, awayCgpg: 1.50 }, // Lyon
   '116': { position: 3,  wins: 17, draws: 5,  losses: 8,  form: 'WDWWL', gpg: 1.70, cgpg: 1.07, homeGpg: 2.00, homeCgpg: 0.80, awayGpg: 1.40, awayCgpg: 1.33 }, // Lens
-  '111': { position: 6,  wins: 14, draws: 8,  losses: 8,  form: 'WDWLD', gpg: 1.43, cgpg: 1.13, homeGpg: 1.70, homeCgpg: 0.88, awayGpg: 1.17, awayCgpg: 1.38 }, // Rennes
+  '94':  { position: 6,  wins: 14, draws: 8,  losses: 8,  form: 'WDWLD', gpg: 1.43, cgpg: 1.13, homeGpg: 1.70, homeCgpg: 0.88, awayGpg: 1.17, awayCgpg: 1.38 }, // Rennes (ID API réel = 94)
+  '111': { position: 15, wins: 9,  draws: 9,  losses: 12, form: 'LDLWD', gpg: 1.05, cgpg: 1.45, homeGpg: 1.25, homeCgpg: 1.25, awayGpg: 0.85, awayCgpg: 1.65 }, // Le Havre (ID 111 ; mal-classé)
   '84':  { position: 7,  wins: 14, draws: 6,  losses: 10, form: 'LWWWD', gpg: 1.47, cgpg: 1.17, homeGpg: 1.75, homeCgpg: 0.90, awayGpg: 1.18, awayCgpg: 1.43 }, // Nice
   // ── La Liga ──────────────────────────────────────────────────
   '541': { position: 2,  wins: 21, draws: 6,  losses: 7,  form: 'WWWDL', gpg: 2.09, cgpg: 1.00, homeGpg: 2.45, homeCgpg: 0.72, awayGpg: 1.72, awayCgpg: 1.28 }, // Real Madrid

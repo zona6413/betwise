@@ -1,6 +1,7 @@
 import { Router }  from 'express';
 import crypto       from 'crypto';
 import User         from '../models/User.js';
+import Bet          from '../models/Bet.js';
 import { signToken, requireAuth } from '../middleware/auth.js';
 import { sendWelcomeEmail, sendResetEmail, sendVerificationEmail } from '../services/emailService.js';
 import rateLimit from 'express-rate-limit';
@@ -31,10 +32,13 @@ const APP_URL = process.env.FRONTEND_URL?.trim() ?? 'https://doddbet.com';
 router.post('/register', authLimiter, async (req, res) => {
   try {
     const { email, password, username } = req.body;
-    if (!email || !password) return res.status(400).json({ error: 'Email et mot de passe requis' });
+    if (typeof email !== 'string' || typeof password !== 'string' || !email || !password) {
+      return res.status(400).json({ error: 'Email et mot de passe requis' });
+    }
     if (password.length < 6)  return res.status(400).json({ error: 'Mot de passe trop court (6 caractères min)' });
+    const emailNorm = email.toLowerCase().trim();
 
-    const exists = await User.findOne({ email });
+    const exists = await User.findOne({ email: emailNorm });
     if (exists) return res.status(409).json({ error: 'Un compte existe déjà avec cet email' });
 
     // Générer token de vérification email
@@ -42,7 +46,7 @@ router.post('/register', authLimiter, async (req, res) => {
     const hashVerifyToken = crypto.createHash('sha256').update(rawVerifyToken).digest('hex');
 
     const user  = await User.create({
-      email, password,
+      email: emailNorm, password,
       username:     username ?? '',
       emailVerified: false,
       verifyToken:  hashVerifyToken,
@@ -65,9 +69,11 @@ router.post('/register', authLimiter, async (req, res) => {
 router.post('/login', authLimiter, async (req, res) => {
   try {
     const { email, password } = req.body;
-    if (!email || !password) return res.status(400).json({ error: 'Email et mot de passe requis' });
+    if (typeof email !== 'string' || typeof password !== 'string' || !email || !password) {
+      return res.status(400).json({ error: 'Email et mot de passe requis' });
+    }
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: email.toLowerCase().trim() });
     if (!user) return res.status(401).json({ error: 'Email ou mot de passe incorrect' });
 
     const ok = await user.checkPassword(password);
@@ -136,6 +142,7 @@ router.delete('/account', requireAuth, async (req, res) => {
     if (!ok) return res.status(401).json({ error: 'Mot de passe incorrect' });
 
     await User.findByIdAndDelete(req.userId);
+    await Bet.deleteMany({ userId: req.userId }); // RGPD : efface aussi les paris associés
     console.log(`[auth] Compte supprimé — userId=${req.userId}`);
     res.json({ ok: true });
   } catch (err) {
