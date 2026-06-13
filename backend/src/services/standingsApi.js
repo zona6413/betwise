@@ -98,7 +98,8 @@ const STATIC_KNOWN = {
   '21':   { position: 17, wins: 14, draws: 9,  losses: 13, form: 'DWLWL', gpg: 1.42, cgpg: 1.31, homeGpg: 1.70, homeCgpg: 1.05, awayGpg: 1.14, awayCgpg: 1.57 }, // États-Unis
   '1':    { position: 8,  wins: 19, draws: 8,  losses: 9,  form: 'WDWWL', gpg: 1.47, cgpg: 0.83, homeGpg: 1.75, homeCgpg: 0.62, awayGpg: 1.19, awayCgpg: 1.04 }, // Belgique
   '34':   { position: 9,  wins: 20, draws: 6,  losses: 10, form: 'WWWDL', gpg: 1.69, cgpg: 0.97, homeGpg: 2.00, homeCgpg: 0.73, awayGpg: 1.38, awayCgpg: 1.21 }, // Pays-Bas
-  '1569': { position: 11, wins: 16, draws: 8,  losses: 12, form: 'WDWLW', gpg: 1.31, cgpg: 0.72, homeGpg: 1.55, homeCgpg: 0.53, awayGpg: 1.07, awayCgpg: 0.91 }, // Maroc
+  '31':   { position: 11, wins: 16, draws: 8,  losses: 12, form: 'WDWLW', gpg: 1.31, cgpg: 0.72, homeGpg: 1.55, homeCgpg: 0.53, awayGpg: 1.07, awayCgpg: 0.91 }, // Maroc
+  '1569': { position: 24, wins: 9,  draws: 8,  losses: 17, form: 'LDWLL', gpg: 1.05, cgpg: 1.38, homeGpg: 1.25, homeCgpg: 1.10, awayGpg: 0.88, awayCgpg: 1.58 }, // Qatar
   '24':   { position: 12, wins: 18, draws: 6,  losses: 12, form: 'WWLDW', gpg: 1.75, cgpg: 1.14, homeGpg: 2.05, homeCgpg: 0.88, awayGpg: 1.45, awayCgpg: 1.40 }, // Croatie
   '32':   { position: 10, wins: 19, draws: 7,  losses: 10, form: 'WDWWL', gpg: 1.83, cgpg: 1.00, homeGpg: 2.15, homeCgpg: 0.75, awayGpg: 1.51, awayCgpg: 1.25 }, // Sénégal (AFRIQUE)
   '46':   { position: 15, wins: 15, draws: 9,  losses: 12, form: 'LDWDW', gpg: 1.44, cgpg: 1.22, homeGpg: 1.70, homeCgpg: 0.95, awayGpg: 1.18, awayCgpg: 1.49 }, // Japon
