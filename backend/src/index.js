@@ -39,6 +39,14 @@ if (!process.env.JWT_SECRET || process.env.JWT_SECRET === DEV_JWT) {
 const app  = express();
 const PORT = process.env.PORT || 3001;
 
+// ── Confiance proxy ───────────────────────────────────────────────────────────
+// Render (comme Heroku/Vercel) place exactement 1 proxy devant l'app.
+// Sans ceci, req.ip = l'IP du proxy partagée par tous les clients → le
+// rate-limiting (anti-brute-force login, anti-spam leads) ne distingue plus
+// les utilisateurs. '1' = confiance du premier hop uniquement (sécurisé :
+// empêche le spoofing de X-Forwarded-For).
+app.set('trust proxy', 1);
+
 // ── CORS strict — uniquement l'origine frontend autorisée ────────────────────
 const ALLOWED_ORIGINS = [
   process.env.FRONTEND_URL,

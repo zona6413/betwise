@@ -19,7 +19,8 @@ const Lead = mongoose.models.Lead ?? mongoose.model('Lead', leadSchema);
 const leadLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1h
   max: 5,
-  keyGenerator: (req) => req.ip,
+  // keyGenerator par défaut = req.ip avec normalisation IPv6 correcte
+  // (ne pas redéfinir manuellement : un `req.ip` brut casse le support IPv6)
   message: { error: 'Trop de soumissions — réessaie dans 1 heure' },
   standardHeaders: true,
   legacyHeaders: false,

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import './AuthModal.css';
 
-const API = import.meta.env.VITE_API_URL ?? '';
+const API = import.meta.env.VITE_API_URL ?? 'https://betwise-suh4.onrender.com';
 
 export default function AuthModal({ onLogin, onRegister, onClose, loading, error, setError, initialMode = 'login', resetToken = null }) {
   const [mode,     setMode]     = useState(resetToken ? 'reset' : initialMode);

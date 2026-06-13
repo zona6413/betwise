@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import './ProfileModal.css';
 
-const API = import.meta.env.VITE_API_URL ?? '';
+const API = import.meta.env.VITE_API_URL ?? 'https://betwise-suh4.onrender.com';
 
 export default function ProfileModal({ user, onClose, onLogout, onUpdate, authFetch, onOpenPricing }) {
   const [tab, setTab] = useState('account'); // account | security | subscription

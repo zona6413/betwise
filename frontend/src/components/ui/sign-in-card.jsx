@@ -3,7 +3,7 @@ import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-mo
 import { Mail, Lock, Eye, EyeOff, ArrowRight, BarChart2, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-const API = import.meta.env.VITE_API_URL ?? '';
+const API = import.meta.env.VITE_API_URL ?? 'https://betwise-suh4.onrender.com';
 
 /* ── Input field ── */
 function FloatingInput({ icon: Icon, type, placeholder, value, onChange, onFocus, onBlur, focused, rightSlot, autoComplete, required = true }) {

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import './AdminPanel.css';
 
-const API = import.meta.env.VITE_API_URL ?? '';
+const API = import.meta.env.VITE_API_URL ?? 'https://betwise-suh4.onrender.com';
 
 export default function AdminPanel({ authFetch, onClose }) {
   const [tab,    setTab]    = useState('stats');

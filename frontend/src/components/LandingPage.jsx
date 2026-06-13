@@ -4,7 +4,7 @@ import { ContainerScroll } from '@/components/ui/container-scroll-animation';
 import { GoldGlow } from '@/components/ui/glow-background';
 import './LandingPage.css';
 
-const API = import.meta.env.VITE_API_URL ?? '';
+const API = import.meta.env.VITE_API_URL ?? 'https://betwise-suh4.onrender.com';
 
 const WC_DATE = new Date('2026-06-11T18:00:00Z'); // coup d'envoi CdM 2026
 
