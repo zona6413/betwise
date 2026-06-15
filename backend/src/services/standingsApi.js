@@ -11,6 +11,14 @@ const API_KEY  = process.env.API_FOOTBALL_KEY;
 const SEASON   = 2025; // saison européenne par défaut
 // Ligues à saison civile → importées depuis footballApi pour éviter la duplication
 
+// Nombre minimum de matchs joués pour qu'une ligne de classement API soit fiable.
+// En début de Coupe du Monde / de saison, une équipe avec 0-3 matchs a des stats
+// proches de zéro qui écraseraient les données statiques (éliminatoires, bien plus
+// représentatives). En-dessous de ce seuil, on ignore la ligne API et on laisse le
+// fallback statique (ou DEFAULT_STATS) prendre le relais. Au fil des matchs, dès que
+// l'échantillon devient suffisant, l'API reprend automatiquement la main.
+const MIN_API_GAMES = 4;
+
 // Cache 12h : les standings ne changent pas plusieurs fois par jour
 // La clé contient les IDs de ligues actives → si la fenêtre change, on refetch
 const cache     = new NodeCache({ stdTTL: 43200 }); // 12h
@@ -45,6 +53,9 @@ async function fetchStandingsFromApi(activeLeagueIds) {
         const rows = Array.isArray(groups[0]) ? groups.flat() : groups;
         for (const row of rows) {
           const teamId  = String(row.team.id);
+          // Échantillon trop faible (début de tournoi/saison) → ignorer cette ligne
+          // pour ne pas écraser les stats statiques avec des valeurs ~0.
+          if ((row.all.played ?? 0) < MIN_API_GAMES) continue;
           const played  = row.all.played || 1;
           const gf      = row.all.goals?.for   ?? 0;
           const ga      = row.all.goals?.against ?? 0;
