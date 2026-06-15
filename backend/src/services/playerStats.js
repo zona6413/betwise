@@ -100,6 +100,35 @@ const TEAM_META = {
   13:   { keyPlayer: { name: 'Pape Matar Sarr',     role: 'Milieu récupérateur' }, dangerMan: { name: 'Nicolas Jackson',   note: 'Finisseur rapide' },              style: 'Pressing intense, transitions verticales' },
   32:   { keyPlayer: { name: 'Emam Ashour',         role: 'Sentinelle' },          dangerMan: { name: 'Mohamed Salah',     note: 'Ailier de classe mondiale' },     style: 'Bloc bas, danger sur les transitions via Salah' },
   8:    { keyPlayer: { name: 'James Rodríguez',    role: 'Meneur créateur' },     dangerMan: { name: 'Luis Díaz',         note: 'Ailier rapide et technique' },    style: 'Possession, transitions via les ailes' },
+  // ── Coupe du Monde 2026 — autres sélections qualifiées (joueurs vérifiés via API) ──
+  5: { keyPlayer: { name: 'Yasin Ayari', role: 'Milieu box-to-box' }, dangerMan: { name: 'Viktor Gyökeres', note: 'Buteur prolifique' }, style: 'Bloc médian, danger sur le duo offensif' }, // Suède
+  11: { keyPlayer: { name: 'Aníbal Godoy', role: 'Récupérateur, capitaine' }, dangerMan: { name: 'José Fajardo', note: 'Finisseur de surface' }, style: 'Bloc bas, contres rapides' }, // Panama
+  17: { keyPlayer: { name: 'Hwang In-Beom', role: 'Meneur de jeu' }, dangerMan: { name: 'Lee Kang-In', note: 'Créateur technique' }, style: 'Pressing intense, transitions rapides' }, // Corée du Sud
+  20: { keyPlayer: { name: 'Jackson Irvine', role: 'Box-to-box, capitaine' }, dangerMan: { name: 'Mathew Leckie', note: 'Vitesse en transition' }, style: 'Intensité physique, jeu direct' }, // Australie
+  22: { keyPlayer: { name: 'Alireza Jahanbakhsh', role: 'Ailier créateur, capitaine' }, dangerMan: { name: 'Mehdi Ghaedi', note: 'Dribbleur incisif' }, style: 'Bloc compact, solidité défensive' }, // Iran
+  23: { keyPlayer: { name: 'Nasser Al-Dawsari', role: 'Milieu créateur' }, dangerMan: { name: 'Firas Al-Buraikan', note: 'Avant-centre mobile' }, style: 'Possession patiente, bloc médian' }, // Arabie Saoudite
+  28: { keyPlayer: { name: 'Ellyes Skhiri', role: 'Sentinelle box-to-box' }, dangerMan: { name: 'Seifeddine Tounekti', note: 'Ailier rapide' }, style: 'Bloc bas, organisation rigoureuse' }, // Tunisie
+  770: { keyPlayer: { name: 'Lukáš Provod', role: 'Milieu offensif' }, dangerMan: { name: 'Adam Hložek', note: 'Polyvalent offensif' }, style: 'Pressing, jeu direct vers les attaquants' }, // Tchéquie
+  775: { keyPlayer: { name: 'Marcel Sabitzer', role: 'Meneur box-to-box' }, dangerMan: { name: 'Marko Arnautović', note: 'Finisseur expérimenté' }, style: 'Gegenpressing, intensité athlétique' }, // Autriche
+  777: { keyPlayer: { name: 'Hakan Çalhanoğlu', role: 'Régisseur, capitaine' }, dangerMan: { name: 'Kenan Yıldız', note: 'Talent offensif décisif' }, style: 'Possession, qualité technique' }, // Turquie
+  1090: { keyPlayer: { name: 'Sander Berge', role: 'Milieu box-to-box' }, dangerMan: { name: 'Erling Haaland', note: 'Machine à buts' }, style: 'Jeu direct vers Haaland, transitions' }, // Norvège
+  1108: { keyPlayer: { name: 'John McGinn', role: 'Box-to-box' }, dangerMan: { name: 'Che Adams', note: 'Finisseur mobile' }, style: 'Pressing agressif, jeu de duels' }, // Écosse
+  1113: { keyPlayer: { name: 'Toma Bašić', role: 'Milieu relayeur' }, dangerMan: { name: 'Edin Džeko', note: 'Buteur légendaire' }, style: 'Possession, danger sur Džeko' }, // Bosnie
+  1501: { keyPlayer: { name: 'Franck Kessié', role: 'Milieu complet, leader' }, dangerMan: { name: 'Amad Diallo', note: 'Ailier explosif' }, style: 'Pressing, transitions par les ailes' }, // Côte d'Ivoire
+  1504: { keyPlayer: { name: 'Thomas Partey', role: 'Sentinelle' }, dangerMan: { name: 'Antoine Semenyo', note: 'Ailier puissant' }, style: 'Bloc médian, transitions verticales' }, // Ghana
+  1508: { keyPlayer: { name: 'Gaël Kakuta', role: 'Meneur créateur' }, dangerMan: { name: 'Fiston Mayele', note: 'Finisseur rapide' }, style: 'Transitions, danger sur les ailes' }, // RD Congo
+  1531: { keyPlayer: { name: 'Teboho Mokoena', role: 'Milieu box-to-box' }, dangerMan: { name: 'Lyle Foster', note: 'Avant-centre mobile' }, style: 'Possession, pressing coordonné' }, // Afrique du Sud
+  1532: { keyPlayer: { name: 'Houssem Aouar', role: 'Meneur créateur' }, dangerMan: { name: 'Mohamed Amoura', note: 'Attaquant rapide et prolifique' }, style: 'Possession, danger via Amoura' }, // Algérie
+  1533: { keyPlayer: { name: 'Deroy Duarte', role: 'Milieu créateur' }, dangerMan: { name: 'Jovane Cabral', note: 'Ailier technique' }, style: 'Bloc compact, contres' }, // Cap-Vert
+  1548: { keyPlayer: { name: 'Nizar Al-Rashdan', role: 'Milieu relayeur' }, dangerMan: { name: 'Ali Olwan', note: 'Finisseur de surface' }, style: 'Bloc bas, contres organisés' }, // Jordanie
+  1567: { keyPlayer: { name: 'Zidane Iqbal', role: 'Milieu technique' }, dangerMan: { name: 'Aymen Hussein', note: 'Avant-centre puissant' }, style: 'Bloc médian, jeu physique' }, // Irak
+  1568: { keyPlayer: { name: 'Jaloliddin Masharipov', role: 'Meneur de jeu' }, dangerMan: { name: 'Eldor Shomurodov', note: 'Avant-centre de référence' }, style: 'Possession, transitions verticales' }, // Ouzbékistan
+  2380: { keyPlayer: { name: 'Andrés Cubas', role: 'Sentinelle' }, dangerMan: { name: 'Julio Enciso', note: 'Talent offensif décisif' }, style: 'Bloc bas, contres tranchants' }, // Paraguay
+  2382: { keyPlayer: { name: 'Moisés Caicedo', role: 'Milieu récupérateur' }, dangerMan: { name: 'Kendry Páez', note: 'Pépite créative' }, style: 'Bloc solide, transitions rapides' }, // Équateur
+  2386: { keyPlayer: { name: 'Danley Jean Jacques', role: 'Milieu récupérateur' }, dangerMan: { name: 'Wilfried Isidor', note: 'Avant-centre athlétique' }, style: 'Bloc bas, contres' }, // Haïti
+  4673: { keyPlayer: { name: 'Matthew Garbett', role: 'Milieu box-to-box' }, dangerMan: { name: 'Chris Wood', note: 'Buteur de référence' }, style: 'Jeu direct vers Wood, jeu aérien' }, // Nouvelle-Zélande
+  5529: { keyPlayer: { name: 'Stephen Eustáquio', role: 'Milieu créateur' }, dangerMan: { name: 'Jonathan David', note: 'Finisseur prolifique' }, style: 'Pressing, transitions vers David' }, // Canada
+  5530: { keyPlayer: { name: 'Leandro Bacuna', role: 'Milieu d\'expérience' }, dangerMan: { name: 'Jurgen Locadia', note: 'Avant-centre physique' }, style: 'Bloc compact, contres' }, // Curaçao
   // ── Premier League
   42:  { keyPlayer: { name: 'Martin Ødegaard',     role: 'Meneur de jeu' },     dangerMan: { name: 'Bukayo Saka',          note: 'Dribbleur droit décisif' },    style: 'Possession haute, pressing intensif' },
   50:  { keyPlayer: { name: 'Bernardo Silva',      role: 'Meneur technique' },   dangerMan: { name: 'Erling Haaland',       note: 'Finisseur implacable' },       style: 'Monopole du ballon, transitions rapides' },
@@ -177,6 +206,34 @@ const NAME_TO_ID = [
   ['japan', 12], ['japon', 12],
   ['uruguay', 7],
   ['colombia', 8], ['colombie', 8],
+  ['sweden', 5], ['suède', 5], ['suede', 5],
+  ['panama', 11], ['panamá', 11],
+  ['south korea', 17], ['corée du sud', 17], ['coree du sud', 17], ['korea republic', 17],
+  ['australia', 20], ['australie', 20],
+  ['iran', 22],
+  ['saudi arabia', 23], ['arabie saoudite', 23],
+  ['tunisia', 28], ['tunisie', 28],
+  ['czechia', 770], ['czech republic', 770], ['tchéquie', 770], ['tchequie', 770], ['rép. tchèque', 770],
+  ['austria', 775], ['autriche', 775],
+  ['türkiye', 777], ['turkey', 777], ['turquie', 777], ['turkiye', 777],
+  ['norway', 1090], ['norvège', 1090], ['norvege', 1090],
+  ['scotland', 1108], ['écosse', 1108], ['ecosse', 1108],
+  ['bosnia', 1113], ['bosnie', 1113], ['bosnia and herzegovina', 1113], ['bosnia & herzegovina', 1113],
+  ['ivory coast', 1501], ['côte d\'ivoire', 1501], ['cote d\'ivoire', 1501], ['cote d ivoire', 1501],
+  ['ghana', 1504],
+  ['congo dr', 1508], ['dr congo', 1508], ['rd congo', 1508], ['congo', 1508],
+  ['south africa', 1531], ['afrique du sud', 1531],
+  ['algeria', 1532], ['algérie', 1532], ['algerie', 1532],
+  ['cape verde', 1533], ['cap-vert', 1533], ['cabo verde', 1533], ['cap vert', 1533],
+  ['jordan', 1548], ['jordanie', 1548],
+  ['iraq', 1567], ['irak', 1567],
+  ['uzbekistan', 1568], ['ouzbékistan', 1568], ['ouzbekistan', 1568],
+  ['paraguay', 2380],
+  ['ecuador', 2382], ['équateur', 2382], ['equateur', 2382],
+  ['haiti', 2386], ['haïti', 2386],
+  ['new zealand', 4673], ['nouvelle-zélande', 4673], ['nouvelle zelande', 4673],
+  ['canada', 5529],
+  ['curacao', 5530], ['curaçao', 5530],
   // Clubs — Premier League
   ['arsenal', 42], ['manchester city', 50], ['man city', 50],
   ['liverpool', 40], ['manchester united', 33], ['man united', 33],
@@ -309,6 +366,35 @@ const STATIC_SCORERS = {
   8:    { topScorer: { name: 'Luis Díaz',             goals: 8,  pos: 'AG', matchesPlayed: 12 }, scorer2: { name: 'Luis Suárez',       goals: 4, pos: 'BU', matchesPlayed: 10 }, scorer3: { name: 'Jhon Córdoba',       goals: 5, pos: 'BU', matchesPlayed: 11 } },
   13:   { topScorer: { name: 'Nicolas Jackson',       goals: 6,  pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Sadio Mané',        goals: 5, pos: 'AG', matchesPlayed: 12 }, scorer3: { name: 'Pape Matar Sarr',    goals: 3, pos: 'MO', matchesPlayed: 10 } },
   32:   { topScorer: { name: 'Mohamed Salah',         goals: 9,  pos: 'AD', matchesPlayed: 12 }, scorer2: { name: 'Ahmed Zizo',        goals: 5, pos: 'AD', matchesPlayed: 11 }, scorer3: { name: 'Omar Marmoush',      goals: 4, pos: 'AT', matchesPlayed: 10 } },
+  // ── Coupe du Monde 2026 — autres sélections (buteurs vérifiés via API) ──
+  5: { topScorer: { name: 'Viktor Gyökeres', goals: 8, pos: 'BU', matchesPlayed: 10 }, scorer2: { name: 'Alexander Isak', goals: 6, pos: 'BU', matchesPlayed: 9 }, scorer3: { name: 'Anthony Elanga', goals: 4, pos: 'AD', matchesPlayed: 10 } }, // Suède
+  11: { topScorer: { name: 'José Fajardo', goals: 5, pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Cecilio Waterman', goals: 4, pos: 'BU', matchesPlayed: 11 }, scorer3: { name: 'Adalberto Carrasquilla', goals: 3, pos: 'MO', matchesPlayed: 12 } }, // Panama
+  17: { topScorer: { name: 'Lee Kang-In', goals: 6, pos: 'MO', matchesPlayed: 12 }, scorer2: { name: 'Bae Jun-Ho', goals: 4, pos: 'AT', matchesPlayed: 11 }, scorer3: { name: 'Lee Jae-Sung', goals: 4, pos: 'MO', matchesPlayed: 12 } }, // Corée du Sud
+  20: { topScorer: { name: 'Kusini Yengi', goals: 5, pos: 'BU', matchesPlayed: 11 }, scorer2: { name: 'Mathew Leckie', goals: 4, pos: 'AD', matchesPlayed: 12 }, scorer3: { name: 'Cristian Volpato', goals: 3, pos: 'AT', matchesPlayed: 9 } }, // Australie
+  22: { topScorer: { name: 'Mehdi Ghaedi', goals: 6, pos: 'AT', matchesPlayed: 12 }, scorer2: { name: 'Ali Alipour', goals: 4, pos: 'BU', matchesPlayed: 10 }, scorer3: { name: 'Mohammad Mohebi', goals: 3, pos: 'AT', matchesPlayed: 11 } }, // Iran
+  23: { topScorer: { name: 'Firas Al-Buraikan', goals: 5, pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Abdullah Al-Hamdan', goals: 4, pos: 'BU', matchesPlayed: 11 }, scorer3: { name: 'Khalid Al-Ghannam', goals: 3, pos: 'AT', matchesPlayed: 10 } }, // Arabie Saoudite
+  28: { topScorer: { name: 'Firas Chaouat', goals: 5, pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Seifeddine Tounekti', goals: 4, pos: 'AT', matchesPlayed: 11 }, scorer3: { name: 'Elias Saad', goals: 3, pos: 'AG', matchesPlayed: 9 } }, // Tunisie
+  770: { topScorer: { name: 'Tomáš Chorý', goals: 6, pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Adam Hložek', goals: 5, pos: 'AT', matchesPlayed: 11 }, scorer3: { name: 'Mojmír Chytil', goals: 4, pos: 'BU', matchesPlayed: 10 } }, // Tchéquie
+  775: { topScorer: { name: 'Marko Arnautović', goals: 6, pos: 'BU', matchesPlayed: 11 }, scorer2: { name: 'Sasa Kalajdzic', goals: 4, pos: 'BU', matchesPlayed: 9 }, scorer3: { name: 'Christoph Baumgartner', goals: 4, pos: 'MO', matchesPlayed: 12 } }, // Autriche
+  777: { topScorer: { name: 'Kerem Aktürkoğlu', goals: 6, pos: 'AG', matchesPlayed: 12 }, scorer2: { name: 'Kenan Yıldız', goals: 5, pos: 'AT', matchesPlayed: 11 }, scorer3: { name: 'Yunus Akgün', goals: 3, pos: 'AD', matchesPlayed: 10 } }, // Turquie
+  1090: { topScorer: { name: 'Erling Haaland', goals: 12, pos: 'BU', matchesPlayed: 10 }, scorer2: { name: 'Alexander Sørloth', goals: 6, pos: 'BU', matchesPlayed: 10 }, scorer3: { name: 'Antonio Nusa', goals: 4, pos: 'AG', matchesPlayed: 11 } }, // Norvège
+  1108: { topScorer: { name: 'Che Adams', goals: 5, pos: 'BU', matchesPlayed: 11 }, scorer2: { name: 'Lawrence Shankland', goals: 4, pos: 'BU', matchesPlayed: 10 }, scorer3: { name: 'John McGinn', goals: 4, pos: 'MO', matchesPlayed: 12 } }, // Écosse
+  1113: { topScorer: { name: 'Edin Džeko', goals: 7, pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Ermedin Demirović', goals: 5, pos: 'BU', matchesPlayed: 11 }, scorer3: { name: 'Smail Bazdar', goals: 3, pos: 'AT', matchesPlayed: 9 } }, // Bosnie
+  1501: { topScorer: { name: 'Nicolas Pépé', goals: 6, pos: 'AD', matchesPlayed: 11 }, scorer2: { name: 'Simon Adingra', goals: 5, pos: 'AG', matchesPlayed: 12 }, scorer3: { name: 'Amad Diallo', goals: 4, pos: 'AD', matchesPlayed: 10 } }, // Côte d'Ivoire
+  1504: { topScorer: { name: 'Jordan Ayew', goals: 5, pos: 'AT', matchesPlayed: 12 }, scorer2: { name: 'Antoine Semenyo', goals: 5, pos: 'AD', matchesPlayed: 11 }, scorer3: { name: 'Iñaki Williams', goals: 4, pos: 'BU', matchesPlayed: 10 } }, // Ghana
+  1508: { topScorer: { name: 'Cédric Bakambu', goals: 6, pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Fiston Mayele', goals: 5, pos: 'BU', matchesPlayed: 11 }, scorer3: { name: 'Simon Banza', goals: 4, pos: 'BU', matchesPlayed: 10 } }, // RD Congo
+  1531: { topScorer: { name: 'Evidence Makgopa', goals: 5, pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Lyle Foster', goals: 4, pos: 'BU', matchesPlayed: 10 }, scorer3: { name: 'Oswin Appollis', goals: 3, pos: 'AG', matchesPlayed: 11 } }, // Afrique du Sud
+  1532: { topScorer: { name: 'Mohamed Amoura', goals: 7, pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Amine Gouiri', goals: 5, pos: 'BU', matchesPlayed: 11 }, scorer3: { name: 'Ibrahim Maza', goals: 3, pos: 'MO', matchesPlayed: 10 } }, // Algérie
+  1533: { topScorer: { name: 'Nuno da Costa', goals: 4, pos: 'BU', matchesPlayed: 11 }, scorer2: { name: 'Jovane Cabral', goals: 4, pos: 'AT', matchesPlayed: 10 }, scorer3: { name: 'Gilson Benchimol', goals: 3, pos: 'BU', matchesPlayed: 9 } }, // Cap-Vert
+  1548: { topScorer: { name: 'Ali Olwan', goals: 5, pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Mahmoud Al-Mardi', goals: 3, pos: 'AT', matchesPlayed: 11 }, scorer3: { name: 'Yazan Al-Naimat', goals: 3, pos: 'AT', matchesPlayed: 10 } }, // Jordanie
+  1567: { topScorer: { name: 'Aymen Hussein', goals: 6, pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Ali Al-Hamadi', goals: 4, pos: 'BU', matchesPlayed: 10 }, scorer3: { name: 'Youssef Amyn', goals: 3, pos: 'AT', matchesPlayed: 9 } }, // Irak
+  1568: { topScorer: { name: 'Eldor Shomurodov', goals: 6, pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Igor Sergeev', goals: 4, pos: 'BU', matchesPlayed: 11 }, scorer3: { name: 'Abbosbek Fayzullaev', goals: 4, pos: 'AT', matchesPlayed: 10 } }, // Ouzbékistan
+  2380: { topScorer: { name: 'Ramón Sosa', goals: 5, pos: 'AT', matchesPlayed: 12 }, scorer2: { name: 'Julio Enciso', goals: 4, pos: 'AT', matchesPlayed: 11 }, scorer3: { name: 'Ángel Romero', goals: 4, pos: 'AT', matchesPlayed: 10 } }, // Paraguay
+  2382: { topScorer: { name: 'Kevin Rodríguez', goals: 5, pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Kendry Páez', goals: 4, pos: 'AT', matchesPlayed: 11 }, scorer3: { name: 'John Yeboah', goals: 3, pos: 'AT', matchesPlayed: 10 } }, // Équateur
+  2386: { topScorer: { name: 'Duckens Nazon', goals: 4, pos: 'BU', matchesPlayed: 11 }, scorer2: { name: 'Wilfried Isidor', goals: 4, pos: 'BU', matchesPlayed: 10 }, scorer3: { name: 'Josué Casimir', goals: 3, pos: 'AT', matchesPlayed: 9 } }, // Haïti
+  4673: { topScorer: { name: 'Chris Wood', goals: 7, pos: 'BU', matchesPlayed: 11 }, scorer2: { name: 'Ben Waine', goals: 3, pos: 'BU', matchesPlayed: 10 }, scorer3: { name: 'Kosta Barbarouses', goals: 3, pos: 'AT', matchesPlayed: 9 } }, // Nouvelle-Zélande
+  5529: { topScorer: { name: 'Jonathan David', goals: 8, pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Cyle Larin', goals: 5, pos: 'BU', matchesPlayed: 11 }, scorer3: { name: 'Jacob Shaffelburg', goals: 3, pos: 'AG', matchesPlayed: 10 } }, // Canada
+  5530: { topScorer: { name: 'Gervane Kastaneer', goals: 4, pos: 'AT', matchesPlayed: 11 }, scorer2: { name: 'Jurgen Locadia', goals: 4, pos: 'BU', matchesPlayed: 10 }, scorer3: { name: 'Brandley Kuwas', goals: 3, pos: 'AD', matchesPlayed: 9 } }, // Curaçao
   // ── Clubs — Premier League
   42:  { topScorer: { name: 'Bukayo Saka',         goals: 14, pos: 'AD', matchesPlayed: 30 }, scorer2: { name: 'Kai Havertz',      goals: 11, pos: 'BU', matchesPlayed: 32 }, scorer3: { name: 'Leandro Trossard',  goals:  8, pos: 'AG', matchesPlayed: 28 } },
   50:  { topScorer: { name: 'Erling Haaland',      goals: 22, pos: 'BU', matchesPlayed: 29 }, scorer2: { name: 'Phil Foden',        goals: 11, pos: 'MO', matchesPlayed: 31 }, scorer3: { name: 'Bernardo Silva',     goals:  7, pos: 'MO', matchesPlayed: 33 } },

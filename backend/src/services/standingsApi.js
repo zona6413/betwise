@@ -118,6 +118,35 @@ const STATIC_KNOWN = {
   '7':    { position: 13, wins: 17, draws: 8,  losses: 11, form: 'WDWLD', gpg: 1.61, cgpg: 1.06, homeGpg: 1.90, homeCgpg: 0.80, awayGpg: 1.32, awayCgpg: 1.32 }, // Uruguay
   '8':    { position: 16, wins: 15, draws: 7,  losses: 14, form: 'LLWWL', gpg: 1.47, cgpg: 1.33, homeGpg: 1.75, homeCgpg: 1.05, awayGpg: 1.19, awayCgpg: 1.61 }, // Colombie
   '32':   { position: 20, wins: 12, draws: 9,  losses: 14, form: 'WDLWD', gpg: 1.38, cgpg: 1.20, homeGpg: 1.60, homeCgpg: 0.95, awayGpg: 1.15, awayCgpg: 1.48 }, // Égypte
+  // ── Coupe du Monde 2026 — autres sélections qualifiées ──
+  '5': { position: 15, wins: 18, draws: 6, losses: 10, form: 'WDWLW', gpg: 1.75, cgpg: 1.2, homeGpg: 2.05, homeCgpg: 0.95, awayGpg: 1.45, awayCgpg: 1.45 }, // Suède
+  '11': { position: 26, wins: 11, draws: 9, losses: 14, form: 'LDWLL', gpg: 1.1, cgpg: 1.45, homeGpg: 1.3, homeCgpg: 1.25, awayGpg: 0.9, awayCgpg: 1.65 }, // Panama
+  '17': { position: 17, wins: 17, draws: 8, losses: 9, form: 'WWDLW', gpg: 1.55, cgpg: 1.05, homeGpg: 1.85, homeCgpg: 0.82, awayGpg: 1.25, awayCgpg: 1.28 }, // Corée du Sud
+  '20': { position: 22, wins: 14, draws: 9, losses: 11, form: 'WDLDW', gpg: 1.25, cgpg: 1.25, homeGpg: 1.5, homeCgpg: 1.0, awayGpg: 1.0, awayCgpg: 1.5 }, // Australie
+  '22': { position: 19, wins: 18, draws: 7, losses: 8, form: 'WWDWL', gpg: 1.45, cgpg: 0.95, homeGpg: 1.75, homeCgpg: 0.72, awayGpg: 1.15, awayCgpg: 1.18 }, // Iran
+  '23': { position: 24, wins: 13, draws: 9, losses: 13, form: 'LDWDL', gpg: 1.15, cgpg: 1.35, homeGpg: 1.4, homeCgpg: 1.1, awayGpg: 0.9, awayCgpg: 1.6 }, // Arabie Saoudite
+  '28': { position: 19, wins: 17, draws: 9, losses: 7, form: 'WDWWD', gpg: 1.3, cgpg: 0.9, homeGpg: 1.55, homeCgpg: 0.68, awayGpg: 1.05, awayCgpg: 1.12 }, // Tunisie
+  '770': { position: 18, wins: 16, draws: 8, losses: 10, form: 'WLDWW', gpg: 1.45, cgpg: 1.18, homeGpg: 1.72, homeCgpg: 0.92, awayGpg: 1.18, awayCgpg: 1.44 }, // Tchéquie
+  '775': { position: 15, wins: 19, draws: 6, losses: 9, form: 'WWDWL', gpg: 1.65, cgpg: 1.05, homeGpg: 1.95, homeCgpg: 0.82, awayGpg: 1.35, awayCgpg: 1.28 }, // Autriche
+  '777': { position: 16, wins: 18, draws: 7, losses: 9, form: 'WDWWL', gpg: 1.6, cgpg: 1.15, homeGpg: 1.9, homeCgpg: 0.9, awayGpg: 1.3, awayCgpg: 1.4 }, // Turquie
+  '1090': { position: 14, wins: 20, draws: 5, losses: 8, form: 'WWWLW', gpg: 1.95, cgpg: 1.1, homeGpg: 2.3, homeCgpg: 0.85, awayGpg: 1.6, awayCgpg: 1.35 }, // Norvège
+  '1108': { position: 18, wins: 16, draws: 8, losses: 10, form: 'WDLWW', gpg: 1.3, cgpg: 1.2, homeGpg: 1.55, homeCgpg: 0.95, awayGpg: 1.05, awayCgpg: 1.45 }, // Écosse
+  '1113': { position: 19, wins: 16, draws: 7, losses: 11, form: 'WLWDW', gpg: 1.45, cgpg: 1.28, homeGpg: 1.72, homeCgpg: 1.0, awayGpg: 1.18, awayCgpg: 1.56 }, // Bosnie
+  '1501': { position: 16, wins: 19, draws: 7, losses: 8, form: 'WWDWW', gpg: 1.6, cgpg: 1.05, homeGpg: 1.9, homeCgpg: 0.8, awayGpg: 1.3, awayCgpg: 1.3 }, // Côte d'Ivoire
+  '1504': { position: 17, wins: 18, draws: 6, losses: 10, form: 'WLWWD', gpg: 1.5, cgpg: 1.2, homeGpg: 1.78, homeCgpg: 0.95, awayGpg: 1.22, awayCgpg: 1.45 }, // Ghana
+  '1508': { position: 18, wins: 17, draws: 7, losses: 10, form: 'WDWLW', gpg: 1.45, cgpg: 1.22, homeGpg: 1.72, homeCgpg: 0.98, awayGpg: 1.18, awayCgpg: 1.46 }, // RD Congo
+  '1531': { position: 20, wins: 16, draws: 8, losses: 10, form: 'WDWWL', gpg: 1.3, cgpg: 1.15, homeGpg: 1.55, homeCgpg: 0.9, awayGpg: 1.05, awayCgpg: 1.4 }, // Afrique du Sud
+  '1532': { position: 18, wins: 18, draws: 7, losses: 9, form: 'WWDWL', gpg: 1.6, cgpg: 1.15, homeGpg: 1.9, homeCgpg: 0.88, awayGpg: 1.3, awayCgpg: 1.42 }, // Algérie
+  '1533': { position: 23, wins: 14, draws: 8, losses: 12, form: 'WDLWL', gpg: 1.15, cgpg: 1.3, homeGpg: 1.38, homeCgpg: 1.05, awayGpg: 0.92, awayCgpg: 1.55 }, // Cap-Vert
+  '1548': { position: 21, wins: 15, draws: 9, losses: 10, form: 'WDDWL', gpg: 1.3, cgpg: 1.18, homeGpg: 1.55, homeCgpg: 0.92, awayGpg: 1.05, awayCgpg: 1.44 }, // Jordanie
+  '1567': { position: 22, wins: 15, draws: 8, losses: 11, form: 'WLDWD', gpg: 1.25, cgpg: 1.25, homeGpg: 1.5, homeCgpg: 0.98, awayGpg: 1.0, awayCgpg: 1.52 }, // Irak
+  '1568': { position: 20, wins: 17, draws: 7, losses: 9, form: 'WWDLW', gpg: 1.4, cgpg: 1.12, homeGpg: 1.68, homeCgpg: 0.88, awayGpg: 1.12, awayCgpg: 1.36 }, // Ouzbékistan
+  '2380': { position: 19, wins: 16, draws: 10, losses: 8, form: 'WDDWL', gpg: 1.25, cgpg: 1.0, homeGpg: 1.5, homeCgpg: 0.78, awayGpg: 1.0, awayCgpg: 1.22 }, // Paraguay
+  '2382': { position: 16, wins: 18, draws: 9, losses: 7, form: 'WDWWD', gpg: 1.4, cgpg: 0.88, homeGpg: 1.68, homeCgpg: 0.65, awayGpg: 1.12, awayCgpg: 1.1 }, // Équateur
+  '2386': { position: 27, wins: 11, draws: 8, losses: 15, form: 'LLWDL', gpg: 1.05, cgpg: 1.5, homeGpg: 1.28, homeCgpg: 1.28, awayGpg: 0.85, awayCgpg: 1.7 }, // Haïti
+  '4673': { position: 25, wins: 13, draws: 8, losses: 12, form: 'WDLWL', gpg: 1.1, cgpg: 1.42, homeGpg: 1.32, homeCgpg: 1.18, awayGpg: 0.88, awayCgpg: 1.62 }, // Nouvelle-Zélande
+  '5529': { position: 18, wins: 17, draws: 8, losses: 9, form: 'WDWWL', gpg: 1.45, cgpg: 1.15, homeGpg: 1.72, homeCgpg: 0.9, awayGpg: 1.18, awayCgpg: 1.4 }, // Canada
+  '5530': { position: 28, wins: 11, draws: 9, losses: 14, form: 'LDWLL', gpg: 1.0, cgpg: 1.5, homeGpg: 1.22, homeCgpg: 1.28, awayGpg: 0.8, awayCgpg: 1.7 }, // Curaçao
   // ── Premier League ───────────────────────────────────────────
   '42':  { position: 3,  wins: 19, draws: 6,  losses: 9,  form: 'WDWWL', gpg: 1.79, cgpg: 1.09, homeGpg: 2.10, homeCgpg: 0.85, awayGpg: 1.47, awayCgpg: 1.33 }, // Arsenal
   '50':  { position: 1,  wins: 24, draws: 5,  losses: 5,  form: 'WWWDW', gpg: 2.18, cgpg: 0.82, homeGpg: 2.55, homeCgpg: 0.60, awayGpg: 1.82, awayCgpg: 1.05 }, // Man City
