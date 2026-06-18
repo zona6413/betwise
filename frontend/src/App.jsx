@@ -80,48 +80,6 @@ const RISK_PROFILES = [
   { id: 'value',  label: 'Audacieux' },
 ];
 
-const WC_START = new Date('2026-06-11T18:00:00Z');
-
-function useWCCountdown() {
-  const calc = () => {
-    const diff = WC_START - Date.now();
-    if (diff <= 0) return null;
-    return {
-      days:    Math.floor(diff / 86400000),
-      hours:   Math.floor((diff % 86400000) / 3600000),
-      minutes: Math.floor((diff % 3600000) / 60000),
-      seconds: Math.floor((diff % 60000) / 1000),
-    };
-  };
-  const [time, setTime] = useState(calc);
-  useEffect(() => {
-    const id = setInterval(() => setTime(calc()), 1000);
-    return () => clearInterval(id);
-  }, []);
-  return time;
-}
-
-function WCCountdown() {
-  const time = useWCCountdown();
-  if (!time) return null;
-  const pad = n => String(n).padStart(2, '0');
-  return (
-    <div className="wc-strip">
-      <span className="wc-strip-label">
-        Coupe du Monde 2026
-      </span>
-      <div className="wc-strip-blocks">
-        {[{ v: time.days, u: 'J' }, { v: time.hours, u: 'H' }, { v: time.minutes, u: 'M' }, { v: time.seconds, u: 'S' }].map(({ v, u }) => (
-          <div key={u} className="wc-strip-block">
-            <span className="wc-strip-num">{pad(v)}</span>
-            <span className="wc-strip-unit">{u}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 function dateLabel(dateStr) {
   const d  = new Date(dateStr);
   const t  = new Date(); t.setHours(0,0,0,0);
@@ -566,9 +524,6 @@ export default function App() {
               <button className="btn-close-banner" onClick={() => setShowEmailBanner(false)}>✕</button>
             </div>
           )}
-
-          {/* ── Compte à rebours Coupe du Monde 2026 ────────────── */}
-          {showHomeSections && !loading && <WCCountdown />}
 
           {/* ── Picks du jour (visible par tous, gratuit = 1 pick only) ── */}
           {showHomeSections && !loading && aiPicks.length > 0 && (

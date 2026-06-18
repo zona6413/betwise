@@ -12,7 +12,7 @@ import { requireAuth }  from '../middleware/auth.js';
 const router = Router();
 
 // Code & durée configurables côté Render (sans redéploiement de code)
-const PROMO_CODE = (process.env.PROMO_CODE ?? 'DODD2026').toLowerCase().trim();
+const PROMO_CODE = (process.env.PROMO_CODE ?? 'Doddbetworldcup2026').toLowerCase().trim();
 const PROMO_DAYS = Number(process.env.PROMO_DAYS) || 30;
 
 // Anti-bruteforce : on limite les tentatives de code par IP

@@ -1,31 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { GetStartedButton } from '@/components/ui/get-started-button';
 import { ContainerScroll } from '@/components/ui/container-scroll-animation';
 import { GoldGlow } from '@/components/ui/glow-background';
 import './LandingPage.css';
 
 const API = import.meta.env.VITE_API_URL ?? 'https://betwise-suh4.onrender.com';
-
-const WC_DATE = new Date('2026-06-11T18:00:00Z'); // coup d'envoi CdM 2026
-
-function useCountdown() {
-  const calc = () => {
-    const diff = WC_DATE - Date.now();
-    if (diff <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0 };
-    return {
-      days:    Math.floor(diff / 86400000),
-      hours:   Math.floor((diff % 86400000) / 3600000),
-      minutes: Math.floor((diff % 3600000)  / 60000),
-      seconds: Math.floor((diff % 60000)    / 1000),
-    };
-  };
-  const [time, setTime] = useState(calc);
-  useEffect(() => {
-    const id = setInterval(() => setTime(calc()), 1000);
-    return () => clearInterval(id);
-  }, []);
-  return time;
-}
 
 const FEATURES = [
   {
@@ -60,24 +39,6 @@ const STATS = [
   { value: '3',    label: 'Niveaux de paris Dodd' },
   { value: '24/7', label: 'Mises à jour en temps réel' },
 ];
-
-function WorldCupCountdown() {
-  const { days, hours, minutes, seconds } = useCountdown();
-  return (
-    <div className="wc-countdown">
-      <div className="wc-countdown-label">Coupe du Monde 2026</div>
-      <div className="wc-countdown-blocks">
-        {[{ v: days, l: 'Jours' }, { v: hours, l: 'Heures' }, { v: minutes, l: 'Min' }, { v: seconds, l: 'Sec' }].map(({ v, l }) => (
-          <div key={l} className="wc-countdown-block">
-            <span className="wc-countdown-num">{String(v).padStart(2, '0')}</span>
-            <span className="wc-countdown-unit">{l}</span>
-          </div>
-        ))}
-      </div>
-      <div className="wc-countdown-sub">Coup d'envoi le 11 juin 2026 · Mexico City</div>
-    </div>
-  );
-}
 
 export default function LandingPage({ onStart, onLogin, onPricing }) {
   const [leadEmail,   setLeadEmail]   = useState('');
@@ -133,9 +94,6 @@ export default function LandingPage({ onStart, onLogin, onPricing }) {
           DoddBet analyse chaque match pour te donner les meilleures chances de gagner.
           Value bets, combos optimisés, suivi de paris — tout au même endroit.
         </p>
-        {/* ── Countdown CdM 2026 ── */}
-        <WorldCupCountdown />
-
         <div className="landing-hero-ctas">
           <GetStartedButton onClick={onStart} label="Commencer gratuitement" />
           <button className="landing-cta-ghost" onClick={onPricing}>
