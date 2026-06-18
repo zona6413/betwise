@@ -118,6 +118,7 @@ export default function App() {
     return !!new URLSearchParams(window.location.search).get('reset');
   });
   const [showPricing, setShowPricing] = useState(false);
+  const [pricingPromo, setPricingPromo] = useState(false); // ouvrir la fenêtre Pro directement sur le champ code promo
   const [selectedMatch, setSelectedMatch] = useState(null);
   const [betMatch,      setBetMatch]      = useState(null);
   const [activeTab,     setActiveTab]     = useState('today');
@@ -466,6 +467,9 @@ export default function App() {
             <div className="top-bar-right">
               {isProOrAdmin && <button className="combo-trigger-btn" onClick={() => setShowCombo(true)}>Combo</button>}
               <button className="btn-help-tour" onClick={() => setShowTour(true)} title="Guide DoddBet">?</button>
+              {!isProOrAdmin && (
+                <button className="btn-promo-code" onClick={() => { setPricingPromo(true); setShowPricing(true); }} title="Activer un code promo">🎟️ Code</button>
+              )}
               <button className={`btn-refresh-sm ${loading ? 'spinning' : ''}`} onClick={refresh} disabled={loading} title="Rafraîchir">↻</button>
               {lastUpdated && <span className="stats-time">{lastUpdated.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</span>}
               {isLoggedIn ? (
@@ -710,11 +714,12 @@ export default function App() {
       )}
       {showPricing && (
         <PricingModal
-          onClose={() => setShowPricing(false)}
+          onClose={() => { setShowPricing(false); setPricingPromo(false); }}
           authFetch={authFetch}
           isLoggedIn={isLoggedIn}
           user={user}
           refreshUser={refreshUser}
+          openPromo={pricingPromo}
           onOpenAuth={() => { setShowPricing(false); setShowAuth(true); }}
         />
       )}

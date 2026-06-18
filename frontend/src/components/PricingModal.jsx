@@ -12,11 +12,11 @@ const FEATURES = [
   'Support prioritaire',
 ];
 
-export default function PricingModal({ onClose, authFetch, isLoggedIn, onOpenAuth, user, refreshUser }) {
+export default function PricingModal({ onClose, authFetch, isLoggedIn, onOpenAuth, user, refreshUser, openPromo = false }) {
   const [billing, setBilling] = useState('yearly');
   const [loading, setLoading] = useState(null);
   const [error,   setError]   = useState(null);
-  const [showPromo,    setShowPromo]    = useState(false);
+  const [showPromo,    setShowPromo]    = useState(openPromo);
   const [promoCode,    setPromoCode]    = useState('');
   const [promoLoading, setPromoLoading] = useState(false);
   const [promoMsg,     setPromoMsg]     = useState(null); // { type: 'ok'|'err', text }
