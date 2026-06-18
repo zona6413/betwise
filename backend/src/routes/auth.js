@@ -92,6 +92,14 @@ router.get('/me', requireAuth, async (req, res) => {
   try {
     const user = await User.findById(req.userId);
     if (!user) return res.status(404).json({ error: 'Utilisateur introuvable' });
+    // Rétrograde automatiquement un Pro issu d'un code promo expiré (sans abonnement
+    // Stripe). Les abonnés Stripe sont gérés par les webhooks, on n'y touche pas.
+    if (user.role === 'pro' && !user.stripeCustomerId &&
+        user.subscriptionExpiry && user.subscriptionExpiry < new Date()) {
+      user.role = 'free';
+      user.subscriptionExpiry = null;
+      await user.save();
+    }
     res.json({ user: user.toPublic() });
   } catch (err) {
     res.status(500).json({ error: 'Erreur serveur' });

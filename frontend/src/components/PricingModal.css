@@ -212,6 +212,51 @@
   padding: 0;
 }
 
+/* ── Code promo ── */
+.promo-block {
+  margin-top: 14px;
+  text-align: center;
+}
+.promo-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+.promo-input {
+  flex: 1;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: #fff;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.promo-input:focus {
+  outline: none;
+  border-color: #eab308;
+}
+.promo-input::placeholder { color: rgba(255,255,255,0.4); text-transform: none; letter-spacing: 0; }
+.promo-btn {
+  background: #eab308;
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+}
+.promo-btn:hover:not(:disabled) { background: #f5c518; }
+.promo-btn:disabled { opacity: 0.6; cursor: default; }
+.promo-msg {
+  font-size: 13px;
+  margin: 10px 0 0;
+}
+.promo-msg--ok  { color: #4ade80; }
+.promo-msg--err { color: #f87171; }
+
 /* ── Already Pro ── */
 .pricing-current {
   text-align: center;

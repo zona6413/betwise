@@ -466,6 +466,7 @@ export default function App() {
             authFetch={authFetch}
             isLoggedIn={isLoggedIn}
             user={user}
+            refreshUser={refreshUser}
             onOpenAuth={() => { setShowPricing(false); setShowAuth(true); }}
           />
         )}
@@ -758,6 +759,7 @@ export default function App() {
           authFetch={authFetch}
           isLoggedIn={isLoggedIn}
           user={user}
+          refreshUser={refreshUser}
           onOpenAuth={() => { setShowPricing(false); setShowAuth(true); }}
         />
       )}

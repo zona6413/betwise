@@ -10,6 +10,7 @@ const userSchema = new mongoose.Schema({
   role:      { type: String, enum: ['free', 'pro', 'admin'], default: 'free' },
   subscriptionExpiry: { type: Date, default: null },
   stripeCustomerId:   { type: String, default: null },
+  promoRedeemedAt:    { type: Date, default: null }, // code promo : 1 utilisation/compte
   createdAt: { type: Date, default: Date.now },
   // Vérification email
   emailVerified:    { type: Boolean, default: false },

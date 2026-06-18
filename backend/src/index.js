@@ -12,6 +12,7 @@ import betsRouter     from './routes/bets.js';
 import stripeRouter   from './routes/stripe.js';
 import leadsRouter    from './routes/leads.js';
 import adminRouter    from './routes/admin.js';
+import promoRouter    from './routes/promo.js';
 import { requireAdmin } from './middleware/auth.js';
 import { initLearningEngine } from './services/learningEngine.js';
 
@@ -20,7 +21,7 @@ dotenv.config();
 // Nettoie les variables d'env (évite les \n invisibles copiés-collés)
 const ENV_TRIM = ['ODDS_API_KEY','API_FOOTBALL_KEY','STRIPE_SECRET_KEY','STRIPE_PRICE_MONTHLY',
   'STRIPE_PRICE_YEARLY','STRIPE_WEBHOOK_SECRET','MONGODB_URI','JWT_SECRET',
-  'ADMIN_EMAIL','RESEND_API_KEY','FRONTEND_URL','FROM_EMAIL'];
+  'ADMIN_EMAIL','RESEND_API_KEY','FRONTEND_URL','FROM_EMAIL','PROMO_CODE'];
 for (const key of ENV_TRIM) {
   if (process.env[key]) process.env[key] = process.env[key].trim();
 }
@@ -133,6 +134,7 @@ app.use('/api/bets',     betsRouter);
 app.use('/api/stripe',   stripeRouter);
 app.use('/api/leads',    leadsRouter);
 app.use('/api/admin',    adminRouter);
+app.use('/api/promo',    promoRouter);
 
 // ── Routes admin-only (debug + maintenance) ───────────────────────────────────
 // Protégées par requireAdmin — invisibles pour les utilisateurs normaux
