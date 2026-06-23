@@ -9,6 +9,10 @@
   --surface:     #080B12;
   --card:        #0C0F18;
   --card-hover:  #101420;
+  /* Alias de stabilisation (Phase 0) — sémantique à revoir en Phase 1 */
+  --card-bg:     var(--card);
+  --surface-2:   var(--card-hover);
+  --bg-card:     var(--card);
 
   /* ── Borders ── */
   --border:      rgba(255,255,255,0.06);
@@ -36,9 +40,13 @@
   --cdm-green:   #EAB308;
 
   /* ── Vert (pelouse + valeur positive) ── */
-  --green:       #EAB308;
-  --green-dim:   rgba(234,179,8,0.08);
-  --green-glow:  rgba(234,179,8,0.16);
+  --green:       #00D68F;
+  --green-dim:   rgba(0,214,143,0.08);
+  --green-glow:  rgba(0,214,143,0.16);
+
+  /* ── Or (variante distincte du gold accent --violet) ── */
+  --gold:        #F5A623;
+  --gold-dim:    rgba(245,166,35,0.08);
 
   /* ── Statuts ── */
   --red:         #F43F5E;
@@ -51,6 +59,10 @@
   /* ── Accent blanc ── */
   --accent:      rgba(255,255,255,0.88);
   --accent-dim:  rgba(255,255,255,0.05);
+
+  /* ── Glassmorphism (boutons/blocs sur fond flou) ── */
+  --glass:        rgba(255,255,255,0.05);
+  --glass-border: rgba(255,255,255,0.10);
 
   /* ── Radius ── */
   --radius-xs:   4px;
