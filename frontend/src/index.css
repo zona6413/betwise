@@ -44,9 +44,9 @@
   --green-dim:   rgba(0,214,143,0.08);
   --green-glow:  rgba(0,214,143,0.16);
 
-  /* ── Or (variante distincte du gold accent --violet) ── */
-  --gold:        #F5A623;
-  --gold-dim:    rgba(245,166,35,0.08);
+  /* ── Or — accent spécifique au tier "value" (distinct de l'accent principal) ── */
+  --tier-gold:     #F5A623;
+  --tier-gold-dim: rgba(245,166,35,0.08);
 
   /* ── Statuts ── */
   --red:         #F43F5E;

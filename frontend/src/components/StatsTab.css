@@ -269,7 +269,7 @@
 
 .st-rate-pct         { font-size: 16px; font-weight: 900; min-width: 42px; text-align: right; }
 .st-rate-pct--good   { color: var(--green); }
-.st-rate-pct--avg    { color: var(--gold); }
+.st-rate-pct--avg    { color: var(--tier-gold); }
 .st-rate-pct--low    { color: #ef4444; }
 .st-rate-detail      { font-size: 10px; color: var(--text-dim); font-weight: 500; white-space: nowrap; }
 
@@ -325,7 +325,7 @@
 .st-cal-stat:last-child { border-right: none; }
 .st-cal-num      { font-size: 22px; font-weight: 900; color: var(--text); }
 .st-cal-num.green  { color: var(--green); }
-.st-cal-num.orange { color: var(--gold); }
+.st-cal-num.orange { color: var(--tier-gold); }
 .st-cal-num.red    { color: #ef4444; }
 .st-cal-num.dim    { color: var(--text-dim); font-size: 16px; }
 .st-cal-lbl      { font-size: 10px; color: var(--text-dim); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -350,7 +350,7 @@
   line-height: 1.5;
 }
 .st-cal-highlight--best  { background: rgba(0,214,143,0.08);  border: 1px solid rgba(0,214,143,0.2);  color: var(--green); }
-.st-cal-highlight--worst { background: rgba(245,166,35,0.08);  border: 1px solid rgba(245,166,35,0.2);  color: var(--gold); }
+.st-cal-highlight--worst { background: rgba(245,166,35,0.08);  border: 1px solid rgba(245,166,35,0.2);  color: var(--tier-gold); }
 .st-cal-highlight strong { font-weight: 800; }
 
 .st-cal-grid {
@@ -375,7 +375,7 @@
 .st-cal-acc      { font-weight: 800; color: var(--text); text-align: right; }
 .st-cal-bias     { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 20px; text-align: center; }
 .st-cal-bias.ok  { background: rgba(0,214,143,0.12); color: var(--green); }
-.st-cal-bias.warn{ background: rgba(245,166,35,0.12); color: var(--gold); }
+.st-cal-bias.warn{ background: rgba(245,166,35,0.12); color: var(--tier-gold); }
 .st-cal-factor   { font-weight: 700; color: var(--text-dim); text-align: right; font-size: 11px; }
 .st-cal-n        { font-size: 10px; color: var(--text-dim); text-align: right; }
 
