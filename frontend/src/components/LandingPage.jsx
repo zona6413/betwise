@@ -157,7 +157,7 @@ export default function LandingPage({ onStart, onLogin, onPricing }) {
       <ContainerScroll
         titleComponent={
           <div style={{ marginBottom: "2rem" }}>
-            <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--violet)", letterSpacing: "0.08em", textTransform: "uppercase" }}>
+            <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--gold)", letterSpacing: "0.08em", textTransform: "uppercase" }}>
               Aperçu de l'app
             </span>
             <h2 style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)", fontWeight: 700, color: "var(--text)", marginTop: "0.5rem", lineHeight: 1.15, letterSpacing: "-0.03em" }}>

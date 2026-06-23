@@ -26,10 +26,10 @@
   --text-dim:    rgba(232,234,242,0.14);
 
   /* ── CdM 2026 : Vert pelouse (accent principal — boutons, reflets) ── */
-  --violet:      #EAB308;
-  --violet-dim:  rgba(234,179,8,0.08);
-  --violet-mid:  rgba(234,179,8,0.15);
-  --violet-glow: rgba(234,179,8,0.22);
+  --gold:      #EAB308;
+  --gold-dim:  rgba(234,179,8,0.08);
+  --gold-mid:  rgba(234,179,8,0.15);
+  --gold-glow: rgba(234,179,8,0.22);
 
   /* ── CdM 2026 : Gradients FIFA ── */
   --cdm-gradient:      linear-gradient(135deg, #DC2626, #EAB308, #FCBF49);

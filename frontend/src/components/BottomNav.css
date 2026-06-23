@@ -34,7 +34,7 @@
   }
 
   .bnav-item--active {
-    color: var(--violet);
+    color: var(--gold);
   }
   .bnav-item--active .bnav-icon {
     background: rgba(234,179,8,0.10);
@@ -75,5 +75,5 @@
 
   .bnav-badge--red    { background: var(--red); color: #fff; }
   .bnav-badge--green  { background: var(--green); color: #fff; }
-  .bnav-badge--purple { background: var(--violet); color: #fff; }
+  .bnav-badge--purple { background: var(--gold); color: #fff; }
 }

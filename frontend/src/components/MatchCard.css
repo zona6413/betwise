@@ -79,8 +79,8 @@
 .league-round {
   font-size: 9px;
   font-weight: 600;
-  color: var(--violet);
-  background: var(--violet-dim);
+  color: var(--gold);
+  background: var(--gold-dim);
   border: 1px solid rgba(234,179,8,0.18);
   border-radius: 4px;
   padding: 1px 6px;
@@ -98,8 +98,8 @@
   border-radius: 5px;
   white-space: nowrap;
 }
-.badge--fire  { background: var(--violet-dim); color: var(--violet); border: 1px solid rgba(234,179,8,0.18); }
-.badge--value { background: var(--violet-dim); color: var(--violet); border: 1px solid rgba(234,179,8,0.14); }
+.badge--fire  { background: var(--gold-dim); color: var(--gold); border: 1px solid rgba(234,179,8,0.18); }
+.badge--value { background: var(--gold-dim); color: var(--gold); border: 1px solid rgba(234,179,8,0.14); }
 
 .status-badge {
   font-size: 9px;
@@ -288,8 +288,8 @@
   font-size: 18px; font-weight: 700; color: var(--text);
   font-variant-numeric: tabular-nums; letter-spacing: -0.5px; line-height: 1;
 }
-.odd-pill--value .odd-pill-val { color: var(--violet); }
-.odd-pill-tag { font-size: 8px; font-weight: 700; color: var(--violet); text-transform: uppercase; letter-spacing: 0.4px; }
+.odd-pill--value .odd-pill-val { color: var(--gold); }
+.odd-pill-tag { font-size: 8px; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 0.4px; }
 
 /* ── Toggle analyse ── */
 .card-analyse-toggle {
@@ -318,8 +318,8 @@
 .toggle-value-hint {
   font-size: 10px;
   font-weight: 600;
-  color: var(--violet);
-  background: var(--violet-dim);
+  color: var(--gold);
+  background: var(--gold-dim);
   border: 1px solid rgba(234,179,8,0.14);
   padding: 1px 6px;
   border-radius: 5px;
@@ -419,12 +419,12 @@
 .qi-scorer-badge {
   display: flex; align-items: center; gap: 6px;
   margin-top: 8px; padding: 7px 10px;
-  background: var(--violet-dim); border: 1px solid rgba(234,179,8,0.14);
+  background: var(--gold-dim); border: 1px solid rgba(234,179,8,0.14);
   border-radius: 8px;
 }
 .qi-scorer-text { font-size: 12px; color: var(--text-muted); }
 .qi-scorer-text strong { color: var(--text-soft); font-weight: 600; }
-.qi-scorer-pct { font-size: 12px; font-weight: 700; color: var(--violet); margin-left: 3px; }
+.qi-scorer-pct { font-size: 12px; font-weight: 700; color: var(--gold); margin-left: 3px; }
 
 /* ── Footer ── */
 .card-footer {
@@ -442,14 +442,14 @@
   border-radius: var(--radius-sm);
   font-size: 12px;
   font-weight: 600;
-  background: var(--violet-dim);
+  background: var(--gold-dim);
   border: 1px solid rgba(234,179,8,0.18);
-  color: var(--violet);
+  color: var(--gold);
   transition: all 0.15s ease;
   letter-spacing: -0.1px;
 }
 .btn-bet:hover {
-  background: var(--violet-mid);
+  background: var(--gold-mid);
   border-color: rgba(234,179,8,0.30);
   color: #fff;
 }
