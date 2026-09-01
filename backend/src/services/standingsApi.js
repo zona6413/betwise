@@ -8,7 +8,9 @@ import { CALENDAR_YEAR_LEAGUE_IDS } from './footballApi.js';
 
 const BASE_URL = 'https://v3.football.api-sports.io';
 const API_KEY  = process.env.API_FOOTBALL_KEY;
-const SEASON   = 2025; // saison européenne par défaut
+// Saison européenne automatique : août+ → année courante, sinon année-1
+const _now = new Date();
+const SEASON = _now.getMonth() >= 6 ? _now.getFullYear() : _now.getFullYear() - 1;
 // Ligues à saison civile → importées depuis footballApi pour éviter la duplication
 
 // Nombre minimum de matchs joués pour qu'une ligne de classement API soit fiable.
@@ -43,7 +45,7 @@ async function fetchStandingsFromApi(activeLeagueIds) {
   const map = {};
   await Promise.allSettled(
     [...activeLeagueIds].map(async (id) => {
-      const season = CALENDAR_YEAR_LEAGUE_IDS.has(id) ? 2026 : SEASON;
+      const season = CALENDAR_YEAR_LEAGUE_IDS.has(id) ? new Date().getFullYear() : SEASON;
       try {
         const { data } = await client.get('/standings', {
           params: { league: id, season },

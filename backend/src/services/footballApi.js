@@ -17,7 +17,7 @@ const FIXTURE_WINDOW_DAYS = 3;
 
 // ── Ligues autorisées ────────────────────────────────────────────────────────
 // platforms : ['winamax'] | ['betclic'] | ['winamax','betclic'] | [] (non affiché)
-// season    : si absent → saison européenne 2025. Sinon année civile (ex: 2026).
+// season    : si absent → saison européenne auto (juil+ = année courante). Sinon année civile explicite.
 const LEAGUES = [
   // ── Compétitions mondiales & internationales ─────────────────────────────
   { id: 1,   name: 'Coupe du Monde FIFA',      country: 'World',        platforms: ['winamax', 'betclic'] },
@@ -149,9 +149,9 @@ const ALLOWED_LEAGUE_IDS = new Set(
   LEAGUES.filter(l => l.platforms.length > 0).map(l => l.id)
 );
 
-// Set des IDs à saison civile (2026 au lieu de 2025)
+// Set des IDs à saison civile (season explicite dans LEAGUES)
 export const CALENDAR_YEAR_LEAGUE_IDS = new Set(
-  LEAGUES.filter(l => l.season === 2026).map(l => l.id)
+  LEAGUES.filter(l => l.season !== undefined).map(l => l.id)
 );
 
 const LIVE_STATUSES     = new Set(['1H', '2H', 'HT', 'ET', 'P', 'BT']);
