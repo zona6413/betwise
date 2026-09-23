@@ -7,7 +7,7 @@
  *  - Standings : uniquement pour les ligues qui ont des matchs dans la fenêtre
  *  - Filtre plateforme : seules les ligues présentes sur Winamax ou Betclic sont affichées
  */
-import axios from 'axios';
+import { createApiFootballClient } from './apiFootballClient.js';
 
 const BASE_URL = 'https://v3.football.api-sports.io';
 const API_KEY  = process.env.API_FOOTBALL_KEY;
@@ -17,7 +17,7 @@ const FIXTURE_WINDOW_DAYS = 3;
 
 // ── Ligues autorisées ────────────────────────────────────────────────────────
 // platforms : ['winamax'] | ['betclic'] | ['winamax','betclic'] | [] (non affiché)
-// season    : si absent → saison européenne auto (juil+ = année courante). Sinon année civile explicite.
+// calendar  : true → saison = année civile (Brésil, MLS, Scandinavie…). Absent → saison européenne (août → mai).
 const LEAGUES = [
   // ── Compétitions mondiales & internationales ─────────────────────────────
   { id: 1,   name: 'Coupe du Monde FIFA',      country: 'World',        platforms: ['winamax', 'betclic'] },
@@ -73,7 +73,7 @@ const LEAGUES = [
   // ── Pays-Bas ─────────────────────────────────────────────────────────────
   { id: 88,  name: 'Eredivisie',               country: 'Netherlands',  platforms: ['winamax', 'betclic'] },
   { id: 89,  name: 'Eerste Divisie',           country: 'Netherlands',  platforms: ['winamax'] },
-  { id: 680, name: 'KNVB Beker',               country: 'Netherlands',  platforms: ['winamax', 'betclic'] },
+  { id: 90,  name: 'KNVB Beker',               country: 'Netherlands',  platforms: ['winamax', 'betclic'] },
 
   // ── Portugal ─────────────────────────────────────────────────────────────
   { id: 94,  name: 'Primeira Liga',            country: 'Portugal',     platforms: ['winamax', 'betclic'] },
@@ -86,7 +86,7 @@ const LEAGUES = [
 
   // ── Écosse ───────────────────────────────────────────────────────────────
   { id: 179, name: 'Scottish Premiership',     country: 'Scotland',     platforms: ['winamax', 'betclic'] },
-  { id: 190, name: 'Scottish FA Cup',          country: 'Scotland',     platforms: ['winamax'] },
+  { id: 181, name: 'Scottish FA Cup',          country: 'Scotland',     platforms: ['winamax'] },
 
   // ── Turquie ───────────────────────────────────────────────────────────────
   { id: 203, name: 'Süper Lig',                country: 'Turkey',       platforms: ['winamax', 'betclic'] },
@@ -97,9 +97,9 @@ const LEAGUES = [
   { id: 207, name: 'Swiss Super League',       country: 'Switzerland',  platforms: ['winamax', 'betclic'] },
   { id: 218, name: 'Bundesliga Austria',       country: 'Austria',      platforms: ['winamax', 'betclic'] },
   { id: 119, name: 'Superliga',                country: 'Denmark',      platforms: ['winamax', 'betclic'] },
-  { id: 103, name: 'Eliteserien',              country: 'Norway',       platforms: ['winamax', 'betclic'] },
-  { id: 113, name: 'Allsvenskan',              country: 'Sweden',       platforms: ['winamax', 'betclic'] },
-  { id: 244, name: 'Veikkausliiga',            country: 'Finland',      platforms: ['betclic'], season: 2026 },
+  { id: 103, name: 'Eliteserien',              country: 'Norway',       platforms: ['winamax', 'betclic'], calendar: true },
+  { id: 113, name: 'Allsvenskan',              country: 'Sweden',       platforms: ['winamax', 'betclic'], calendar: true },
+  { id: 244, name: 'Veikkausliiga',            country: 'Finland',      platforms: ['betclic'], calendar: true },
   { id: 106, name: 'Ekstraklasa',              country: 'Poland',       platforms: ['winamax', 'betclic'] },
   { id: 210, name: 'HNL',                      country: 'Croatia',      platforms: ['betclic'] },
   { id: 345, name: 'Czech Liga',               country: 'Czech Rep.',   platforms: ['betclic'] },
@@ -107,7 +107,7 @@ const LEAGUES = [
   { id: 283, name: 'Liga I',                   country: 'Romania',      platforms: ['betclic'] },
   { id: 286, name: 'Super Liga',               country: 'Serbia',       platforms: ['betclic'] },
   { id: 383, name: "Ligat Ha'al",              country: 'Israel',       platforms: ['betclic'] },
-  { id: 329, name: 'Meistriliiga',             country: 'Estonia',      platforms: [],          season: 2026 }, // hors plateformes FR
+  { id: 329, name: 'Meistriliiga',             country: 'Estonia',      platforms: [],          calendar: true }, // hors plateformes FR
 
   // ── Afrique du Nord (Winamax & Betclic couverts) ─────────────────────────
   { id: 186, name: 'Ligue Pro 1',              country: 'Algeria',      platforms: ['winamax', 'betclic'] },
@@ -118,30 +118,30 @@ const LEAGUES = [
   { id: 233, name: 'Premier League',           country: 'Egypt',        platforms: ['betclic'] },
 
   // ── Asie & Moyen-Orient ──────────────────────────────────────────────────
-  { id: 98,  name: 'J1 League',                country: 'Japan',        platforms: ['winamax', 'betclic'], season: 2026 },
-  { id: 292, name: 'K League 1',               country: 'South Korea',  platforms: ['winamax', 'betclic'], season: 2026 },
+  { id: 98,  name: 'J1 League',                country: 'Japan',        platforms: ['winamax', 'betclic'], calendar: true },
+  { id: 292, name: 'K League 1',               country: 'South Korea',  platforms: ['winamax', 'betclic'], calendar: true },
   { id: 307, name: 'Saudi Pro League',         country: 'Saudi Arabia', platforms: ['winamax', 'betclic'] },
-  { id: 169, name: 'Super League',             country: 'China',        platforms: ['betclic'],             season: 2026 },
-  { id: 188, name: 'A-League',                 country: 'Australia',    platforms: ['betclic'],             season: 2026 },
+  { id: 169, name: 'Super League',             country: 'China',        platforms: ['betclic'],             calendar: true },
+  { id: 188, name: 'A-League',                 country: 'Australia',    platforms: ['betclic'] },
 
   // ── Amériques ────────────────────────────────────────────────────────────
   { id: 11,  name: 'Copa Libertadores',        country: 'South America', platforms: ['winamax', 'betclic'] },
   { id: 13,  name: 'Copa Sudamericana',        country: 'South America', platforms: ['winamax', 'betclic'] },
-  { id: 71,  name: 'Série A',                  country: 'Brazil',       platforms: ['winamax', 'betclic'], season: 2026 },
-  { id: 72,  name: 'Série B',                  country: 'Brazil',       platforms: ['winamax'],             season: 2026 },
-  { id: 73,  name: 'Copa do Brasil',           country: 'Brazil',       platforms: ['winamax', 'betclic'], season: 2026 },
-  { id: 128, name: 'Liga Profesional',         country: 'Argentina',    platforms: ['winamax', 'betclic'], season: 2026 },
-  { id: 253, name: 'MLS',                      country: 'USA',          platforms: ['winamax', 'betclic'], season: 2026 },
-  { id: 262, name: 'Liga MX',                  country: 'Mexico',       platforms: ['winamax', 'betclic'], season: 2026 },
-  { id: 239, name: 'Liga BetPlay',             country: 'Colombia',     platforms: ['winamax', 'betclic'], season: 2026 },
-  { id: 265, name: 'Primera División',         country: 'Chile',        platforms: ['winamax', 'betclic'], season: 2026 },
-  { id: 240, name: 'LigaPro',                  country: 'Ecuador',      platforms: ['winamax', 'betclic'], season: 2026 },
-  { id: 268, name: 'Liga 1',                   country: 'Peru',         platforms: ['betclic'],             season: 2026 },
-  { id: 273, name: 'Primera División',         country: 'Uruguay',      platforms: ['betclic'],             season: 2026 },
+  { id: 71,  name: 'Série A',                  country: 'Brazil',       platforms: ['winamax', 'betclic'], calendar: true },
+  { id: 72,  name: 'Série B',                  country: 'Brazil',       platforms: ['winamax'],             calendar: true },
+  { id: 73,  name: 'Copa do Brasil',           country: 'Brazil',       platforms: ['winamax', 'betclic'], calendar: true },
+  { id: 128, name: 'Liga Profesional',         country: 'Argentina',    platforms: ['winamax', 'betclic'], calendar: true },
+  { id: 253, name: 'MLS',                      country: 'USA',          platforms: ['winamax', 'betclic'], calendar: true },
+  { id: 262, name: 'Liga MX',                  country: 'Mexico',       platforms: ['winamax', 'betclic'] },
+  { id: 239, name: 'Liga BetPlay',             country: 'Colombia',     platforms: ['winamax', 'betclic'], calendar: true },
+  { id: 265, name: 'Primera División',         country: 'Chile',        platforms: ['winamax', 'betclic'], calendar: true },
+  { id: 242, name: 'LigaPro',                  country: 'Ecuador',      platforms: ['winamax', 'betclic'], calendar: true },
+  { id: 281, name: 'Liga 1',                   country: 'Peru',         platforms: ['betclic'],             calendar: true },
+  { id: 268, name: 'Primera División',         country: 'Uruguay',      platforms: ['betclic'],             calendar: true },
 ];
 
 // ── Lookup maps ──────────────────────────────────────────────────────────────
-// Map leagueId → entrée complète (name, platforms, season, country)
+// Map leagueId → entrée complète (name, platforms, calendar, country)
 export const LEAGUE_MAP = new Map(LEAGUES.map(l => [l.id, l]));
 
 // Set des IDs effectivement affichables (au moins une plateforme)
@@ -149,19 +149,18 @@ const ALLOWED_LEAGUE_IDS = new Set(
   LEAGUES.filter(l => l.platforms.length > 0).map(l => l.id)
 );
 
-// Set des IDs à saison civile (season explicite dans LEAGUES)
+// Set des IDs à saison civile
 export const CALENDAR_YEAR_LEAGUE_IDS = new Set(
-  LEAGUES.filter(l => l.season !== undefined).map(l => l.id)
+  LEAGUES.filter(l => l.calendar).map(l => l.id)
 );
+
+// Équipes de jeunes / réserves : peu ou pas de cotes FR, aucune stat fiable
+const YOUTH_RE = /\bU-?(1[5-9]|2[0-3])\b|\bUnder[- ]?(1[5-9]|2[0-3])\b|\bII$| B$|\bReserves?\b/i;
 
 const LIVE_STATUSES     = new Set(['1H', '2H', 'HT', 'ET', 'P', 'BT']);
 const FINISHED_STATUSES = new Set(['FT', 'AET', 'PEN', 'INT', 'PST', 'CANC', 'ABD', 'AWD', 'WO']);
 
-const client = axios.create({
-  baseURL: BASE_URL,
-  timeout: 12_000,
-  headers: { 'x-apisports-key': API_KEY },
-});
+const client = createApiFootballClient({ timeout: 12_000 });
 
 function getParisDateStr(offsetDays = 0) {
   const d = new Date();
@@ -232,6 +231,9 @@ export async function getTodayFixtures() {
       // ── Filtre 1 : ligue autorisée (Winamax ou Betclic) ────────────────
       if (!ALLOWED_LEAGUE_IDS.has(item.league.id)) continue;
 
+      // ── Filtre 1b : pas de sélections/équipes de jeunes (U17, U19, U21…) ──
+      if (YOUTH_RE.test(item.teams.home.name) || YOUTH_RE.test(item.teams.away.name)) continue;
+
       // ── Filtre 2 : exclure matchs définitivement terminés / annulés ────
       const status = item.fixture.status.short;
       if (FINISHED_STATUSES.has(status)) continue;
@@ -277,8 +279,9 @@ export async function getInjuries(fixtureId) {
       });
       return acc;
     }, []);
-  } catch {
-    return [];
+  } catch (err) {
+    console.warn('[footballApi] Injuries error:', err.message);
+    return undefined; // erreur ≠ "aucun blessé" : l'appelant ne met pas en cache
   }
 }
 
@@ -321,6 +324,6 @@ export async function getHeadToHead(homeId, awayId, last = 10) {
     };
   } catch (err) {
     console.warn('[footballApi] H2H error:', err.message);
-    return null;
+    return undefined; // erreur ≠ "aucune confrontation" : l'appelant ne met pas en cache
   }
 }

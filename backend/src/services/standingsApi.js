@@ -2,13 +2,13 @@
  * Classements via API-Football v3 (même clé que footballApi.js)
  * Construit un map teamId (API-Football) → { position, wins, draws, losses, form }
  */
-import axios from 'axios';
+import { createApiFootballClient } from './apiFootballClient.js';
 import NodeCache from 'node-cache';
 import { CALENDAR_YEAR_LEAGUE_IDS } from './footballApi.js';
 
 const BASE_URL = 'https://v3.football.api-sports.io';
 const API_KEY  = process.env.API_FOOTBALL_KEY;
-// Saison européenne automatique : août+ → année courante, sinon année-1
+// Saison européenne automatique : juillet+ → année courante, sinon année-1
 const _now = new Date();
 const SEASON = _now.getMonth() >= 6 ? _now.getFullYear() : _now.getFullYear() - 1;
 // Ligues à saison civile → importées depuis footballApi pour éviter la duplication
@@ -28,21 +28,18 @@ const formCache = new NodeCache({ stdTTL: 21600 }); // 6h — forme récente (é
 
 const BOOKMAKERS = ['Unibet', 'Betclic', 'Winamax', 'Bet365', 'PMU'];
 
-const client = axios.create({
-  baseURL: BASE_URL,
-  timeout: 10_000,
-  headers: { 'x-apisports-key': API_KEY },
-});
+const client = createApiFootballClient({ timeout: 10_000 });
 
 function parseForm(formStr) {
-  if (!formStr) return 'WDWLW';
+  if (!formStr) return null;
   // API-Football renvoie "WDWWL" (5 derniers, plus récent à droite)
-  return formStr.slice(-5).padEnd(5, 'D');
+  return formStr.slice(-5);
 }
 
 // Fetch standings uniquement pour les ligues actives passées en paramètre
 async function fetchStandingsFromApi(activeLeagueIds) {
   const map = {};
+  let failed = 0;
   await Promise.allSettled(
     [...activeLeagueIds].map(async (id) => {
       const season = CALENDAR_YEAR_LEAGUE_IDS.has(id) ? new Date().getFullYear() : SEASON;
@@ -86,10 +83,11 @@ async function fetchStandingsFromApi(activeLeagueIds) {
         }
       } catch (err) {
         console.warn(`[standings] Ligue ${id}:`, err.message);
+        failed++;
       }
     })
   );
-  return map;
+  return { map, failed };
 }
 
 // Fallback statique avec IDs API-Football pour équipes hors ligues domestiques
@@ -236,8 +234,9 @@ async function fetchTeamRecentForm(teamId) {
     formCache.set(key, formStr);
     return formStr;
   } catch (err) {
+    // Pas de mise en cache : un refus ponctuel (quota/minute, timeout) ne doit pas
+    // priver l'équipe de sa forme pendant 6h — on retentera au prochain calcul.
     console.warn(`[standings] form team ${teamId}:`, err.message);
-    formCache.set(key, null);
     return null;
   }
 }
@@ -271,10 +270,11 @@ export async function getTeamStatsMap(activeLeagueIds = new Set()) {
   if (cached) return cached;
 
   let map = {};
+  let failed = 0;
 
   if (API_KEY && activeLeagueIds.size > 0) {
     // On ne fetch que les ligues qui jouent — économie de quota critique
-    map = await fetchStandingsFromApi(activeLeagueIds);
+    ({ map, failed } = await fetchStandingsFromApi(activeLeagueIds));
     console.log(`[standings] ${Object.keys(map).length} équipes via API (${activeLeagueIds.size} ligues actives)`);
   } else if (!API_KEY) {
     console.warn('[standings] Pas de clé API — utilisation du fallback statique');
@@ -287,7 +287,8 @@ export async function getTeamStatsMap(activeLeagueIds = new Set()) {
     }
   }
 
-  cache.set(cacheKey, map);
+  // Si une ligue a échoué (quota, timeout), on ne fige pas le résultat 12h : retry dans 5 min
+  cache.set(cacheKey, map, failed ? 300 : undefined);
   console.log(`[standings] Total: ${Object.keys(map).length} équipes chargées`);
   return map;
 }

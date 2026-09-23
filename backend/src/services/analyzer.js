@@ -562,22 +562,25 @@ export function generateAnalysis(homeTeam, awayTeam, homeStats, awayStats, bets,
   if (aSL) lines.push(aSL);
 
   // ── Forme générale si pas de série notable ────────────────────────────────
+  const hasForms = !!(homeStats?.form && awayStats?.form);
   if (!hSL && !aSL) {
-    if (hForm > aForm + 0.18)
+    if (!hasForms) {
+      // Pas de forme récente fiable pour au moins une équipe : on n'invente rien
+    } else if (hForm > aForm + 0.18)
       lines.push(`${homeTeam} nettement plus en forme (${homeStats?.form ?? 'N/A'} vs ${awayStats?.form ?? 'N/A'}).`);
     else if (aForm > hForm + 0.18)
       lines.push(`${awayTeam} en meilleure forme récente (${awayStats?.form ?? 'N/A'} vs ${homeStats?.form ?? 'N/A'}).`);
     else
       lines.push(`Forme équilibrée : ${homeTeam} ${homeStats?.form ?? 'N/A'} / ${awayTeam} ${awayStats?.form ?? 'N/A'}.`);
-  } else if (hSL && !aSL) {
-    lines.push(`${awayTeam} : forme récente ${awayStats?.form ?? 'N/A'}.`);
-  } else if (aSL && !hSL) {
-    lines.push(`${homeTeam} : forme récente ${homeStats?.form ?? 'N/A'}.`);
+  } else if (hSL && !aSL && awayStats?.form) {
+    lines.push(`${awayTeam} : forme récente ${awayStats.form}.`);
+  } else if (aSL && !hSL && homeStats?.form) {
+    lines.push(`${homeTeam} : forme récente ${homeStats.form}.`);
   }
 
   // ── Analyse attaque / défense ─────────────────────────────────────────────
   const lbl = r => r >= 0.76 ? 'excellente' : r >= 0.62 ? 'solide' : r >= 0.48 ? 'correcte' : r >= 0.34 ? 'fragile' : 'très fragile';
-  lines.push(
+  if (!homeStats?._default && !awayStats?._default) lines.push(
     `${homeTeam} : attaque ${lbl(hStr.attack)}, défense ${lbl(hStr.defence)}` +
     ` | ${awayTeam} : attaque ${lbl(aStr.attack)}, défense ${lbl(aStr.defence)}.`
   );

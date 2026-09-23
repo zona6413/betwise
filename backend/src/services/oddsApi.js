@@ -7,7 +7,7 @@
  *  2. Si bookmaker prioritaire absent → on prend n'importe quel bookmaker dispo
  *  3. Pour les fixtures encore sans cotes → requête /odds?fixture=ID individuelle
  */
-import axios from 'axios';
+import { createApiFootballClient } from './apiFootballClient.js';
 
 const BASE_URL = 'https://v3.football.api-sports.io';
 const API_KEY  = process.env.API_FOOTBALL_KEY;
@@ -33,11 +33,7 @@ const BOOKMAKER_NAMES = {
   46:  'Fonbet',
 };
 
-const client = axios.create({
-  baseURL: BASE_URL,
-  timeout: 15_000,
-  headers: { 'x-apisports-key': API_KEY },
-});
+const client = createApiFootballClient({ timeout: 15_000 });
 
 function getParisDateStr(offsetDays = 0) {
   const d = new Date();

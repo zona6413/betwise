@@ -2,7 +2,7 @@
  * Données joueurs : buteurs récupérés en live via API-Football,
  * style/rôles en statique (changent rarement).
  */
-import axios from 'axios';
+import { createApiFootballClient } from './apiFootballClient.js';
 
 const BASE_URL = 'https://v3.football.api-sports.io';
 const API_KEY  = process.env.API_FOOTBALL_KEY;
@@ -10,7 +10,7 @@ const _now = new Date();
 const SEASON = _now.getMonth() >= 6 ? _now.getFullYear() : _now.getFullYear() - 1;
 
 const client = API_KEY
-  ? axios.create({ baseURL: BASE_URL, timeout: 10_000, headers: { 'x-apisports-key': API_KEY } })
+  ? createApiFootballClient({ timeout: 10_000 })
   : null;
 
 // Cache mémoire : teamId (API-Football) → { topScorer, scorer2, scorer3 }

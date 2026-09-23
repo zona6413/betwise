@@ -28,9 +28,11 @@ const h2hCache   = new NodeCache({ stdTTL: 86400 });  // H2H : 24h
 const injuryCache = new NodeCache({ stdTTL: 10800 }); // injuries : 3h
 
 // Stats par défaut pour les équipes absentes des standings (moyenne ligue européenne)
-// Inclut gpg/cgpg pour que estimateExpectedGoals() calcule toujours un xG Poisson réel
+// Inclut gpg/cgpg pour que estimateExpectedGoals() calcule toujours un xG Poisson réel.
+// form/position à null : on n'affiche jamais une forme ou un classement inventés.
 const DEFAULT_STATS = {
-  form: 'WDWWL', position: 12,
+  form: null, position: null,
+  _default: true,                   // aucune donnée réelle pour cette équipe
   wins: 10, draws: 8, losses: 10,
   gpg: 1.35,  cgpg: 1.35,           // buts marqués/encaissés par match
   homeGpg: 1.42, homeCgpg: 1.42,    // à domicile
@@ -101,7 +103,8 @@ function buildMatch(fixture, teamStats, realOddsMap, h2h = null, injuries = []) 
 
   // Utilise les vraies cotes si disponibles, sinon synthétiques
   const realOdds   = realOddsMap?.get(fixture.fixture.id);
-  const hasRealOdds = !!realOdds;
+  // bookmaker === null → cotes Poisson injectées plus bas dans GET / (pas de vrai bookmaker)
+  const hasRealOdds = !!realOdds && realOdds.bookmaker !== null;
   const { homeOdd, drawOdd, awayOdd, bookmaker } = realOdds
     ? realOdds
     : generateSyntheticOdds(homeStats, awayStats);
@@ -254,6 +257,7 @@ router.get('/', async (req, res) => {
         const hit = h2hCache.get(key);
         if (hit !== undefined) return hit;
         const data = await getHeadToHead(f.teams.home.id, f.teams.away.id);
+        if (data === undefined) return null; // erreur API : on retentera
         h2hCache.set(key, data);
         return data;
       })),
@@ -263,6 +267,7 @@ router.get('/', async (req, res) => {
         const hit = injuryCache.get(key);
         if (hit !== undefined) return hit;
         const data = await getInjuries(f.fixture.id);
+        if (data === undefined) return []; // erreur API : on retentera
         injuryCache.set(key, data);
         return data;
       })),
