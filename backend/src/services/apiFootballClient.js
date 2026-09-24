@@ -17,39 +17,58 @@ const MAX_CONCURRENT = 8;
 // alors que ~10 req/s espacées passent toutes. On espace donc chaque départ.
 const MIN_GAP_MS     = 120;
 
-const sentAt  = [];           // horodatages des requêtes de la dernière minute
-const waiting = [];
-let active    = 0;
-let gate      = Promise.resolve(); // sérialise les départs pour respecter MIN_GAP_MS
+const sentAt = [];                       // horodatages des requêtes de la dernière minute
+// Deux files : les données du match (fixtures, cotes, classements, forme, H2H)
+// passent avant l'enrichissement joueurs, pour ne pas ralentir le 1er affichage.
+const queues = { high: [], low: [] };
+let active   = 0;
+let pumping  = false;
+let wakeSlot = null;
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-async function waitForSlot() {
-  for (;;) {
-    const now = Date.now();
-    while (sentAt.length && now - sentAt[0] >= 60_000) sentAt.shift();
-    if (sentAt.length < MAX_PER_MINUTE) break;
-    await sleep(60_000 - (now - sentAt[0]) + 50);
-  }
-  const last = sentAt[sentAt.length - 1] ?? 0;
-  const wait = last + MIN_GAP_MS - Date.now();
-  if (wait > 0) await sleep(wait);
-  sentAt.push(Date.now());
-}
-
-async function acquire() {
-  if (active >= MAX_CONCURRENT) await new Promise(r => waiting.push(r));
-  else active++;
-
-  const turn = gate.then(waitForSlot);
-  gate = turn.catch(() => {});
-  await turn;
+function acquire(priority) {
+  return new Promise(resolve => {
+    queues[priority].push(resolve);
+    pump();
+  });
 }
 
 function release() {
-  const next = waiting.shift();
-  if (next) next();          // le slot passe directement au suivant
-  else active--;
+  active--;
+  if (wakeSlot) { const wake = wakeSlot; wakeSlot = null; wake(); }
+}
+
+// Distributeur unique : un départ à la fois, espacé de MIN_GAP_MS, dans la limite
+// par minute et du nombre de requêtes en vol ; la file "high" est toujours servie d'abord.
+async function pump() {
+  if (pumping) return;
+  pumping = true;
+  try {
+    while (queues.high.length || queues.low.length) {
+      if (active >= MAX_CONCURRENT) {
+        await new Promise(r => { wakeSlot = r; });
+        continue;
+      }
+      const now = Date.now();
+      while (sentAt.length && now - sentAt[0] >= 60_000) sentAt.shift();
+      if (sentAt.length >= MAX_PER_MINUTE) {
+        await sleep(60_000 - (now - sentAt[0]) + 50);
+        continue;
+      }
+      const wait = (sentAt[sentAt.length - 1] ?? 0) + MIN_GAP_MS - now;
+      if (wait > 0) {
+        await sleep(wait);
+        continue;
+      }
+      const next = queues.high.shift() ?? queues.low.shift();
+      active++;
+      sentAt.push(Date.now());
+      next();
+    }
+  } finally {
+    pumping = false;
+  }
 }
 
 function apiErrorMessage(errors) {
@@ -58,7 +77,7 @@ function apiErrorMessage(errors) {
   return values.length ? values.join(' ') : null;
 }
 
-export function createApiFootballClient({ timeout = 12_000 } = {}) {
+export function createApiFootballClient({ timeout = 12_000, priority = 'high' } = {}) {
   const client = axios.create({
     baseURL: BASE_URL,
     timeout,
@@ -66,7 +85,7 @@ export function createApiFootballClient({ timeout = 12_000 } = {}) {
   });
 
   client.interceptors.request.use(async (config) => {
-    await acquire();
+    await acquire(priority);
     return config;
   });
 

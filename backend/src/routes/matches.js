@@ -5,7 +5,7 @@ import { requireAuth } from '../middleware/auth.js';
 import { getTodayFixtures, getHeadToHead, getInjuries } from '../services/footballApi.js';
 import { getOddsMap }              from '../services/oddsApi.js';
 import { getTeamStatsMap, randomBookmaker, enrichWithRecentForm } from '../services/standingsApi.js';
-import { getMatchPlayers, applyInjuryFilter, preloadTopScorers } from '../services/playerStats.js';
+import { getMatchPlayers, applyInjuryFilter, preloadTeamPlayers } from '../services/playerStats.js';
 import {
   impliedProbabilities,
   computeAIProbability,
@@ -205,10 +205,13 @@ router.get('/', async (req, res) => {
     if (cached) return res.json({ data: cached, cached: true, count: cached.length });
 
     // ── 1. Fixtures en premier — détermine quelles ligues sont actives ──────
-    const [fixtures] = await Promise.all([
-      getTodayFixtures(),
-      preloadTopScorers(),
-    ]);
+    const fixtures = await getTodayFixtures();
+
+    // Effectifs + buteurs de la saison, chargés en parallèle du reste
+    const playersReady = preloadTeamPlayers(fixtures.flatMap(f => [
+      { id: f.teams.home.id, season: f.league.season },
+      { id: f.teams.away.id, season: f.league.season },
+    ]));
 
     // ── 2. Standings uniquement pour les ligues qui jouent aujourd'hui ──────
     const activeLeagueIds = new Set(fixtures.map(f => f.league.id));
@@ -299,8 +302,10 @@ router.get('/', async (req, res) => {
     const h2hFiltered    = filteredFixtures.map(f => h2hResults[fixtures.indexOf(f)]);
     const injuryFiltered = filteredFixtures.map(f => injuryResults[fixtures.indexOf(f)]);
 
+    const playersComplete = await playersReady;
     const matches = filteredFixtures.map((f, i) => buildMatch(f, teamStats, realOddsMap, h2hFiltered[i], injuryFiltered[i]));
-    cache.set('matches', matches);
+    // Joueurs encore en chargement : on recalcule dans 45s au lieu de 3 min
+    cache.set('matches', matches, playersComplete ? undefined : 45);
 
     return res.json({ data: matches, cached: false, count: matches.length });
   } catch (err) {

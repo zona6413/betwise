@@ -280,7 +280,8 @@ const POS_MULT = { BU: 1.00, AT: 0.82, AG: 0.72, AD: 0.72, MO: 0.58 };
 
 function computeScorerBet(player, teamXG) {
   if (!player?.name) return null;
-  const gpm     = player.goals / Math.max(player.matchesPlayed ?? 30, 1);
+  // Plancher de 5 matchs : en début de saison, 1 but en 1 match ne vaut pas 1 but/match
+  const gpm     = player.goals / Math.max(player.matchesPlayed ?? 30, 5);
   const posM    = POS_MULT[player.pos] ?? 0.65;
   // Probabilité "marquer à tout moment" : taux buts/match × ajustement xG × position
   // xG 1.35 = moyenne européenne → ratio ajuste la probabilité selon l'attaque du match

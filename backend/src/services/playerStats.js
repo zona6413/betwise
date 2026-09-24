@@ -1,80 +1,121 @@
 /**
- * Données joueurs : buteurs récupérés en live via API-Football,
- * style/rôles en statique (changent rarement).
+ * Données joueurs, vérifiées contre l'API-Football pour la saison en cours :
+ *  - effectif actuel (/players/squads) → aucun joueur parti n'est affiché
+ *  - buteurs de la saison (/players?team&season) → noms et buts réels
+ *  - rôles "joueur clé" / "danger" en statique (TEAM_META), gardés seulement
+ *    si le joueur figure toujours dans l'effectif actuel
  */
 import { createApiFootballClient } from './apiFootballClient.js';
 
-const BASE_URL = 'https://v3.football.api-sports.io';
-const API_KEY  = process.env.API_FOOTBALL_KEY;
-const _now = new Date();
-const SEASON = _now.getMonth() >= 6 ? _now.getFullYear() : _now.getFullYear() - 1;
+const API_KEY = process.env.API_FOOTBALL_KEY;
 
 const client = API_KEY
-  ? createApiFootballClient({ timeout: 10_000 })
+  ? createApiFootballClient({ timeout: 10_000, priority: 'low' })
   : null;
 
-// Cache mémoire : teamId (API-Football) → { topScorer, scorer2, scorer3 }
-// TTL 12h — rechargé au démarrage et à chaque nouvelle journée
-const scorersCache = new Map();   // teamId → scorers
-let   cacheLoadedAt = 0;
-const CACHE_TTL_MS  = 12 * 60 * 60 * 1000;
+// teamId → { at, squad: string[], scorers: { topScorer, scorer2, scorer3 } }
+// Données encore utilisées après expiration (en attendant le rafraîchissement).
+const teamCache    = new Map();
+const TEAM_TTL_MS  = 12 * 60 * 60 * 1000;
+const inflight     = new Map(); // teamId → Promise (évite les doubles chargements)
+// Au premier calcul (cache froid), on attend au plus ce délai : les équipes pas
+// encore chargées s'afficheront sans noms de joueurs, puis complètes au calcul suivant.
+const WAIT_BUDGET_MS = 10_000;
 
 function posCode(pos) {
   if (!pos) return 'BU';
   const p = pos.toLowerCase();
+  if (p.includes('goalkeeper'))                          return 'GK';
   if (p.includes('forward')  || p.includes('attacker')) return 'BU';
   if (p.includes('midfielder'))                          return 'MO';
   if (p.includes('defender'))                            return 'DF';
   return 'BU';
 }
 
-// Ligues principales dont on charge les buteurs
-const SCORER_LEAGUES = [1, 39, 61, 140, 135, 78, 2, 3, 848, 88, 94, 144, 179, 203, 197, 207, 218]; // 1 = Coupe du Monde
+// ── Correspondance de noms ("Kylian Mbappé" ↔ "K. Mbappé") ────────────────────
+function nameTokens(s) {
+  return s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
+    .replace(/[^a-z .'-]/g, '').split(/[ .'-]+/)
+    .filter(t => t && t !== 'jr' && t !== 'junior');
+}
 
-async function fetchLeagueScorers(leagueId) {
-  if (!client) return;
-  try {
-    const res = await client.get('/players/topscorers', {
-      params: { league: leagueId, season: SEASON },
-    });
-    for (const entry of (res.data?.response ?? [])) {
-      const stat   = entry.statistics?.[0];
-      if (!stat) continue;
-      const teamId = stat.team.id;
-      if (!scorersCache.has(teamId)) scorersCache.set(teamId, []);
-      scorersCache.get(teamId).push({
-        name:          entry.player.name,
-        goals:         stat.goals.total ?? 0,
-        pos:           posCode(stat.games.position),
-        matchesPlayed: stat.games.appearences ?? 1,
-      });
-    }
-  } catch (err) {
-    console.warn(`[playerStats] topscorers ligue ${leagueId}:`, err.message);
+function isInSquad(name, squad) {
+  if (!name || !squad?.length) return false;
+  const t   = nameTokens(name);
+  const sur = t[t.length - 1];
+  return squad.some(p => {
+    const pt = nameTokens(p);
+    if (t.length === 1) return pt.some(x => x.startsWith(t[0]));   // "Pedri", "Raphinha"
+    return pt.includes(sur) && (pt.length === 1 || pt[0][0] === t[0][0] || pt.includes(t[0]));
+  });
+}
+
+// ── Chargement API par équipe ─────────────────────────────────────────────────
+async function fetchSquad(teamId) {
+  const { data } = await client.get('/players/squads', { params: { team: teamId } });
+  return (data?.response?.[0]?.players ?? []).map(p => p.name).filter(Boolean);
+}
+
+async function fetchSeasonScorers(teamId, season) {
+  const players = [];
+  for (let page = 1, total = 1; page <= total && page <= 3; page++) {
+    const { data } = await client.get('/players', { params: { team: teamId, season, page } });
+    total = data?.paging?.total ?? 1;
+    players.push(...(data?.response ?? []));
   }
+  return players.map(p => {
+    const stats = (p.statistics ?? []).filter(s => s.team?.id === Number(teamId));
+    return {
+      name:          p.player?.name,
+      goals:         stats.reduce((n, s) => n + (s.goals?.total ?? 0), 0),
+      matchesPlayed: stats.reduce((n, s) => n + (s.games?.appearences ?? 0), 0),
+      pos:           posCode(stats[0]?.games?.position),
+    };
+  }).filter(p => p.name && p.goals > 0);
 }
 
-/** Charge les buteurs pour toutes les ligues principales (appelé une fois par démarrage). */
-export async function preloadTopScorers() {
-  if (!client) return;
-  if (Date.now() - cacheLoadedAt < CACHE_TTL_MS) return; // déjà chargé
-
-  scorersCache.clear();
-  await Promise.all(SCORER_LEAGUES.map(id => fetchLeagueScorers(id)));
-  cacheLoadedAt = Date.now();
-  console.log(`[playerStats] ${scorersCache.size} équipes chargées depuis API`);
+async function loadTeam(teamId, season) {
+  const [squad, scorers] = await Promise.all([
+    fetchSquad(teamId),
+    fetchSeasonScorers(teamId, season),
+  ]);
+  // Un buteur de la saison parti depuis (transfert) n'est plus une menace pour ce match
+  const current = squad.length ? scorers.filter(p => isInSquad(p.name, squad)) : scorers;
+  const ranked  = current.sort((a, b) => b.goals - a.goals || a.matchesPlayed - b.matchesPlayed);
+  teamCache.set(Number(teamId), {
+    at: Date.now(),
+    squad,
+    scorers: {
+      topScorer: ranked[0] ?? null,
+      scorer2:   ranked[1] ?? null,
+      scorer3:   ranked[2] ?? null,
+    },
+  });
 }
 
-/** Retourne top 3 buteurs depuis la cache API, triés par buts. */
-function getApiScorers(teamId) {
-  const list = scorersCache.get(Number(teamId));
-  if (!list?.length) return null;
-  const sorted = [...list].sort((a, b) => b.goals - a.goals);
-  return {
-    topScorer: sorted[0] ?? null,
-    scorer2:   sorted[1] ?? null,
-    scorer3:   sorted[2] ?? null,
-  };
+/**
+ * Charge (ou rafraîchit) effectif + buteurs des équipes qui jouent.
+ * @param {{ id: number, season: number }[]} teams
+ * @returns {Promise<boolean>} true si toutes les équipes sont prêtes
+ */
+export async function preloadTeamPlayers(teams) {
+  if (!client) return true;
+  const jobs = [];
+  for (const { id, season } of teams) {
+    const key    = Number(id);
+    const cached = teamCache.get(key);
+    if (!key || !season || (cached && Date.now() - cached.at < TEAM_TTL_MS)) continue;
+    if (!inflight.has(key)) {
+      inflight.set(key, loadTeam(key, season)
+        .catch(err => console.warn(`[playerStats] équipe ${key}:`, err.message))
+        .finally(() => inflight.delete(key)));
+    }
+    jobs.push(inflight.get(key));
+  }
+  if (!jobs.length) return true;
+  await Promise.race([Promise.all(jobs), new Promise(r => setTimeout(r, WAIT_BUDGET_MS))]);
+  console.log(`[playerStats] ${teamCache.size} équipes en cache (${inflight.size} encore en chargement)`);
+  return inflight.size === 0;
 }
 
 // ── Données statiques : style de jeu et rôles ────────────────────────────────
@@ -338,107 +379,22 @@ export function getMatchPlayers(homeId, awayId, homeName, awayName) {
 
 function buildTeamPlayers(apiId, name) {
   const resolvedId = apiId ?? resolveIdByName(name);
-  const scorers    = getApiScorers(resolvedId) ?? getStaticScorers(resolvedId);
+  const data       = teamCache.get(Number(resolvedId));
   const meta       = getTeamMeta(resolvedId);
-  if (!scorers && !meta) return null;
-  return { ...scorers, ...meta };
-}
 
-// Fallback statique pour les buteurs (si API pas encore chargée ou quota atteint)
-const STATIC_SCORERS = {
-  // ── Coupe du Monde 2026 — Buteurs des sélections (éliminatoires + LDN) ───────
-  2:    { topScorer: { name: 'Kylian Mbappé',        goals: 9,  pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Ousmane Dembélé',   goals: 6, pos: 'AD', matchesPlayed: 12 }, scorer3: { name: 'Bradley Barcola',   goals: 4, pos: 'AG', matchesPlayed: 11 } },
-  6:    { topScorer: { name: 'Vinicius Jr.',          goals: 10, pos: 'AG', matchesPlayed: 12 }, scorer2: { name: 'Raphinha',          goals: 7, pos: 'AD', matchesPlayed: 12 }, scorer3: { name: 'Endrick',            goals: 5, pos: 'BU', matchesPlayed: 10 } },
-  26:   { topScorer: { name: 'Lionel Messi',          goals: 8,  pos: 'AT', matchesPlayed: 11 }, scorer2: { name: 'Julián Álvarez',    goals: 7, pos: 'BU', matchesPlayed: 12 }, scorer3: { name: 'Lautaro Martínez',   goals: 6, pos: 'BU', matchesPlayed: 12 } },
-  9:    { topScorer: { name: 'Mikel Oyarzabal',       goals: 8,  pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Lamine Yamal',      goals: 6, pos: 'AD', matchesPlayed: 11 }, scorer3: { name: 'Pedri',              goals: 4, pos: 'MO', matchesPlayed: 12 } },
-  10:   { topScorer: { name: 'Harry Kane',            goals: 9,  pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Jude Bellingham',   goals: 5, pos: 'MO', matchesPlayed: 12 }, scorer3: { name: 'Bukayo Saka',        goals: 4, pos: 'AD', matchesPlayed: 11 } },
-  25:   { topScorer: { name: 'Florian Wirtz',         goals: 7,  pos: 'MO', matchesPlayed: 12 }, scorer2: { name: 'Kai Havertz',       goals: 5, pos: 'BU', matchesPlayed: 12 }, scorer3: { name: 'Nick Woltemade',     goals: 4, pos: 'BU', matchesPlayed: 10 } },
-  27:   { topScorer: { name: 'Cristiano Ronaldo',     goals: 9,  pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Bruno Fernandes',   goals: 5, pos: 'MO', matchesPlayed: 12 }, scorer3: { name: 'Pedro Neto',         goals: 4, pos: 'AD', matchesPlayed: 11 } },
-  16:   { topScorer: { name: 'Santiago Giménez',      goals: 8,  pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Raúl Jiménez',      goals: 5, pos: 'BU', matchesPlayed: 11 }, scorer3: { name: 'Edson Álvarez',      goals: 3, pos: 'MO', matchesPlayed: 12 } },
-  2384: { topScorer: { name: 'Christian Pulisic',     goals: 7,  pos: 'AT', matchesPlayed: 12 }, scorer2: { name: 'Ricardo Pepi',      goals: 6, pos: 'BU', matchesPlayed: 11 }, scorer3: { name: 'Folarin Balogun',    goals: 4, pos: 'BU', matchesPlayed: 10 } },
-  1:    { topScorer: { name: 'Romelu Lukaku',         goals: 9,  pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Kevin De Bruyne',   goals: 6, pos: 'MO', matchesPlayed: 10 }, scorer3: { name: 'Dodi Lukébakio',     goals: 4, pos: 'AD', matchesPlayed: 11 } },
-  1118: { topScorer: { name: 'Cody Gakpo',            goals: 8,  pos: 'AG', matchesPlayed: 12 }, scorer2: { name: 'Memphis Depay',     goals: 5, pos: 'BU', matchesPlayed: 10 }, scorer3: { name: 'Donyell Malen',      goals: 4, pos: 'AD', matchesPlayed: 11 } },
-  31:   { topScorer: { name: 'Ayoub El Kaabi',        goals: 7,  pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Brahim Díaz',       goals: 4, pos: 'AT', matchesPlayed: 11 }, scorer3: { name: 'Abde Ezzalzouli',    goals: 3, pos: 'AG', matchesPlayed: 10 } },
-  1569: { topScorer: { name: 'Almoez Ali',            goals: 6,  pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Akram Afif',        goals: 5, pos: 'AT', matchesPlayed: 12 }, scorer3: { name: 'Hassan Al-Haydos',   goals: 2, pos: 'MO', matchesPlayed: 11 } },
-  15:   { topScorer: { name: 'Breel Embolo',          goals: 6,  pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Dan Ndoye',         goals: 5, pos: 'AT', matchesPlayed: 12 }, scorer3: { name: 'Ruben Vargas',       goals: 3, pos: 'AG', matchesPlayed: 11 } },
-  3:    { topScorer: { name: 'Andrej Kramarić',       goals: 7,  pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Ivan Perišić',      goals: 4, pos: 'AG', matchesPlayed: 11 }, scorer3: { name: 'Ante Budimir',       goals: 3, pos: 'BU', matchesPlayed: 10 } },
-  7:    { topScorer: { name: 'Darwin Núñez',          goals: 8,  pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Federico Valverde', goals: 4, pos: 'MO', matchesPlayed: 12 }, scorer3: { name: 'Facundo Pellistri',  goals: 3, pos: 'AD', matchesPlayed: 10 } },
-  12:   { topScorer: { name: 'Takefusa Kubo',         goals: 6,  pos: 'AD', matchesPlayed: 12 }, scorer2: { name: 'Ayase Ueda',        goals: 5, pos: 'BU', matchesPlayed: 11 }, scorer3: { name: 'Ritsu Doan',         goals: 4, pos: 'AD', matchesPlayed: 12 } },
-  8:    { topScorer: { name: 'Luis Díaz',             goals: 8,  pos: 'AG', matchesPlayed: 12 }, scorer2: { name: 'Luis Suárez',       goals: 4, pos: 'BU', matchesPlayed: 10 }, scorer3: { name: 'Jhon Córdoba',       goals: 5, pos: 'BU', matchesPlayed: 11 } },
-  13:   { topScorer: { name: 'Nicolas Jackson',       goals: 6,  pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Sadio Mané',        goals: 5, pos: 'AG', matchesPlayed: 12 }, scorer3: { name: 'Pape Matar Sarr',    goals: 3, pos: 'MO', matchesPlayed: 10 } },
-  32:   { topScorer: { name: 'Mohamed Salah',         goals: 9,  pos: 'AD', matchesPlayed: 12 }, scorer2: { name: 'Ahmed Zizo',        goals: 5, pos: 'AD', matchesPlayed: 11 }, scorer3: { name: 'Omar Marmoush',      goals: 4, pos: 'AT', matchesPlayed: 10 } },
-  // ── Coupe du Monde 2026 — autres sélections (buteurs vérifiés via API) ──
-  5: { topScorer: { name: 'Viktor Gyökeres', goals: 8, pos: 'BU', matchesPlayed: 10 }, scorer2: { name: 'Alexander Isak', goals: 6, pos: 'BU', matchesPlayed: 9 }, scorer3: { name: 'Anthony Elanga', goals: 4, pos: 'AD', matchesPlayed: 10 } }, // Suède
-  11: { topScorer: { name: 'José Fajardo', goals: 5, pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Cecilio Waterman', goals: 4, pos: 'BU', matchesPlayed: 11 }, scorer3: { name: 'Adalberto Carrasquilla', goals: 3, pos: 'MO', matchesPlayed: 12 } }, // Panama
-  17: { topScorer: { name: 'Lee Kang-In', goals: 6, pos: 'MO', matchesPlayed: 12 }, scorer2: { name: 'Bae Jun-Ho', goals: 4, pos: 'AT', matchesPlayed: 11 }, scorer3: { name: 'Lee Jae-Sung', goals: 4, pos: 'MO', matchesPlayed: 12 } }, // Corée du Sud
-  20: { topScorer: { name: 'Kusini Yengi', goals: 5, pos: 'BU', matchesPlayed: 11 }, scorer2: { name: 'Mathew Leckie', goals: 4, pos: 'AD', matchesPlayed: 12 }, scorer3: { name: 'Cristian Volpato', goals: 3, pos: 'AT', matchesPlayed: 9 } }, // Australie
-  22: { topScorer: { name: 'Mehdi Ghaedi', goals: 6, pos: 'AT', matchesPlayed: 12 }, scorer2: { name: 'Ali Alipour', goals: 4, pos: 'BU', matchesPlayed: 10 }, scorer3: { name: 'Mohammad Mohebi', goals: 3, pos: 'AT', matchesPlayed: 11 } }, // Iran
-  23: { topScorer: { name: 'Firas Al-Buraikan', goals: 5, pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Abdullah Al-Hamdan', goals: 4, pos: 'BU', matchesPlayed: 11 }, scorer3: { name: 'Khalid Al-Ghannam', goals: 3, pos: 'AT', matchesPlayed: 10 } }, // Arabie Saoudite
-  28: { topScorer: { name: 'Firas Chaouat', goals: 5, pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Seifeddine Tounekti', goals: 4, pos: 'AT', matchesPlayed: 11 }, scorer3: { name: 'Elias Saad', goals: 3, pos: 'AG', matchesPlayed: 9 } }, // Tunisie
-  770: { topScorer: { name: 'Tomáš Chorý', goals: 6, pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Adam Hložek', goals: 5, pos: 'AT', matchesPlayed: 11 }, scorer3: { name: 'Mojmír Chytil', goals: 4, pos: 'BU', matchesPlayed: 10 } }, // Tchéquie
-  775: { topScorer: { name: 'Marko Arnautović', goals: 6, pos: 'BU', matchesPlayed: 11 }, scorer2: { name: 'Sasa Kalajdzic', goals: 4, pos: 'BU', matchesPlayed: 9 }, scorer3: { name: 'Christoph Baumgartner', goals: 4, pos: 'MO', matchesPlayed: 12 } }, // Autriche
-  777: { topScorer: { name: 'Kerem Aktürkoğlu', goals: 6, pos: 'AG', matchesPlayed: 12 }, scorer2: { name: 'Kenan Yıldız', goals: 5, pos: 'AT', matchesPlayed: 11 }, scorer3: { name: 'Yunus Akgün', goals: 3, pos: 'AD', matchesPlayed: 10 } }, // Turquie
-  1090: { topScorer: { name: 'Erling Haaland', goals: 12, pos: 'BU', matchesPlayed: 10 }, scorer2: { name: 'Alexander Sørloth', goals: 6, pos: 'BU', matchesPlayed: 10 }, scorer3: { name: 'Antonio Nusa', goals: 4, pos: 'AG', matchesPlayed: 11 } }, // Norvège
-  1108: { topScorer: { name: 'Che Adams', goals: 5, pos: 'BU', matchesPlayed: 11 }, scorer2: { name: 'Lawrence Shankland', goals: 4, pos: 'BU', matchesPlayed: 10 }, scorer3: { name: 'John McGinn', goals: 4, pos: 'MO', matchesPlayed: 12 } }, // Écosse
-  1113: { topScorer: { name: 'Edin Džeko', goals: 7, pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Ermedin Demirović', goals: 5, pos: 'BU', matchesPlayed: 11 }, scorer3: { name: 'Smail Bazdar', goals: 3, pos: 'AT', matchesPlayed: 9 } }, // Bosnie
-  1501: { topScorer: { name: 'Nicolas Pépé', goals: 6, pos: 'AD', matchesPlayed: 11 }, scorer2: { name: 'Simon Adingra', goals: 5, pos: 'AG', matchesPlayed: 12 }, scorer3: { name: 'Amad Diallo', goals: 4, pos: 'AD', matchesPlayed: 10 } }, // Côte d'Ivoire
-  1504: { topScorer: { name: 'Jordan Ayew', goals: 5, pos: 'AT', matchesPlayed: 12 }, scorer2: { name: 'Antoine Semenyo', goals: 5, pos: 'AD', matchesPlayed: 11 }, scorer3: { name: 'Iñaki Williams', goals: 4, pos: 'BU', matchesPlayed: 10 } }, // Ghana
-  1508: { topScorer: { name: 'Cédric Bakambu', goals: 6, pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Fiston Mayele', goals: 5, pos: 'BU', matchesPlayed: 11 }, scorer3: { name: 'Simon Banza', goals: 4, pos: 'BU', matchesPlayed: 10 } }, // RD Congo
-  1531: { topScorer: { name: 'Evidence Makgopa', goals: 5, pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Lyle Foster', goals: 4, pos: 'BU', matchesPlayed: 10 }, scorer3: { name: 'Oswin Appollis', goals: 3, pos: 'AG', matchesPlayed: 11 } }, // Afrique du Sud
-  1532: { topScorer: { name: 'Mohamed Amoura', goals: 7, pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Amine Gouiri', goals: 5, pos: 'BU', matchesPlayed: 11 }, scorer3: { name: 'Ibrahim Maza', goals: 3, pos: 'MO', matchesPlayed: 10 } }, // Algérie
-  1533: { topScorer: { name: 'Nuno da Costa', goals: 4, pos: 'BU', matchesPlayed: 11 }, scorer2: { name: 'Jovane Cabral', goals: 4, pos: 'AT', matchesPlayed: 10 }, scorer3: { name: 'Gilson Benchimol', goals: 3, pos: 'BU', matchesPlayed: 9 } }, // Cap-Vert
-  1548: { topScorer: { name: 'Ali Olwan', goals: 5, pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Mahmoud Al-Mardi', goals: 3, pos: 'AT', matchesPlayed: 11 }, scorer3: { name: 'Yazan Al-Naimat', goals: 3, pos: 'AT', matchesPlayed: 10 } }, // Jordanie
-  1567: { topScorer: { name: 'Aymen Hussein', goals: 6, pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Ali Al-Hamadi', goals: 4, pos: 'BU', matchesPlayed: 10 }, scorer3: { name: 'Youssef Amyn', goals: 3, pos: 'AT', matchesPlayed: 9 } }, // Irak
-  1568: { topScorer: { name: 'Eldor Shomurodov', goals: 6, pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Igor Sergeev', goals: 4, pos: 'BU', matchesPlayed: 11 }, scorer3: { name: 'Abbosbek Fayzullaev', goals: 4, pos: 'AT', matchesPlayed: 10 } }, // Ouzbékistan
-  2380: { topScorer: { name: 'Ramón Sosa', goals: 5, pos: 'AT', matchesPlayed: 12 }, scorer2: { name: 'Julio Enciso', goals: 4, pos: 'AT', matchesPlayed: 11 }, scorer3: { name: 'Ángel Romero', goals: 4, pos: 'AT', matchesPlayed: 10 } }, // Paraguay
-  2382: { topScorer: { name: 'Kevin Rodríguez', goals: 5, pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Kendry Páez', goals: 4, pos: 'AT', matchesPlayed: 11 }, scorer3: { name: 'John Yeboah', goals: 3, pos: 'AT', matchesPlayed: 10 } }, // Équateur
-  2386: { topScorer: { name: 'Duckens Nazon', goals: 4, pos: 'BU', matchesPlayed: 11 }, scorer2: { name: 'Wilfried Isidor', goals: 4, pos: 'BU', matchesPlayed: 10 }, scorer3: { name: 'Josué Casimir', goals: 3, pos: 'AT', matchesPlayed: 9 } }, // Haïti
-  4673: { topScorer: { name: 'Chris Wood', goals: 7, pos: 'BU', matchesPlayed: 11 }, scorer2: { name: 'Ben Waine', goals: 3, pos: 'BU', matchesPlayed: 10 }, scorer3: { name: 'Kosta Barbarouses', goals: 3, pos: 'AT', matchesPlayed: 9 } }, // Nouvelle-Zélande
-  5529: { topScorer: { name: 'Jonathan David', goals: 8, pos: 'BU', matchesPlayed: 12 }, scorer2: { name: 'Cyle Larin', goals: 5, pos: 'BU', matchesPlayed: 11 }, scorer3: { name: 'Jacob Shaffelburg', goals: 3, pos: 'AG', matchesPlayed: 10 } }, // Canada
-  5530: { topScorer: { name: 'Gervane Kastaneer', goals: 4, pos: 'AT', matchesPlayed: 11 }, scorer2: { name: 'Jurgen Locadia', goals: 4, pos: 'BU', matchesPlayed: 10 }, scorer3: { name: 'Brandley Kuwas', goals: 3, pos: 'AD', matchesPlayed: 9 } }, // Curaçao
-  // ── Clubs — Premier League
-  42:  { topScorer: { name: 'Bukayo Saka',         goals: 14, pos: 'AD', matchesPlayed: 30 }, scorer2: { name: 'Kai Havertz',      goals: 11, pos: 'BU', matchesPlayed: 32 }, scorer3: { name: 'Leandro Trossard',  goals:  8, pos: 'AG', matchesPlayed: 28 } },
-  50:  { topScorer: { name: 'Erling Haaland',      goals: 22, pos: 'BU', matchesPlayed: 29 }, scorer2: { name: 'Phil Foden',        goals: 11, pos: 'MO', matchesPlayed: 31 }, scorer3: { name: 'Bernardo Silva',     goals:  7, pos: 'MO', matchesPlayed: 33 } },
-  40:  { topScorer: { name: 'Mohamed Salah',        goals: 19, pos: 'AD', matchesPlayed: 32 }, scorer2: { name: 'Alexander Isak',   goals: 12, pos: 'BU', matchesPlayed: 26 }, scorer3: { name: 'Florian Wirtz',      goals:  9, pos: 'MO', matchesPlayed: 30 } },
-  33:  { topScorer: { name: 'Bruno Fernandes',      goals:  8, pos: 'MO', matchesPlayed: 33 }, scorer2: { name: 'Bryan Mbeumo',     goals: 9, pos: 'AD', matchesPlayed: 30 }, scorer3: { name: 'Matheus Cunha',      goals:  7, pos: 'AT', matchesPlayed: 20 } },
-  66:  { topScorer: { name: 'Ollie Watkins',        goals: 14, pos: 'BU', matchesPlayed: 31 }, scorer2: { name: 'Leon Bailey',      goals:  9, pos: 'AD', matchesPlayed: 28 }, scorer3: { name: 'John McGinn',        goals:  6, pos: 'MO', matchesPlayed: 32 } },
-  49:  { topScorer: { name: 'Cole Palmer',          goals: 18, pos: 'MO', matchesPlayed: 33 }, scorer2: { name: 'João Pedro',       goals: 11, pos: 'BU', matchesPlayed: 30 }, scorer3: { name: 'Pedro Neto',         goals:  8, pos: 'AD', matchesPlayed: 25 } },
-  51:  { topScorer: { name: 'Georginio Rutter',     goals: 10, pos: 'AT', matchesPlayed: 30 }, scorer2: { name: 'Kaoru Mitoma',     goals:  8, pos: 'AG', matchesPlayed: 29 }, scorer3: { name: 'Yankuba Minteh',     goals:  6, pos: 'AD', matchesPlayed: 24 } },
-  47:  { topScorer: { name: 'Dominic Solanke',      goals: 12, pos: 'BU', matchesPlayed: 31 }, scorer2: { name: 'Mohammed Kudus',  goals: 10, pos: 'AT', matchesPlayed: 30 }, scorer3: { name: 'James Maddison',     goals:  6, pos: 'MO', matchesPlayed: 28 } },
-  35:  { topScorer: { name: 'Evanilson',            goals: 12, pos: 'BU', matchesPlayed: 30 }, scorer2: { name: 'Justin Kluivert', goals:  9, pos: 'AG', matchesPlayed: 26 }, scorer3: { name: 'David Brooks',       goals:  6, pos: 'MO', matchesPlayed: 28 } },
-  52:  { topScorer: { name: 'Jean-Phil. Mateta',    goals: 11, pos: 'BU', matchesPlayed: 30 }, scorer2: { name: 'Daichi Kamada',   goals:  7, pos: 'MO', matchesPlayed: 29 }, scorer3: { name: 'Ismaïla Sarr',       goals:  7, pos: 'AD', matchesPlayed: 27 } },
-  36:  { topScorer: { name: 'Raúl Jiménez',         goals: 10, pos: 'BU', matchesPlayed: 29 }, scorer2: { name: 'Rodrigo Muniz',   goals:  8, pos: 'BU', matchesPlayed: 26 }, scorer3: { name: 'Alex Iwobi',         goals:  5, pos: 'MO', matchesPlayed: 32 } },
-  34:  { topScorer: { name: 'Nick Woltemade',       goals: 12, pos: 'BU', matchesPlayed: 28 }, scorer2: { name: 'Anthony Gordon',  goals:  9, pos: 'AG', matchesPlayed: 31 }, scorer3: { name: 'Harvey Barnes',      goals:  7, pos: 'AG', matchesPlayed: 27 } },
-  48:  { topScorer: { name: 'Jarrod Bowen',         goals: 10, pos: 'AD', matchesPlayed: 30 }, scorer2: { name: 'Mohammed Kudus',  goals:  9, pos: 'AT', matchesPlayed: 28 }, scorer3: { name: 'Lucas Paquetá',      goals:  6, pos: 'MO', matchesPlayed: 29 } },
-  85:  { topScorer: { name: 'Gonçalo Ramos',        goals: 14, pos: 'BU', matchesPlayed: 28 }, scorer2: { name: 'Bradley Barcola', goals: 11, pos: 'AG', matchesPlayed: 31 }, scorer3: { name: 'Ousmane Dembélé',    goals:  9, pos: 'AD', matchesPlayed: 29 } },
-  81:  { topScorer: { name: 'Mason Greenwood',      goals: 13, pos: 'AD', matchesPlayed: 30 }, scorer2: { name: 'Amine Gouiri',    goals:  8, pos: 'BU', matchesPlayed: 28 }, scorer3: { name: 'Igor Paixão',        goals:  6, pos: 'AG', matchesPlayed: 29 } },
-  79:  { topScorer: { name: 'Olivier Giroud',       goals: 12, pos: 'BU', matchesPlayed: 32 }, scorer2: { name: 'Hákon Haraldsson', goals:  8, pos: 'AD', matchesPlayed: 30 }, scorer3: { name: 'Nabil Bentaleb',     goals:  5, pos: 'MO', matchesPlayed: 31 } },
-  80:  { topScorer: { name: 'Endrick',              goals:  8, pos: 'BU', matchesPlayed: 30 }, scorer2: { name: 'Corentin Tolisso', goals:  7, pos: 'MO', matchesPlayed: 28 }, scorer3: { name: 'Ernest Nuamah',      goals:  7, pos: 'AD', matchesPlayed: 26 } },
-  116: { topScorer: { name: 'Florian Sotoca',       goals:  8, pos: 'AG', matchesPlayed: 29 }, scorer2: { name: 'Adrien Thomasson', goals: 6, pos: 'MO', matchesPlayed: 31 }, scorer3: { name: 'Odsonne Édouard', goals: 7, pos: 'BU', matchesPlayed: 30 } },
-  94:  { topScorer: { name: 'Breel Embolo',         goals: 10, pos: 'BU', matchesPlayed: 28 }, scorer2: { name: 'Esteban Lepaul',  goals:  8, pos: 'BU', matchesPlayed: 27 }, scorer3: { name: 'Ludovic Blas',       goals:  6, pos: 'AT', matchesPlayed: 29 } },
-  111: { topScorer: { name: 'Sofiane Boufal',       goals:  7, pos: 'AG', matchesPlayed: 28 }, scorer2: { name: 'Mounaïm Mambimbi', goals:  6, pos: 'BU', matchesPlayed: 27 }, scorer3: { name: 'Ibrahima Soumaré',   goals:  4, pos: 'MO', matchesPlayed: 25 } },
-  84:  { topScorer: { name: 'Evann Wahi',           goals:  9, pos: 'BU', matchesPlayed: 29 }, scorer2: { name: 'Morgan Sanson',   goals:  6, pos: 'MO', matchesPlayed: 28 }, scorer3: { name: 'Kevin Carlos',       goals:  5, pos: 'BU', matchesPlayed: 24 } },
-  541: { topScorer: { name: 'Kylian Mbappé',        goals: 21, pos: 'BU', matchesPlayed: 31 }, scorer2: { name: 'Vinicius Jr.',    goals: 16, pos: 'AG', matchesPlayed: 30 }, scorer3: { name: 'Jude Bellingham',    goals: 12, pos: 'MO', matchesPlayed: 29 } },
-  529: { topScorer: { name: 'Robert Lewandowski',   goals: 18, pos: 'BU', matchesPlayed: 30 }, scorer2: { name: 'Lamine Yamal',    goals: 12, pos: 'AD', matchesPlayed: 31 }, scorer3: { name: 'Raphinha',            goals: 10, pos: 'AD', matchesPlayed: 29 } },
-  530: { topScorer: { name: 'Antoine Griezmann',    goals: 12, pos: 'AT', matchesPlayed: 30 }, scorer2: { name: 'Julián Álvarez',  goals: 11, pos: 'BU', matchesPlayed: 29 }, scorer3: { name: 'Alexander Sørloth',  goals:  6, pos: 'BU', matchesPlayed: 28 } },
-  536: { topScorer: { name: 'Alexis Sánchez',       goals:  8, pos: 'BU', matchesPlayed: 29 }, scorer2: { name: 'Akor Adams',     goals:  6, pos: 'BU', matchesPlayed: 28 }, scorer3: { name: 'Chidera Ejuke',      goals:  5, pos: 'AD', matchesPlayed: 25 } },
-  543: { topScorer: { name: 'Cédric Bakambu',       goals:  9, pos: 'BU', matchesPlayed: 28 }, scorer2: { name: 'Antony',         goals:  7, pos: 'AT', matchesPlayed: 29 }, scorer3: { name: 'Lo Celso',            goals:  5, pos: 'MO', matchesPlayed: 28 } },
-  548: { topScorer: { name: 'Mikel Oyarzabal',       goals: 11, pos: 'AT', matchesPlayed: 29 }, scorer2: { name: 'Brais Méndez',   goals:  8, pos: 'MO', matchesPlayed: 30 }, scorer3: { name: 'Take Kubo',           goals:  6, pos: 'AD', matchesPlayed: 31 } },
-  531: { topScorer: { name: 'Iñaki Williams',        goals: 13, pos: 'BU', matchesPlayed: 31 }, scorer2: { name: 'Nico Williams',  goals: 10, pos: 'AG', matchesPlayed: 30 }, scorer3: { name: 'Oihan Sancet',        goals:  7, pos: 'MO', matchesPlayed: 29 } },
-  157: { topScorer: { name: 'Harry Kane',            goals: 22, pos: 'BU', matchesPlayed: 31 }, scorer2: { name: 'Jamal Musiala',  goals: 13, pos: 'MO', matchesPlayed: 30 }, scorer3: { name: 'Michael Olise',       goals: 10, pos: 'AD', matchesPlayed: 28 } },
-  165: { topScorer: { name: 'Serhou Guirassy',       goals: 14, pos: 'BU', matchesPlayed: 28 }, scorer2: { name: 'Karim Adeyemi', goals: 9, pos: 'AT', matchesPlayed: 30 }, scorer3: { name: 'Julian Brandt',       goals:  8, pos: 'MO', matchesPlayed: 32 } },
-  168: { topScorer: { name: 'Patrik Schick',         goals: 14, pos: 'BU', matchesPlayed: 30 }, scorer2: { name: 'Ernest Poku',    goals:  8, pos: 'AT', matchesPlayed: 27 }, scorer3: { name: 'Malik Tillman',       goals:  7, pos: 'MO', matchesPlayed: 28 } },
-  173: { topScorer: { name: 'Christoph Baumgartner', goals: 10, pos: 'AT', matchesPlayed: 29 }, scorer2: { name: 'Antonio Nusa',  goals:  8, pos: 'AG', matchesPlayed: 27 }, scorer3: { name: 'Yan Diomande',        goals:  6, pos: 'AT', matchesPlayed: 26 } },
-  505: { topScorer: { name: 'Lautaro Martínez',      goals: 18, pos: 'BU', matchesPlayed: 32 }, scorer2: { name: 'Marcus Thuram', goals: 13, pos: 'AT', matchesPlayed: 31 }, scorer3: { name: 'Hakan Çalhanoğlu',    goals:  7, pos: 'MO', matchesPlayed: 29 } },
-  496: { topScorer: { name: 'Dušan Vlahović',        goals: 14, pos: 'BU', matchesPlayed: 29 }, scorer2: { name: 'Kenan Yıldız',  goals:  9, pos: 'AT', matchesPlayed: 30 }, scorer3: { name: 'Teun Koopmeiners',    goals:  7, pos: 'MO', matchesPlayed: 28 } },
-  489: { topScorer: { name: 'Rafael Leão',           goals: 12, pos: 'AG', matchesPlayed: 30 }, scorer2: { name: 'Christian Pulisic', goals: 10, pos: 'MO', matchesPlayed: 31 }, scorer3: { name: 'Santiago Giménez', goals:  9, pos: 'BU', matchesPlayed: 25 } },
-  492: { topScorer: { name: 'Romelu Lukaku',         goals: 12, pos: 'BU', matchesPlayed: 29 }, scorer2: { name: 'Scott McTominay',goals: 8, pos: 'MO', matchesPlayed: 30 }, scorer3: { name: 'Matteo Politano',     goals:  7, pos: 'AD', matchesPlayed: 26 } },
-  487: { topScorer: { name: 'Mattia Zaccagni',       goals: 11, pos: 'AG', matchesPlayed: 29 }, scorer2: { name: 'Pedro',          goals:  7, pos: 'AT', matchesPlayed: 27 }, scorer3: { name: 'Boulaye Dia',        goals: 6, pos: 'BU', matchesPlayed: 25 } },
-  497: { topScorer: { name: 'Paulo Dybala',          goals: 11, pos: 'AT', matchesPlayed: 27 }, scorer2: { name: 'Artem Dovbyk',   goals:  9, pos: 'BU', matchesPlayed: 28 }, scorer3: { name: 'Lorenzo Pellegrini', goals:  6, pos: 'MO', matchesPlayed: 30 } },
-  502: { topScorer: { name: 'Moise Kean',            goals: 14, pos: 'BU', matchesPlayed: 30 }, scorer2: { name: 'Albert Gudmundsson', goals: 10, pos: 'AT', matchesPlayed: 27 }, scorer3: { name: 'Roberto Piccoli',  goals:  6, pos: 'BU', matchesPlayed: 26 } },
-  499: { topScorer: { name: 'Giacomo Raspadori',     goals: 10, pos: 'AT', matchesPlayed: 26 }, scorer2: { name: 'Gianluca Scamacca', goals: 11, pos: 'BU', matchesPlayed: 26 }, scorer3: { name: 'Charles De Ketelaere', goals: 9, pos: 'MO', matchesPlayed: 31 } },
-};
+  // Effectif pas encore chargé : on n'affiche aucun nom plutôt qu'un nom non vérifié
+  if (!data) return meta?.style ? { style: meta.style } : null;
 
-function getStaticScorers(apiId) {
-  return STATIC_SCORERS[Number(apiId)] ?? null;
+  const { squad, scorers } = data;
+  const keyPlayer = meta?.keyPlayer && isInSquad(meta.keyPlayer.name, squad) ? meta.keyPlayer : null;
+  let   dangerMan = meta?.dangerMan && isInSquad(meta.dangerMan.name, squad) ? meta.dangerMan : null;
+  // Danger statique parti ou absent → meilleur buteur réel de la saison
+  if (!dangerMan && scorers.topScorer) {
+    const s = scorers.topScorer;
+    dangerMan = { name: s.name, note: `Meilleur buteur de la saison (${s.goals} but${s.goals > 1 ? 's' : ''})` };
+  }
+
+  const result = { ...scorers, keyPlayer, dangerMan, style: meta?.style ?? null };
+  const hasAny = result.topScorer || keyPlayer || dangerMan || result.style;
+  return hasAny ? result : null;
 }
